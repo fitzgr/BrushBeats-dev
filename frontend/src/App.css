@@ -3070,6 +3070,11 @@
   margin-bottom: 0.75rem;
 }
 
+.water-flossing-settings-grid {
+  display: grid;
+  gap: 0.55rem;
+}
+
 .water-flossing-title {
   color: #145166;
   font-size: 0.95rem;
@@ -3105,8 +3110,19 @@
 
 .water-flossing-controls {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.5rem;
+}
+
+.water-flossing-controls .action-btn {
+  min-height: 40px;
+  padding-inline: 0.55rem;
+}
+
+@media (min-width: 760px) {
+  .water-flossing-settings-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 .brush-hand-actions {

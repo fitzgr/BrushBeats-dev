@@ -1,5 +1,17 @@
 [
   {
+    "id": "commit-6b3609df6e38ec7999dc81c01cfe29852ddaa768",
+    "kind": "commit",
+    "source": "git-history",
+    "sha": "6b3609df6e38ec7999dc81c01cfe29852ddaa768",
+    "shortSha": "6b3609d",
+    "timestamp": "2026-04-30T19:50:37-04:00",
+    "date": "2026-04-30",
+    "author": "Grant Fitz",
+    "subject": "feat: add water-flossing voice guidance module with TTS",
+    "body": ""
+  },
+  {
     "id": "commit-b487ccf3e15dc4bef433fe1e410016dc946eaecb",
     "kind": "commit",
     "source": "git-history",
