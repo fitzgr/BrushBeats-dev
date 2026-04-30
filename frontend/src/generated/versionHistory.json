@@ -1,5 +1,17 @@
 [
   {
+    "id": "commit-b487ccf3e15dc4bef433fe1e410016dc946eaecb",
+    "kind": "commit",
+    "source": "git-history",
+    "sha": "b487ccf3e15dc4bef433fe1e410016dc946eaecb",
+    "shortSha": "b487ccf",
+    "timestamp": "2026-04-25T06:32:50-04:00",
+    "date": "2026-04-25",
+    "author": "Grant Fitz",
+    "subject": "fix: increase mobile video frame min-height to 240px for proper YouTube playback",
+    "body": ""
+  },
+  {
     "id": "commit-b65645bc503c32065abf5f31fa4a729b39f7a178",
     "kind": "commit",
     "source": "git-history",

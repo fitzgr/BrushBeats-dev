@@ -4,6 +4,7 @@ import BPMCalculator from "./components/BPMCalculator";
 import SongList from "./components/SongList";
 import Player from "./components/Player";
 import BrushingGuide from "./components/BrushingGuide";
+import WaterFlossingGuide from "./components/WaterFlossingGuide";
 import AgeThemePanel from "./components/AgeThemePanel";
 import HouseholdSetupPanel from "./components/HouseholdSetupPanel";
 import HouseholdOverviewPanel from "./components/HouseholdOverviewPanel";
@@ -2945,6 +2946,10 @@ function App() {
               </select>
               <span className="brush-duration-hint">{t("brushing.durationHint")}</span>
             </label>
+            <WaterFlossingGuide
+              toothCount={Number(values.top || 0) + Number(values.bottom || 0)}
+              isMobile={device.isMobile}
+            />
             {!device.isMobile && (
               <>
                 {brushingPhase === "complete" && (
