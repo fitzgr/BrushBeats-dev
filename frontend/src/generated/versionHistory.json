@@ -1,5 +1,17 @@
 [
   {
+    "id": "commit-208b3e5576aacd156552ad260a977f3b4fe29356",
+    "kind": "commit",
+    "source": "git-history",
+    "sha": "208b3e5576aacd156552ad260a977f3b4fe29356",
+    "shortSha": "208b3e5",
+    "timestamp": "2026-04-30T20:14:04-04:00",
+    "date": "2026-04-30",
+    "author": "Grant Fitz",
+    "subject": "feat: link water-flossing mix slider to TTS and player volume",
+    "body": ""
+  },
+  {
     "id": "commit-880f8278f763a345f2c6c8bbcd73078339c9542f",
     "kind": "commit",
     "source": "git-history",

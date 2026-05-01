@@ -309,16 +309,8 @@ function normalizeSettings(input = {}) {
 export function getWaterFlossingMixVolumes(settings = {}) {
   const normalized = normalizeSettings(settings);
   const balance = Math.max(0, Math.min(100, Number(normalized.ttsMusicBalance || 0)));
-  const duckingFloorByMode = {
-    none: 70,
-    light: 45,
-    strong: 25
-  };
-
-  const musicFloor = duckingFloorByMode[normalized.musicDucking] ?? duckingFloorByMode.light;
-  const musicRange = 100 - musicFloor;
-  const musicVolume = Math.round(musicFloor + ((100 - balance) / 100) * musicRange);
-  const ttsVolume = Number((0.35 + (balance / 100) * 0.65).toFixed(2));
+  const musicVolume = Math.round(100 - balance);
+  const ttsVolume = Number((balance / 100).toFixed(2));
 
   return {
     musicVolume: Math.max(0, Math.min(100, musicVolume)),
