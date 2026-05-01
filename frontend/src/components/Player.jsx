@@ -30,6 +30,7 @@ function Player({
   playerData,
   loading,
   brushingPhase,
+  preferredVolumePercent = 100,
   isMobile,
   compactMobileFrame = false,
   showRestoredSessionBadge = false,
@@ -44,6 +45,7 @@ function Player({
   const hostRef = useRef(null);
   const playerRef = useRef(null);
   const tickTimerRef = useRef(null);
+  const preferredVolumeRef = useRef(Math.max(0, Math.min(100, Math.round(Number(preferredVolumePercent) || 100))));
   const onPlaybackTickRef = useRef(onPlaybackTick);
   const onPlaybackDurationChangeRef = useRef(onPlaybackDurationChange);
   const onSongEndedRef = useRef(onSongEnded);
@@ -135,6 +137,7 @@ function Player({
       },
       events: {
         onReady: () => {
+          playerRef.current?.setVolume?.(preferredVolumeRef.current);
           onPlaybackDurationChangeRef.current?.(playerRef.current?.getDuration?.() ?? 0);
           onPlaybackTickRef.current?.(playerRef.current?.getCurrentTime?.() ?? 0);
         },
@@ -168,6 +171,12 @@ function Player({
       }
     };
   }, [apiReady, videoId]);
+
+  useEffect(() => {
+    const nextVolume = Math.max(0, Math.min(100, Math.round(Number(preferredVolumePercent) || 100)));
+    preferredVolumeRef.current = nextVolume;
+    playerRef.current?.setVolume?.(nextVolume);
+  }, [preferredVolumePercent]);
 
   useEffect(() => {
     if (!autoplayToken || !playerRef.current) {

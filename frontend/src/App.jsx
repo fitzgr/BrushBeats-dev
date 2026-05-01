@@ -459,6 +459,7 @@ function App() {
   const [brushControlCue, setBrushControlCue] = useState(null);
   const [queuedSongPreview, setQueuedSongPreview] = useState(null);
   const [playerCommand, setPlayerCommand] = useState({ type: "idle", nonce: 0 });
+  const [waterFlossingMusicVolume, setWaterFlossingMusicVolume] = useState(100);
   const [autoRestoredBrushView, setAutoRestoredBrushView] = useState(false);
   const [geoCountry, setGeoCountry] = useState(null);
   const [completionMessage, setCompletionMessage] = useState("");
@@ -2949,6 +2950,7 @@ function App() {
             <WaterFlossingGuide
               toothCount={Number(values.top || 0) + Number(values.bottom || 0)}
               isMobile={device.isMobile}
+              onAudioMixChange={(mix) => setWaterFlossingMusicVolume(mix?.musicVolume ?? 100)}
             />
             {!device.isMobile && (
               <>
@@ -2975,6 +2977,7 @@ function App() {
             playerData={playerData}
             loading={loading.player}
             brushingPhase={brushingPhase}
+            preferredVolumePercent={waterFlossingMusicVolume}
             isMobile={device.isMobile}
             compactMobileFrame={device.isMobile && workflowStep === "brush"}
             showRestoredSessionBadge={device.isMobile && autoRestoredBrushView}

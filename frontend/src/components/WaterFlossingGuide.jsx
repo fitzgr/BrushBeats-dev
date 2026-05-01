@@ -9,6 +9,7 @@ import {
   VOICE_STYLE_PRESETS,
   WATER_PRESSURE_OPTIONS,
   getWaterFlossingAgeProfile,
+  getWaterFlossingMixVolumes,
   getWaterFlossingVoiceOptions,
   loadWaterFlossingSettings,
   saveWaterFlossingSettings,
@@ -37,7 +38,7 @@ function prettyLabel(value) {
     .join(" ");
 }
 
-function WaterFlossingGuide({ toothCount, isMobile = false }) {
+function WaterFlossingGuide({ toothCount, isMobile = false, onAudioMixChange }) {
   const profile = useMemo(() => getWaterFlossingAgeProfile(toothCount), [toothCount]);
   const [settings, setSettings] = useState(() => loadWaterFlossingSettings());
   const [running, setRunning] = useState(false);
@@ -48,6 +49,11 @@ function WaterFlossingGuide({ toothCount, isMobile = false }) {
   const startedAtRef = useRef(0);
   const tickerRef = useRef(null);
   const sessionRef = useRef(null);
+  const mixVolumes = useMemo(() => getWaterFlossingMixVolumes(settings), [settings]);
+
+  useEffect(() => {
+    onAudioMixChange?.(mixVolumes);
+  }, [mixVolumes, onAudioMixChange]);
 
   useEffect(() => {
     function refreshVoices() {
@@ -277,10 +283,9 @@ function WaterFlossingGuide({ toothCount, isMobile = false }) {
             step="1"
             value={settings.ttsMusicBalance}
             onChange={(event) => updateSettings({ ttsMusicBalance: Number(event.target.value) })}
-            disabled={running}
           />
           <span className="water-flossing-balance-caption">
-            {`Music louder ${100 - Number(settings.ttsMusicBalance || 0)}% / Voice louder ${Number(settings.ttsMusicBalance || 0)}%`}
+            {`Music volume ${mixVolumes.musicVolume}% / Voice volume ${Math.round(mixVolumes.ttsVolume * 100)}%`}
           </span>
         </label>
       </div>
