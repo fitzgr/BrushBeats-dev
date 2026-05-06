@@ -111,6 +111,47 @@ BrushBeats includes a visible GetSongBPM attribution/footer link in the app. Use
 3. Wait for the Deploy Frontend to GitHub Pages workflow to complete.
 4. Open https://fitzgr.github.io/BrushBeats/ and verify footer attribution is visible.
 
+## Development and Production Environments (GitHub)
+
+This repo supports a two-branch flow:
+
+- `develop`: development/staging branch
+- `main`: production branch
+
+### Branch Flow
+
+1. Create feature branches from `develop`.
+2. Open PRs into `develop` for integration testing.
+3. Promote to production by opening a PR from `develop` into `main`.
+
+### GitHub Actions
+
+- CI workflow: `.github/workflows/ci.yml`
+  - Runs backend tests and frontend build on pushes/PRs to `develop` and `main`.
+- Development build workflow: `.github/workflows/build-frontend-dev.yml`
+  - Runs on pushes to `develop`.
+  - Uses the GitHub `development` environment and uploads a frontend build artifact.
+- Production deploy workflow: `.github/workflows/deploy-frontend.yml`
+  - Runs on pushes to `main`.
+  - Uses the GitHub `production` environment and deploys to GitHub Pages.
+
+### GitHub Secrets / Environments
+
+Add this repository secret in GitHub repo settings:
+
+- `VITE_API_BASE` (example: https://your-backend-domain.example)
+
+Development and CI workflows default to `http://localhost:4000` for frontend builds.
+
+### Local Environment Templates
+
+Use these templates as a starting point:
+
+- `.env.development.example`
+- `.env.production.example`
+
+For local development, copy `.env.example` to `.env` and adjust values.
+
 ## Production Backend Note
 
 GitHub Pages can host the React frontend but not the Express backend. For production API routes, deploy backend separately (Render, Railway, Fly.io, or similar), then set frontend env:
