@@ -573,7 +573,10 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
   // One full bounce loop spans two beats: center -> tooth -> center.
   const bounceCycleDurationMs = Math.max(440, beatDurationMs * 2);
   const normalizedBounceAnchorMs = (((Math.max(0, Number(playbackSeconds) || 0) * 1000) % bounceCycleDurationMs) + bounceCycleDurationMs) % bounceCycleDurationMs;
+  const hasPlaybackProgress = (Number(playbackSeconds) || 0) > 0;
   const isPaused = brushingPhase === "paused";
+  const shouldShowLiveBounce = timer.running || (brushingPhase === "awaitingPlayback" && hasPlaybackProgress);
+  const shouldResolveActiveEntry = shouldShowLiveBounce || isPaused;
   const bouncePhaseOffsetMs = timer.running
     ? -normalizedBounceAnchorMs
     : 0;
@@ -583,7 +586,7 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
       ? Math.min(totalSeconds, Math.max(0, brushingMusicElapsedSeconds))
       : 0;
   const completedToothEntries = toothEntries.filter((entry) => entry.endsAt <= elapsedSeconds).length;
-  const activeEntry = (timer.running || isPaused)
+  const activeEntry = shouldResolveActiveEntry
     ? timeline.find((entry) => elapsedSeconds >= entry.startsAt && elapsedSeconds < entry.endsAt) || null
     : null;
   const activeToothEntry = activeEntry?.type === "tooth" ? activeEntry : null;
@@ -1066,7 +1069,7 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
 
           {bottomPoints.map((point, index) => renderTooth(point, "bottom", bottomToothChart[index], index))}
 
-          {timer.running && activeToothPoint && activeBounceStartPoint && (
+          {shouldShowLiveBounce && activeToothPoint && activeBounceStartPoint && (
             <g>
               <circle
                 cx={activeToothPoint.x}
