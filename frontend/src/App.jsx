@@ -579,7 +579,6 @@ function App() {
   }, [i18n.resolvedLanguage, supportedLanguageOptions]);
   const isReturningVisitor = compactRoutineRef.current;
   const [isRoutineExpanded, setIsRoutineExpanded] = useState(!isReturningVisitor);
-  const hideRestoredReadyCue = device.isMobile && autoRestoredBrushView && (!brushControlCue || brushControlCue.kind === "ready");
   const showCompactRoutine = isReturningVisitor && !isRoutineExpanded;
   const reinforcementPool = useMemo(
     () => buildReinforcementPool(effectiveAgeEstimate?.phase, totalTeeth, brushType),
@@ -2418,30 +2417,6 @@ function App() {
     });
   }, [bpmData, detectedBrusherProfile.description, detectedBrusherProfile.label, effectiveAgeEstimate, t]);
 
-  const phaseLabel = useMemo(() => {
-    if (brushingPhase === "running") {
-      return t("app.status.running");
-    }
-
-    if (brushingPhase === "awaitingPlayback") {
-      return t("app.status.awaitingPlayback");
-    }
-
-    if (brushingPhase === "paused") {
-      return t("app.status.paused");
-    }
-
-    if (brushingPhase === "countdown") {
-      return t("app.status.countdown");
-    }
-
-    if (brushingPhase === "complete") {
-      return t("app.status.complete");
-    }
-
-    return t("app.status.idle");
-  }, [brushingPhase, t]);
-
   function formatTime(seconds) {
     const minutes = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -2502,7 +2477,6 @@ function App() {
         <h1>{device.isMobile ? t("app.title.mobile") : t("app.title.desktop")}</h1>
         <p>{subtitle}</p>
         <AgeThemePanel profile={ageUiProfile} className="header-age-theme-panel" />
-        <p className={`state-chip ${brushingPhase}`}>{t("app.status.label", { state: phaseLabel })}</p>
         <p className={`mode-chip ${device.mode}`}>{device.isMobile ? t("common.layouts.mobile") : t("common.layouts.desktop")}</p>
         {ageSimulation.active && (
           <p className="simulation-chip" aria-live="polite">{t("settings.experienceSimulator.headerChip", { label: detectedBrusherProfile.label })}</p>
@@ -2954,14 +2928,6 @@ function App() {
           >
             {device.isMobile && (
               <>
-                {!hideRestoredReadyCue && brushControlCue?.kind !== "complete" && (
-                  <div className={`brush-cue-card${brushControlCue?.kind ? ` ${brushControlCue.kind}` : ""}`} aria-live="polite">
-                    <strong>{brushControlCue?.title || t("brushing.readyTitle")}</strong>
-                    {(brushControlCue?.detail || !brushControlCue)
-                      ? <span>{brushControlCue?.detail || t("brushing.readyDetail", { hand: t(`common.hands.${brushingHand}`) })}</span>
-                      : null}
-                  </div>
-                )}
                 <div className="session-actions compact-mobile-actions">
                   <button
                     type="button"
