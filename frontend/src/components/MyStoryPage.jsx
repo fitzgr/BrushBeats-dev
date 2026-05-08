@@ -43,6 +43,9 @@ function MyStoryPage({ onExit }) {
           If you are an early adopter, I would love your feedback. In return for your insights,
           early adopters will keep lifetime free access while we shape the platform together.
         </p>
+        <p>
+          Want to reach me directly? Email <a href="mailto:canadianwindrider@gmail.com">canadianwindrider@gmail.com</a>.
+        </p>
         <p className="story-closing">Still building. Still experimenting. Built on rhythm.</p>
       </div>
 
