@@ -8,7 +8,10 @@ const DEFAULT_BRUSHING_SECONDS = 120;
 const MIN_BRUSHING_SECONDS = 60;
 const MAX_BRUSHING_SECONDS = 300;
 const TOOTH_SURFACES_PER_TOOTH = 2;
-const BEATS_PER_TOOTH = 4;
+const MIN_TARGET_BPM = 80;
+const MAX_TARGET_BPM = 160;
+const MIN_BEATS_PER_TOOTH = 2.8;
+const MAX_BEATS_PER_TOOTH = 4.2;
 const TRANSITION_BUFFER_SECONDS = 1;
 const ROTATE_TRANSITION_SECONDS = 0.75;
 
@@ -84,7 +87,10 @@ function calculateBpm({ top = 16, bottom = 16, totalBrushingSeconds = DEFAULT_BR
   const totalToothTimeSeconds = safeTotalBrushingSeconds - totalTransitionSeconds;
   const secondsPerTooth = totalToothActions > 0 ? totalToothTimeSeconds / totalToothActions : 0;
   const rawBpm = secondsPerTooth > 0 ? 60 / secondsPerTooth : 0;
-  const searchBpm = secondsPerTooth > 0 ? (60 * BEATS_PER_TOOTH) / secondsPerTooth : 0;
+  const toothCoverageRatio = clamp(totalTeeth / 32, 0, 1);
+  const beatsPerTooth = Number((MIN_BEATS_PER_TOOTH + toothCoverageRatio * (MAX_BEATS_PER_TOOTH - MIN_BEATS_PER_TOOTH)).toFixed(2));
+  const unconstrainedSearchBpm = secondsPerTooth > 0 ? (60 * beatsPerTooth) / secondsPerTooth : 0;
+  const searchBpm = clamp(unconstrainedSearchBpm, MIN_TARGET_BPM, MAX_TARGET_BPM);
 
   return {
     top: safeTop,
@@ -102,9 +108,9 @@ function calculateBpm({ top = 16, bottom = 16, totalBrushingSeconds = DEFAULT_BR
     brushingSegments,
     totalBrushingSeconds: safeTotalBrushingSeconds,
     secondsPerTooth: Number(secondsPerTooth.toFixed(2)),
-    beatsPerTooth: BEATS_PER_TOOTH,
+    beatsPerTooth,
     rawBpm: Number(rawBpm.toFixed(2)),
-    baseBpm: Number(searchBpm.toFixed(2)),
+    baseBpm: Number(unconstrainedSearchBpm.toFixed(2)),
     musicBpm: Number(searchBpm.toFixed(2)),
     searchBpm: Number(searchBpm.toFixed(2))
   };

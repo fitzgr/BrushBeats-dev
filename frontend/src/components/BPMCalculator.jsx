@@ -34,6 +34,13 @@ function BPMCalculator({
   brusherProfile,
   actualBrusherProfile,
   ageUiProfile,
+  brushingHand,
+  brushType,
+  onBrushingHandChange,
+  onBrushTypeChange,
+  brushDurationOptions,
+  onBrushDurationChange,
+  isBrushControlsLocked,
   values,
   onChange,
   onContinueToMusic,
@@ -234,6 +241,71 @@ function BPMCalculator({
           )}
         </section>
       )}
+
+      <section className="brush-controls-in-calculator" aria-label={t("brushing.controlsTitle")}>
+        <h3>{t("brushing.controlsTitle")}</h3>
+        <p>{t("brushing.controlsIntro")}</p>
+
+        <div className="brush-type-picker" role="group" aria-label={t("brushing.brushType")}>
+          <span className="profile-summary-label">{t("brushing.brushType")}</span>
+          <div className="brush-hand-actions">
+            <button
+              type="button"
+              className={`brush-hand-btn${brushType === "manual" ? " active" : ""}`}
+              onClick={() => onBrushTypeChange?.("manual")}
+              disabled={isBrushControlsLocked}
+            >
+              {t("brushing.brushTypeManual")}
+            </button>
+            <button
+              type="button"
+              className={`brush-hand-btn${brushType === "electric" ? " active" : ""}`}
+              onClick={() => onBrushTypeChange?.("electric")}
+              disabled={isBrushControlsLocked}
+            >
+              {t("brushing.brushTypeElectric")}
+            </button>
+          </div>
+        </div>
+
+        <div className="brush-hand-picker" role="group" aria-label={t("brushing.handPreference")}>
+          <span className="profile-summary-label">{t("brushing.handPreference")}</span>
+          <div className="brush-hand-actions">
+            <button
+              type="button"
+              className={`brush-hand-btn${brushingHand === "left" ? " active" : ""}`}
+              onClick={() => onBrushingHandChange?.("left")}
+              disabled={isBrushControlsLocked}
+            >
+              {t("common.buttons.leftHand")}
+            </button>
+            <button
+              type="button"
+              className={`brush-hand-btn${brushingHand === "right" ? " active" : ""}`}
+              onClick={() => onBrushingHandChange?.("right")}
+              disabled={isBrushControlsLocked}
+            >
+              {t("common.buttons.rightHand")}
+            </button>
+          </div>
+        </div>
+
+        <label className="brush-duration-picker">
+          <span className="profile-summary-label">{t("brushing.duration")}</span>
+          <select
+            value={brushDurationSeconds}
+            onChange={(event) => onBrushDurationChange?.(Number(event.target.value))}
+            disabled={isBrushControlsLocked}
+          >
+            {(brushDurationOptions || []).map((option) => (
+              <option key={option} value={option}>
+                {Math.floor(option / 60)}:{String(option % 60).padStart(2, "0")}
+              </option>
+            ))}
+          </select>
+          <span className="brush-duration-hint">{t("brushing.durationHint")}</span>
+        </label>
+      </section>
 
       <div className="controls-grid">
         <label className="tooth-count-control">
