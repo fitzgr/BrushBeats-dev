@@ -25,7 +25,8 @@ import { completeHouseholdOnboarding, saveHouseholdOnboardingDraft, setHousehold
 import { createBrushingSession, logToothChange, updateUser } from "./db/storeHelpers";
 import { getUserScopedState, saveUserScopedDefaults, saveUserScopedFavoriteSongs, saveUserScopedLastSession } from "./db/userScopedStateService";
 import { getLanguageFallbackInfo, setPreferredSupportedLanguage } from "./i18n.ts";
-import { getBpm, getGeoCountry, getSongs, getYoutubeVideo } from "./api/client";
+import { getGeoCountry, getSongs, getYoutubeVideo } from "./api/client";
+import { calculateBpm } from "./lib/bpm";
 import { buildReinforcementPool, getAgeMessageGroupCount, pickReinforcementMessage } from "./lib/reinforcementMessages";
 import {
   analyticsEnabled,
@@ -1815,10 +1816,10 @@ function App() {
       };
     }
 
-    async function loadBpm() {
+    function loadBpm() {
       try {
         setLoading((prev) => ({ ...prev, bpm: true }));
-        const data = await getBpm({ ...values, duration: brushDurationSeconds });
+        const data = calculateBpm({ ...values, totalBrushingSeconds: brushDurationSeconds });
 
         if (!cancelled) {
           setBpmData(data);
