@@ -570,10 +570,11 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
   const timeline = buildTimeline(segments, toothDurationSeconds, transitionBufferSeconds);
   const toothEntries = timeline.filter((entry) => entry.type === "tooth");
   const beatDurationMs = Math.max(220, 60000 / safeBpm);
-  const normalizedBeatAnchorMs = (((Math.max(0, Number(playbackSeconds) || 0) * 1000) % beatDurationMs) + beatDurationMs) % beatDurationMs;
+  const bounceCycleDurationMs = Math.max(110, beatDurationMs / 2);
+  const normalizedBounceAnchorMs = (((Math.max(0, Number(playbackSeconds) || 0) * 1000) % bounceCycleDurationMs) + bounceCycleDurationMs) % bounceCycleDurationMs;
   const isPaused = brushingPhase === "paused";
-  const beatPhaseOffsetMs = timer.running
-    ? -normalizedBeatAnchorMs
+  const bouncePhaseOffsetMs = timer.running
+    ? -normalizedBounceAnchorMs
     : 0;
   const elapsedSeconds = brushingPhase === "complete"
     ? totalSeconds
@@ -792,7 +793,7 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
         };
       })()
     : null;
-  const pausedBeatPhase = beatDurationMs > 0 ? normalizedBeatAnchorMs / beatDurationMs : 0;
+  const pausedBeatPhase = bounceCycleDurationMs > 0 ? normalizedBounceAnchorMs / bounceCycleDurationMs : 0;
   const pausedBouncePoint = activeToothPoint && activeBounceStartPoint
     ? getBouncePointForPhase(activeToothPoint, activeBounceStartPoint, pausedBeatPhase)
     : null;
@@ -1075,15 +1076,15 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
                 <animate
                   attributeName="cx"
                   values={`${activeToothPoint.x};${activeBounceStartPoint.x};${activeToothPoint.x}`}
-                  dur={`${beatDurationMs}ms`}
-                  begin={`${beatPhaseOffsetMs - beatDurationMs * 0.2}ms`}
+                  dur={`${bounceCycleDurationMs}ms`}
+                  begin={`${bouncePhaseOffsetMs - bounceCycleDurationMs * 0.2}ms`}
                   repeatCount="indefinite"
                 />
                 <animate
                   attributeName="cy"
                   values={`${activeToothPoint.y};${activeBounceStartPoint.y};${activeToothPoint.y}`}
-                  dur={`${beatDurationMs}ms`}
-                  begin={`${beatPhaseOffsetMs - beatDurationMs * 0.2}ms`}
+                  dur={`${bounceCycleDurationMs}ms`}
+                  begin={`${bouncePhaseOffsetMs - bounceCycleDurationMs * 0.2}ms`}
                   repeatCount="indefinite"
                 />
               </circle>
@@ -1096,15 +1097,15 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
                 <animate
                   attributeName="cx"
                   values={`${activeToothPoint.x};${activeBounceStartPoint.x};${activeToothPoint.x}`}
-                  dur={`${beatDurationMs}ms`}
-                  begin={`${beatPhaseOffsetMs - beatDurationMs * 0.12}ms`}
+                  dur={`${bounceCycleDurationMs}ms`}
+                  begin={`${bouncePhaseOffsetMs - bounceCycleDurationMs * 0.12}ms`}
                   repeatCount="indefinite"
                 />
                 <animate
                   attributeName="cy"
                   values={`${activeToothPoint.y};${activeBounceStartPoint.y};${activeToothPoint.y}`}
-                  dur={`${beatDurationMs}ms`}
-                  begin={`${beatPhaseOffsetMs - beatDurationMs * 0.12}ms`}
+                  dur={`${bounceCycleDurationMs}ms`}
+                  begin={`${bouncePhaseOffsetMs - bounceCycleDurationMs * 0.12}ms`}
                   repeatCount="indefinite"
                 />
               </circle>
@@ -1117,15 +1118,15 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
                 <animate
                   attributeName="cx"
                   values={`${activeToothPoint.x};${activeBounceStartPoint.x};${activeToothPoint.x}`}
-                  dur={`${beatDurationMs}ms`}
-                  begin={`${beatPhaseOffsetMs - beatDurationMs * 0.06}ms`}
+                  dur={`${bounceCycleDurationMs}ms`}
+                  begin={`${bouncePhaseOffsetMs - bounceCycleDurationMs * 0.06}ms`}
                   repeatCount="indefinite"
                 />
                 <animate
                   attributeName="cy"
                   values={`${activeToothPoint.y};${activeBounceStartPoint.y};${activeToothPoint.y}`}
-                  dur={`${beatDurationMs}ms`}
-                  begin={`${beatPhaseOffsetMs - beatDurationMs * 0.06}ms`}
+                  dur={`${bounceCycleDurationMs}ms`}
+                  begin={`${bouncePhaseOffsetMs - bounceCycleDurationMs * 0.06}ms`}
                   repeatCount="indefinite"
                 />
               </circle>
@@ -1138,22 +1139,22 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
                 <animate
                   attributeName="cx"
                   values={`${activeToothPoint.x};${activeBounceStartPoint.x};${activeToothPoint.x}`}
-                  dur={`${beatDurationMs}ms`}
-                  begin={`${beatPhaseOffsetMs}ms`}
+                  dur={`${bounceCycleDurationMs}ms`}
+                  begin={`${bouncePhaseOffsetMs}ms`}
                   repeatCount="indefinite"
                 />
                 <animate
                   attributeName="cy"
                   values={`${activeToothPoint.y};${activeBounceStartPoint.y};${activeToothPoint.y}`}
-                  dur={`${beatDurationMs}ms`}
-                  begin={`${beatPhaseOffsetMs}ms`}
+                  dur={`${bounceCycleDurationMs}ms`}
+                  begin={`${bouncePhaseOffsetMs}ms`}
                   repeatCount="indefinite"
                 />
                 <animate
                   attributeName="r"
                   values="5.2;6.4;5.2"
-                  dur={`${beatDurationMs}ms`}
-                  begin={`${beatPhaseOffsetMs}ms`}
+                  dur={`${bounceCycleDurationMs}ms`}
+                  begin={`${bouncePhaseOffsetMs}ms`}
                   repeatCount="indefinite"
                 />
               </circle>

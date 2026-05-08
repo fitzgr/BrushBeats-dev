@@ -1,5 +1,29 @@
 [
   {
+    "id": "commit-303e1a2622281b9f19d2693ef15c57497570eb0e",
+    "kind": "commit",
+    "source": "git-history",
+    "sha": "303e1a2622281b9f19d2693ef15c57497570eb0e",
+    "shortSha": "303e1a2",
+    "timestamp": "2026-05-08T14:08:25-04:00",
+    "date": "2026-05-08",
+    "author": "Grant Fitz",
+    "subject": "chore: refresh generated version history",
+    "body": ""
+  },
+  {
+    "id": "commit-5ff5e84d432828e8f03a7c356f9cf4f11ae211b5",
+    "kind": "commit",
+    "source": "git-history",
+    "sha": "5ff5e84d432828e8f03a7c356f9cf4f11ae211b5",
+    "shortSha": "5ff5e84",
+    "timestamp": "2026-05-08T08:07:53-04:00",
+    "date": "2026-05-08",
+    "author": "Grant Fitz",
+    "subject": "fix: replace useEffectEvent with useCallback in Player; add root error boundary",
+    "body": ""
+  },
+  {
     "id": "commit-7f163a577644c703fab75b5f48678de0c63cc76d",
     "kind": "commit",
     "source": "git-history",
