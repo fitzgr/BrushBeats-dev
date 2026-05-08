@@ -599,7 +599,6 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
       ? Math.min(100, ((completedToothEntries + activeToothProgress) / toothEntries.length) * 100)
       : 0;
   const orientationLabel = activeEntry?.type === "transition" ? activeEntry.toLabel : activeToothEntry?.label;
-  const activeSide = getLabelSide(orientationLabel);
   const activeJaw = getLabelJaw(orientationLabel);
   const isFrontSurface = activeToothEntry?.surface === "front";
   const nextMoveSeconds = activeEntry ? Math.max(1, Math.ceil(activeEntry.endsAt - elapsedSeconds)) : null;
@@ -848,13 +847,6 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
     return state;
   }
 
-  const brushFacingDirection = activeSide
-    ? brushingHand === "right"
-      ? activeSide
-      : activeSide === "left"
-        ? "right"
-        : "left"
-    : null;
   const transitionFromSide = activeEntry?.type === "transition" ? getLabelSide(activeEntry.fromLabel) : null;
   const transitionToSide = activeEntry?.type === "transition" ? getLabelSide(activeEntry.toLabel) : null;
   const transitionFromJaw = activeEntry?.type === "transition" ? getLabelJaw(activeEntry.fromLabel) : null;
@@ -1043,18 +1035,6 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
         />
         {showThemePanel && <AgeThemePanel profile={ageUiProfile} variant="guide" className="guide-age-overlay" chipLimit={2} />}
         <div className="mouth-map" role="img" aria-label={t("brushing.guide.mouthMapAria")}>
-        {brushFacingDirection && (
-          <div className={`map-hand-orientation-layer ${brushFacingDirection === "left" ? "facing-left" : "facing-right"}${activeJaw ? ` jaw-${activeJaw}` : ""}`} aria-hidden="true">
-            <div className="brush-hand-orientation-visual" aria-hidden="true">
-              <span className="brush-hand-orientation-hand" />
-              <span className="brush-hand-orientation-handle" />
-              <span className="brush-hand-orientation-neck" />
-              <span className="brush-hand-orientation-head">
-                <span className="brush-hand-orientation-bristles" />
-              </span>
-            </div>
-          </div>
-        )}
         <svg viewBox="0 0 360 420" preserveAspectRatio="xMidYMid meet">
           <defs>
             <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
