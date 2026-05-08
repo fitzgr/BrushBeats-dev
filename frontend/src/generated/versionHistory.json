@@ -1,5 +1,17 @@
 [
   {
+    "id": "commit-536218d972fca075c0cd3a7ac930a6e6de68ef4c",
+    "kind": "commit",
+    "source": "git-history",
+    "sha": "536218d972fca075c0cd3a7ac930a6e6de68ef4c",
+    "shortSha": "536218d",
+    "timestamp": "2026-05-08T15:59:00-04:00",
+    "date": "2026-05-08",
+    "author": "Grant Fitz",
+    "subject": "fix: stabilize youtube host element during queue transitions",
+    "body": ""
+  },
+  {
     "id": "commit-40a58e99928120b0f895844a68672ae0e3ef07a9",
     "kind": "commit",
     "source": "git-history",
