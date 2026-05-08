@@ -1,5 +1,17 @@
 [
   {
+    "id": "commit-8b287d743f2a56a47e88b841738f4cbc0937a1db",
+    "kind": "commit",
+    "source": "git-history",
+    "sha": "8b287d743f2a56a47e88b841738f4cbc0937a1db",
+    "shortSha": "8b287d7",
+    "timestamp": "2026-05-08T16:09:00-04:00",
+    "date": "2026-05-08",
+    "author": "Grant Fitz",
+    "subject": "fix: sync brushing bounce to beat alternation",
+    "body": ""
+  },
+  {
     "id": "commit-536218d972fca075c0cd3a7ac930a6e6de68ef4c",
     "kind": "commit",
     "source": "git-history",
