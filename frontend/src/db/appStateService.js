@@ -1,6 +1,28 @@
 import { getDB, STORE_NAMES, waitForTransaction } from "./indexedDbService";
 import { tryHydrateHouseholdFromCloud } from "./householdSyncService";
-import { getHousehold, getAppSetting, getUserById, getUsersByHousehold } from "./storeHelpers";
+import { getHousehold, getAppSetting, setAppSetting, getUserById, getUsersByHousehold } from "./storeHelpers";
+
+/**
+ * Writes a founder/early-adopter record the very first time a user opens the app.
+ * The record is never overwritten, so it captures the true first-install moment.
+ * Fields are intentionally future-proof so a backend sync can honour them later.
+ */
+async function ensureFounderToken() {
+  const existing = await getAppSetting("system.founderToken");
+  if (existing?.value) {
+    return existing.value;
+  }
+
+  const token = {
+    tokenId: crypto.randomUUID(),
+    tier: "founder",
+    installedAt: new Date().toISOString(),
+    appVersion: typeof __APP_VERSION__ !== "undefined" ? __APP_VERSION__ : "unknown"
+  };
+
+  await setAppSetting("system.founderToken", token);
+  return token;
+}
 
 async function resolveActiveUser(household) {
   if (!household?.householdId) {
@@ -53,6 +75,9 @@ export async function loadPersistedAppState(fallbackState = {}) {
     getAppSetting("user.defaults")
   ]);
 
+  // Silently create a founder token on first run; never overwrites an existing one.
+  const founderToken = await ensureFounderToken();
+
   return {
     storageConsent: storageConsent?.value || fallbackState.storageConsent || "unknown",
     storageBannerDismissed: storageBannerDismissed?.value ?? fallbackState.storageBannerDismissed ?? false,
@@ -69,7 +94,8 @@ export async function loadPersistedAppState(fallbackState = {}) {
     onboardingState: onboardingState?.value || null,
     onboardingUiState: onboardingUiState?.value || null,
     onboardingDraft: onboardingDraft?.value || null,
-    userDefaults: userDefaults?.value || null
+    userDefaults: userDefaults?.value || null,
+    founderToken: founderToken || null
   };
 }
 
