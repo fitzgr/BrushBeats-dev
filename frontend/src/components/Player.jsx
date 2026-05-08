@@ -1,4 +1,4 @@
-import { useEffect, useEffectEvent, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 const YOUTUBE_VIDEO_ID_REGEX = /^[a-zA-Z0-9_-]{11}$/;
@@ -63,20 +63,23 @@ function Player({
     onPlaybackDurationChangeRef.current = onPlaybackDurationChange;
   }, [onPlaybackDurationChange]);
 
-  const stopTickTimer = useEffectEvent(() => {
+  const stopTickTimer = useCallback(() => {
     if (tickTimerRef.current) {
       window.clearInterval(tickTimerRef.current);
       tickTimerRef.current = null;
     }
-  });
+  }, []);
 
-  const startTickTimer = useEffectEvent(() => {
-    stopTickTimer();
+  const startTickTimer = useCallback(() => {
+    if (tickTimerRef.current) {
+      window.clearInterval(tickTimerRef.current);
+      tickTimerRef.current = null;
+    }
     tickTimerRef.current = window.setInterval(() => {
       const seconds = playerRef.current?.getCurrentTime?.() ?? 0;
       onPlaybackTickRef.current?.(seconds);
     }, 250);
-  });
+  }, []);
 
   useEffect(() => {
     if (window.YT?.Player) {
