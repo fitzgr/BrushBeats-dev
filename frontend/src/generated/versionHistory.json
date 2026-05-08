@@ -1,5 +1,17 @@
 [
   {
+    "id": "commit-7398051d432fcd7854bc8f07896e5cb79146ac50",
+    "kind": "commit",
+    "source": "git-history",
+    "sha": "7398051d432fcd7854bc8f07896e5cb79146ac50",
+    "shortSha": "7398051",
+    "timestamp": "2026-05-08T16:17:10-04:00",
+    "date": "2026-05-08",
+    "author": "Grant Fitz",
+    "subject": "refactor: remove moving hand-orientation overlay from guide",
+    "body": ""
+  },
+  {
     "id": "commit-3f86cea3c5b14e7b6cce2c986221a5105c5b0a96",
     "kind": "commit",
     "source": "git-history",

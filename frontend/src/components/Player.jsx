@@ -44,6 +44,7 @@ function Player({
   const hostRef = useRef(null);
   const playerRef = useRef(null);
   const tickTimerRef = useRef(null);
+  const pendingCommandRef = useRef(null);
   const onPlaybackTickRef = useRef(onPlaybackTick);
   const onPlaybackDurationChangeRef = useRef(onPlaybackDurationChange);
   const onSongEndedRef = useRef(onSongEnded);
@@ -96,6 +97,46 @@ function Player({
     }
   }, []);
 
+  const applyPlayerCommand = useCallback((command) => {
+    if (!command || !playerRef.current) {
+      return false;
+    }
+
+    if (command.type === "play") {
+      playerRef.current.playVideo?.();
+      return true;
+    }
+
+    if (command.type === "pause") {
+      playerRef.current.pauseVideo?.();
+      stopTickTimer();
+      onPlaybackTickRef.current?.(playerRef.current?.getCurrentTime?.() ?? 0);
+      return true;
+    }
+
+    if (command.type === "restart") {
+      stopTickTimer();
+      playerRef.current.seekTo?.(0, true);
+      playerRef.current.playVideo?.();
+      onPlaybackTickRef.current?.(0);
+      return true;
+    }
+
+    if (command.type === "reset") {
+      if (videoId && playerRef.current.cueVideoById) {
+        playerRef.current.cueVideoById(videoId, 0);
+      } else {
+        playerRef.current.pauseVideo?.();
+        playerRef.current.seekTo?.(0, true);
+      }
+      stopTickTimer();
+      onPlaybackTickRef.current?.(0);
+      return true;
+    }
+
+    return false;
+  }, [stopTickTimer, videoId]);
+
   useEffect(() => {
     if (window.YT?.Player) {
       return;
@@ -146,6 +187,11 @@ function Player({
         onReady: () => {
           onPlaybackDurationChangeRef.current?.(playerRef.current?.getDuration?.() ?? 0);
           onPlaybackTickRef.current?.(playerRef.current?.getCurrentTime?.() ?? 0);
+          if (pendingCommandRef.current) {
+            const pending = pendingCommandRef.current;
+            pendingCommandRef.current = null;
+            applyPlayerCommand(pending);
+          }
         },
         onError: (event) => {
           stopTickTimer();
@@ -195,41 +241,16 @@ function Player({
   }, [autoplayToken]);
 
   useEffect(() => {
-    if (!playbackCommand?.nonce || !playerRef.current) {
+    if (!playbackCommand?.nonce) {
       return;
     }
 
-    if (playbackCommand.type === "play") {
-      playerRef.current.playVideo?.();
-      return;
-    }
+    pendingCommandRef.current = playbackCommand;
 
-    if (playbackCommand.type === "pause") {
-      playerRef.current.pauseVideo?.();
-      stopTickTimer();
-      onPlaybackTickRef.current?.(playerRef.current?.getCurrentTime?.() ?? 0);
-      return;
+    if (applyPlayerCommand(playbackCommand)) {
+      pendingCommandRef.current = null;
     }
-
-    if (playbackCommand.type === "restart") {
-      stopTickTimer();
-      playerRef.current.seekTo?.(0, true);
-      playerRef.current.playVideo?.();
-      onPlaybackTickRef.current?.(0);
-      return;
-    }
-
-    if (playbackCommand.type === "reset") {
-      if (videoId && playerRef.current.cueVideoById) {
-        playerRef.current.cueVideoById(videoId, 0);
-      } else {
-        playerRef.current.pauseVideo?.();
-        playerRef.current.seekTo?.(0, true);
-      }
-      stopTickTimer();
-      onPlaybackTickRef.current?.(0);
-    }
-  }, [playbackCommand, stopTickTimer, videoId]);
+  }, [applyPlayerCommand, playbackCommand]);
 
   const playerClassName = `card player${compactMobileFrame ? " compact-mobile-frame" : ""}`;
   const frameMinHeight = isMobile ? "0px" : "200px";
