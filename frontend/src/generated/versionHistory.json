@@ -1,5 +1,17 @@
 [
   {
+    "id": "commit-3f86cea3c5b14e7b6cce2c986221a5105c5b0a96",
+    "kind": "commit",
+    "source": "git-history",
+    "sha": "3f86cea3c5b14e7b6cce2c986221a5105c5b0a96",
+    "shortSha": "3f86cea",
+    "timestamp": "2026-05-08T16:12:31-04:00",
+    "date": "2026-05-08",
+    "author": "Grant Fitz",
+    "subject": "fix: show brushing bounce during queued playback",
+    "body": ""
+  },
+  {
     "id": "commit-8b287d743f2a56a47e88b841738f4cbc0937a1db",
     "kind": "commit",
     "source": "git-history",
