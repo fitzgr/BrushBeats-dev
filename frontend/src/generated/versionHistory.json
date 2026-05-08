@@ -1,17 +1,5 @@
 [
   {
-    "id": "commit-880f8278f763a345f2c6c8bbcd73078339c9542f",
-    "kind": "commit",
-    "source": "git-history",
-    "sha": "880f8278f763a345f2c6c8bbcd73078339c9542f",
-    "shortSha": "880f827",
-    "timestamp": "2026-04-30T20:06:56-04:00",
-    "date": "2026-04-30",
-    "author": "Grant Fitz",
-    "subject": "refine: reposition voice test and add persisted music-vs-tts balance slider",
-    "body": ""
-  },
-  {
     "id": "commit-234527dd19e60d1515093dfd2320ae7e65c1f7ee",
     "kind": "commit",
     "source": "git-history",
