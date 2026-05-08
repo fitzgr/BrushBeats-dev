@@ -127,6 +127,11 @@ function BPMCalculator({
                   minutes: Math.round((brushDurationSeconds || 120) / 60 * 10) / 10
                 })}
           </span>
+          {isMobile && bpmData && (
+            <span className="bpm-debug-line">
+              Debug: {bpmData.totalToothActions} faces | {bpmData.totalToothTimeSeconds}s tooth time | (60 x {bpmData.beatsPerTooth}) / {bpmData.secondsPerTooth} = {bpmData.baseBpm} BPM
+            </span>
+          )}
         </div>
       </div>
 

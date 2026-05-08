@@ -3697,6 +3697,15 @@ select {
   opacity: 0.5;
 }
 
+.bpm-debug-line {
+  display: block;
+  margin-top: 0.45rem;
+  font-size: 0.74rem;
+  line-height: 1.35;
+  color: #294054;
+  max-width: 24rem;
+}
+
 .headline {
   font-size: 1.08rem;
   font-weight: 700;
