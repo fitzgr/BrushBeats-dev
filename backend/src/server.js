@@ -22,7 +22,7 @@ app.set("trust proxy", true);
 app.disable("x-powered-by");
 
 const allowedOriginSet = new Set(
-  String(process.env.CORS_ALLOWED_ORIGINS || "http://localhost:5173,http://localhost:5174")
+  String(process.env.CORS_ALLOWED_ORIGINS || "http://localhost:5173,http://localhost:5174,https://fitzgr.github.io")
     .split(",")
     .map((origin) => origin.trim())
     .filter(Boolean)
