@@ -1797,12 +1797,8 @@ function App() {
         restoredSession.brushDurationSeconds === brushDurationSeconds;
 
       if (!restoredMatches) {
-        return () => {
-          cancelled = true;
-        };
-      }
-
-      if (restoredSession.bpmSnapshot) {
+        restoredSessionRef.current = null;
+      } else if (restoredSession.bpmSnapshot) {
         setBpmData(restoredSession.bpmSnapshot);
         restoredSessionRef.current = null;
         return () => {
