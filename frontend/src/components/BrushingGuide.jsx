@@ -570,7 +570,8 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
   const timeline = buildTimeline(segments, toothDurationSeconds, transitionBufferSeconds);
   const toothEntries = timeline.filter((entry) => entry.type === "tooth");
   const beatDurationMs = Math.max(220, 60000 / safeBpm);
-  const bounceCycleDurationMs = Math.max(110, beatDurationMs / 2);
+  // One full bounce loop spans two beats: center -> tooth -> center.
+  const bounceCycleDurationMs = Math.max(440, beatDurationMs * 2);
   const normalizedBounceAnchorMs = (((Math.max(0, Number(playbackSeconds) || 0) * 1000) % bounceCycleDurationMs) + bounceCycleDurationMs) % bounceCycleDurationMs;
   const isPaused = brushingPhase === "paused";
   const bouncePhaseOffsetMs = timer.running
@@ -795,12 +796,12 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
     : null;
   const pausedBeatPhase = bounceCycleDurationMs > 0 ? normalizedBounceAnchorMs / bounceCycleDurationMs : 0;
   const pausedBouncePoint = activeToothPoint && activeBounceStartPoint
-    ? getBouncePointForPhase(activeToothPoint, activeBounceStartPoint, pausedBeatPhase)
+    ? getBouncePointForPhase(activeBounceStartPoint, activeToothPoint, pausedBeatPhase)
     : null;
   const pausedTailPoints = activeToothPoint && activeBounceStartPoint
     ? [0.2, 0.12, 0.06].map((offset) => {
         const phase = (((pausedBeatPhase - offset) % 1) + 1) % 1;
-        return getBouncePointForPhase(activeToothPoint, activeBounceStartPoint, phase);
+        return getBouncePointForPhase(activeBounceStartPoint, activeToothPoint, phase);
       })
     : [];
   const pausedBounceRadius = getBounceRadiusForPhase(pausedBeatPhase);
@@ -1075,14 +1076,14 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
               >
                 <animate
                   attributeName="cx"
-                  values={`${activeToothPoint.x};${activeBounceStartPoint.x};${activeToothPoint.x}`}
+                  values={`${activeBounceStartPoint.x};${activeToothPoint.x};${activeBounceStartPoint.x}`}
                   dur={`${bounceCycleDurationMs}ms`}
                   begin={`${bouncePhaseOffsetMs - bounceCycleDurationMs * 0.2}ms`}
                   repeatCount="indefinite"
                 />
                 <animate
                   attributeName="cy"
-                  values={`${activeToothPoint.y};${activeBounceStartPoint.y};${activeToothPoint.y}`}
+                  values={`${activeBounceStartPoint.y};${activeToothPoint.y};${activeBounceStartPoint.y}`}
                   dur={`${bounceCycleDurationMs}ms`}
                   begin={`${bouncePhaseOffsetMs - bounceCycleDurationMs * 0.2}ms`}
                   repeatCount="indefinite"
@@ -1096,14 +1097,14 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
               >
                 <animate
                   attributeName="cx"
-                  values={`${activeToothPoint.x};${activeBounceStartPoint.x};${activeToothPoint.x}`}
+                  values={`${activeBounceStartPoint.x};${activeToothPoint.x};${activeBounceStartPoint.x}`}
                   dur={`${bounceCycleDurationMs}ms`}
                   begin={`${bouncePhaseOffsetMs - bounceCycleDurationMs * 0.12}ms`}
                   repeatCount="indefinite"
                 />
                 <animate
                   attributeName="cy"
-                  values={`${activeToothPoint.y};${activeBounceStartPoint.y};${activeToothPoint.y}`}
+                  values={`${activeBounceStartPoint.y};${activeToothPoint.y};${activeBounceStartPoint.y}`}
                   dur={`${bounceCycleDurationMs}ms`}
                   begin={`${bouncePhaseOffsetMs - bounceCycleDurationMs * 0.12}ms`}
                   repeatCount="indefinite"
@@ -1117,14 +1118,14 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
               >
                 <animate
                   attributeName="cx"
-                  values={`${activeToothPoint.x};${activeBounceStartPoint.x};${activeToothPoint.x}`}
+                  values={`${activeBounceStartPoint.x};${activeToothPoint.x};${activeBounceStartPoint.x}`}
                   dur={`${bounceCycleDurationMs}ms`}
                   begin={`${bouncePhaseOffsetMs - bounceCycleDurationMs * 0.06}ms`}
                   repeatCount="indefinite"
                 />
                 <animate
                   attributeName="cy"
-                  values={`${activeToothPoint.y};${activeBounceStartPoint.y};${activeToothPoint.y}`}
+                  values={`${activeBounceStartPoint.y};${activeToothPoint.y};${activeBounceStartPoint.y}`}
                   dur={`${bounceCycleDurationMs}ms`}
                   begin={`${bouncePhaseOffsetMs - bounceCycleDurationMs * 0.06}ms`}
                   repeatCount="indefinite"
@@ -1138,14 +1139,14 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
               >
                 <animate
                   attributeName="cx"
-                  values={`${activeToothPoint.x};${activeBounceStartPoint.x};${activeToothPoint.x}`}
+                  values={`${activeBounceStartPoint.x};${activeToothPoint.x};${activeBounceStartPoint.x}`}
                   dur={`${bounceCycleDurationMs}ms`}
                   begin={`${bouncePhaseOffsetMs}ms`}
                   repeatCount="indefinite"
                 />
                 <animate
                   attributeName="cy"
-                  values={`${activeToothPoint.y};${activeBounceStartPoint.y};${activeToothPoint.y}`}
+                  values={`${activeBounceStartPoint.y};${activeToothPoint.y};${activeBounceStartPoint.y}`}
                   dur={`${bounceCycleDurationMs}ms`}
                   begin={`${bouncePhaseOffsetMs}ms`}
                   repeatCount="indefinite"
