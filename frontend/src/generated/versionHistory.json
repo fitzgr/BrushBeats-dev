@@ -1,5 +1,17 @@
 [
   {
+    "id": "commit-fdb54dc3c9cbf391ac77191baff6adac03208f51",
+    "kind": "commit",
+    "source": "git-history",
+    "sha": "fdb54dc3c9cbf391ac77191baff6adac03208f51",
+    "shortSha": "fdb54dc",
+    "timestamp": "2026-05-08T17:44:36-04:00",
+    "date": "2026-05-08",
+    "author": "Grant Fitz",
+    "subject": "feat: restore developer story access on mobile",
+    "body": ""
+  },
+  {
     "id": "commit-c810edd6c6a433f6c341f020caa95454f1fcfcc4",
     "kind": "commit",
     "source": "git-history",

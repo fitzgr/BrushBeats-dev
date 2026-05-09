@@ -572,7 +572,9 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
   const beatDurationMs = Math.max(220, 60000 / safeBpm);
   // One full bounce loop spans two beats: center -> tooth -> center.
   const bounceCycleDurationMs = Math.max(440, beatDurationMs * 2);
-  const normalizedBounceAnchorMs = (((Math.max(0, Number(playbackSeconds) || 0) * 1000) % bounceCycleDurationMs) + bounceCycleDurationMs) % bounceCycleDurationMs;
+  // Phase-shift by one beat so downbeats land on tooth contact instead of center.
+  const downbeatLandingOffsetMs = beatDurationMs;
+  const normalizedBounceAnchorMs = ((((Math.max(0, Number(playbackSeconds) || 0) * 1000) + downbeatLandingOffsetMs) % bounceCycleDurationMs) + bounceCycleDurationMs) % bounceCycleDurationMs;
   const hasPlaybackProgress = (Number(playbackSeconds) || 0) > 0;
   const isPaused = brushingPhase === "paused";
   const shouldShowLiveBounce = timer.running || (brushingPhase === "awaitingPlayback" && hasPlaybackProgress);
