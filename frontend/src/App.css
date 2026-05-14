@@ -3813,6 +3813,28 @@ select {
   isolation: isolate;
 }
 
+.player-disclaimer {
+  margin: 0.55rem 0 0.7rem;
+  border-radius: 12px;
+  border: 1px solid rgba(29, 75, 120, 0.16);
+  background: rgba(29, 75, 120, 0.06);
+}
+
+.player-disclaimer summary {
+  cursor: pointer;
+  padding: 0.6rem 0.8rem;
+  color: #1d4b78;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.player-disclaimer p {
+  margin: 0;
+  padding: 0 0.8rem 0.75rem;
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
 .player iframe,
 .player .player-frame {
   width: 100%;

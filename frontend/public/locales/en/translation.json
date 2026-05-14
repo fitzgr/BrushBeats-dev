@@ -487,6 +487,8 @@
     "titleMobile": "Now Playing",
     "introDesktop": "Pick a song and play it inside the app with YouTube iframe embed.",
     "introMobile": "Play your selected track here.",
+    "artistRightsSummary": "Artist rights and YouTube playback",
+    "artistRightsBody": "BrushBeats embeds videos directly from YouTube so artists and rights holders keep YouTube's normal crediting and monetization. Any app revenue supports future BrushBeats development, not the music itself.",
     "matchingYoutube": "Matching song on YouTube...",
     "selectSong": "Select a song to start playback.",
     "noEmbed": "Could not find an embeddable video for {{title}}.",

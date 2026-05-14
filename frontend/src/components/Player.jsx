@@ -284,6 +284,10 @@ function Player({
           <h3>
             {selectedSong.title} - {selectedSong.artist}
           </h3>
+          <details className="player-disclaimer">
+            <summary>{t("player.artistRightsSummary")}</summary>
+            <p>{t("player.artistRightsBody")}</p>
+          </details>
           <div className="player-frame-shell" style={{ minHeight: frameMinHeight }}>
             <div
               ref={hostRef}

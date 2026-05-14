@@ -485,6 +485,8 @@
     "titleMobile": "Şimdi Çalıyor",
     "introDesktop": "Bir şarkı seçin ve YouTube iframe ile uygulama içinde çalın.",
     "introMobile": "Seçtiğiniz parçayı burada çalın.",
+    "artistRightsSummary": "Sanatci haklari ve YouTube oynatimi",
+    "artistRightsBody": "BrushBeats videolari dogrudan YouTube'dan gomerek sanatcilarin ve hak sahiplerinin YouTube'daki normal kredi ve para kazanma akisini korur. Uygulamanin elde ettigi gelir muzigin kendisinden degil, gelecekteki BrushBeats gelistirmesini desteklemek icindir.",
     "matchingYoutube": "Şarkı YouTube'da eşleştiriliyor...",
     "selectSong": "Oynatmaya başlamak için bir şarkı seçin.",
     "noEmbed": "{{title}} için gömülebilir bir video bulunamadı.",
