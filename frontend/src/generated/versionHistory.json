@@ -1,5 +1,96 @@
 [
   {
+    "id": "commit-2c33eb4f149e1b4d31a79f7d6f585150657c5452",
+    "kind": "commit",
+    "source": "git-history",
+    "sha": "2c33eb4f149e1b4d31a79f7d6f585150657c5452",
+    "shortSha": "2c33eb4",
+    "timestamp": "2026-05-14T07:47:45-04:00",
+    "date": "2026-05-14",
+    "author": "Grant Fitz",
+    "subject": "feat: add player artist rights disclosure",
+    "body": "",
+    "tags": []
+  },
+  {
+    "id": "commit-8e52695eefd50134863232379df57e9348f5befc",
+    "kind": "commit",
+    "source": "git-history",
+    "sha": "8e52695eefd50134863232379df57e9348f5befc",
+    "shortSha": "8e52695",
+    "timestamp": "2026-05-14T07:47:45-04:00",
+    "date": "2026-05-14",
+    "author": "Grant Fitz",
+    "subject": "feat: add player artist rights disclosure",
+    "body": "",
+    "tags": []
+  },
+  {
+    "id": "commit-c1a4b76be5075f8ded2ab419ec9bca9eae4c7d25",
+    "kind": "commit",
+    "source": "git-history",
+    "sha": "c1a4b76be5075f8ded2ab419ec9bca9eae4c7d25",
+    "shortSha": "c1a4b76",
+    "timestamp": "2026-05-14T07:47:45-04:00",
+    "date": "2026-05-14",
+    "author": "Grant Fitz",
+    "subject": "feat: add player artist rights disclosure",
+    "body": "",
+    "tags": []
+  },
+  {
+    "id": "commit-754d2aaf71646a0c454eb96fd26ec63e59078243",
+    "kind": "commit",
+    "source": "git-history",
+    "sha": "754d2aaf71646a0c454eb96fd26ec63e59078243",
+    "shortSha": "754d2aa",
+    "timestamp": "2026-05-09T06:29:29-04:00",
+    "date": "2026-05-09",
+    "author": "Grant Fitz",
+    "subject": "tweak(dev): nudge bounce phase for downbeat tooth landing",
+    "body": "",
+    "tags": []
+  },
+  {
+    "id": "commit-d5b01b75f33c93bb5b560cd17739c087ccefed55",
+    "kind": "commit",
+    "source": "git-history",
+    "sha": "d5b01b75f33c93bb5b560cd17739c087ccefed55",
+    "shortSha": "d5b01b7",
+    "timestamp": "2026-05-09T06:29:29-04:00",
+    "date": "2026-05-09",
+    "author": "Grant Fitz",
+    "subject": "tweak(dev): nudge bounce phase for downbeat tooth landing",
+    "body": "",
+    "tags": []
+  },
+  {
+    "id": "commit-5c8910f148af2cdf4e6270028e96b1f1c31b0cdd",
+    "kind": "commit",
+    "source": "git-history",
+    "sha": "5c8910f148af2cdf4e6270028e96b1f1c31b0cdd",
+    "shortSha": "5c8910f",
+    "timestamp": "2026-05-09T06:28:35-04:00",
+    "date": "2026-05-09",
+    "author": "Grant Fitz",
+    "subject": "tweak: shift bounce downbeat to tooth landing",
+    "body": "",
+    "tags": []
+  },
+  {
+    "id": "commit-709d210f48fcc2e8fd4d48f926cc013abae79feb",
+    "kind": "commit",
+    "source": "git-history",
+    "sha": "709d210f48fcc2e8fd4d48f926cc013abae79feb",
+    "shortSha": "709d210",
+    "timestamp": "2026-05-08T17:44:36-04:00",
+    "date": "2026-05-08",
+    "author": "Grant Fitz",
+    "subject": "feat: restore developer story access on mobile",
+    "body": "",
+    "tags": []
+  },
+  {
     "id": "commit-fdb54dc3c9cbf391ac77191baff6adac03208f51",
     "kind": "commit",
     "source": "git-history",
@@ -9,7 +100,21 @@
     "date": "2026-05-08",
     "author": "Grant Fitz",
     "subject": "feat: restore developer story access on mobile",
-    "body": ""
+    "body": "",
+    "tags": []
+  },
+  {
+    "id": "commit-deac2696c54b75b5af6112d1b23ba6edd02b6004",
+    "kind": "commit",
+    "source": "git-history",
+    "sha": "deac2696c54b75b5af6112d1b23ba6edd02b6004",
+    "shortSha": "deac269",
+    "timestamp": "2026-05-08T17:38:39-04:00",
+    "date": "2026-05-08",
+    "author": "Grant Fitz",
+    "subject": "fix: remove brush status cues and harden player command timing",
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-c810edd6c6a433f6c341f020caa95454f1fcfcc4",
@@ -21,7 +126,21 @@
     "date": "2026-05-08",
     "author": "Grant Fitz",
     "subject": "fix: remove brush status cues and harden player command timing",
-    "body": ""
+    "body": "",
+    "tags": []
+  },
+  {
+    "id": "commit-c56e82f2ce636c65f94bccf481344668ed76c781",
+    "kind": "commit",
+    "source": "git-history",
+    "sha": "c56e82f2ce636c65f94bccf481344668ed76c781",
+    "shortSha": "c56e82f",
+    "timestamp": "2026-05-08T16:17:10-04:00",
+    "date": "2026-05-08",
+    "author": "Grant Fitz",
+    "subject": "refactor: remove moving hand-orientation overlay from guide",
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-7398051d432fcd7854bc8f07896e5cb79146ac50",
@@ -33,7 +152,21 @@
     "date": "2026-05-08",
     "author": "Grant Fitz",
     "subject": "refactor: remove moving hand-orientation overlay from guide",
-    "body": ""
+    "body": "",
+    "tags": []
+  },
+  {
+    "id": "commit-16118c60fece1cfee6035fe07ac259eed2894756",
+    "kind": "commit",
+    "source": "git-history",
+    "sha": "16118c60fece1cfee6035fe07ac259eed2894756",
+    "shortSha": "16118c6",
+    "timestamp": "2026-05-08T16:12:31-04:00",
+    "date": "2026-05-08",
+    "author": "Grant Fitz",
+    "subject": "fix: show brushing bounce during queued playback",
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-3f86cea3c5b14e7b6cce2c986221a5105c5b0a96",
@@ -45,7 +178,21 @@
     "date": "2026-05-08",
     "author": "Grant Fitz",
     "subject": "fix: show brushing bounce during queued playback",
-    "body": ""
+    "body": "",
+    "tags": []
+  },
+  {
+    "id": "commit-6d7fe31f620346cce6a7cc7e0f743e1d11e995a4",
+    "kind": "commit",
+    "source": "git-history",
+    "sha": "6d7fe31f620346cce6a7cc7e0f743e1d11e995a4",
+    "shortSha": "6d7fe31",
+    "timestamp": "2026-05-08T16:09:00-04:00",
+    "date": "2026-05-08",
+    "author": "Grant Fitz",
+    "subject": "fix: sync brushing bounce to beat alternation",
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-8b287d743f2a56a47e88b841738f4cbc0937a1db",
@@ -57,7 +204,21 @@
     "date": "2026-05-08",
     "author": "Grant Fitz",
     "subject": "fix: sync brushing bounce to beat alternation",
-    "body": ""
+    "body": "",
+    "tags": []
+  },
+  {
+    "id": "commit-00a66104a59bea78574a178339aa98065c1f982e",
+    "kind": "commit",
+    "source": "git-history",
+    "sha": "00a66104a59bea78574a178339aa98065c1f982e",
+    "shortSha": "00a6610",
+    "timestamp": "2026-05-08T15:59:00-04:00",
+    "date": "2026-05-08",
+    "author": "Grant Fitz",
+    "subject": "fix: stabilize youtube host element during queue transitions",
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-536218d972fca075c0cd3a7ac930a6e6de68ef4c",
@@ -69,7 +230,21 @@
     "date": "2026-05-08",
     "author": "Grant Fitz",
     "subject": "fix: stabilize youtube host element during queue transitions",
-    "body": ""
+    "body": "",
+    "tags": []
+  },
+  {
+    "id": "commit-a6804d8ecc839fae206971cbd344ddb916654b7e",
+    "kind": "commit",
+    "source": "git-history",
+    "sha": "a6804d8ecc839fae206971cbd344ddb916654b7e",
+    "shortSha": "a6804d8",
+    "timestamp": "2026-05-08T15:56:34-04:00",
+    "date": "2026-05-08",
+    "author": "Grant Fitz",
+    "subject": "fix: prevent youtube player removeChild crash on queue",
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-40a58e99928120b0f895844a68672ae0e3ef07a9",
@@ -81,7 +256,34 @@
     "date": "2026-05-08",
     "author": "Grant Fitz",
     "subject": "fix: prevent youtube player removeChild crash on queue",
-    "body": ""
+    "body": "",
+    "tags": []
+  },
+  {
+    "id": "commit-69c6dcd6e7efc1e7210a3bf2e2daa4e3d97df496",
+    "kind": "commit",
+    "source": "git-history",
+    "sha": "69c6dcd6e7efc1e7210a3bf2e2daa4e3d97df496",
+    "shortSha": "69c6dcd",
+    "timestamp": "2026-05-08T14:33:46-04:00",
+    "date": "2026-05-08",
+    "author": "Grant Fitz",
+    "subject": "fix: align teeth guide bounce to bpm",
+    "body": "",
+    "tags": []
+  },
+  {
+    "id": "commit-307c363ad805fd3be073dbe87c0e603a8dd42aa6",
+    "kind": "commit",
+    "source": "git-history",
+    "sha": "307c363ad805fd3be073dbe87c0e603a8dd42aa6",
+    "shortSha": "307c363",
+    "timestamp": "2026-05-08T14:08:25-04:00",
+    "date": "2026-05-08",
+    "author": "Grant Fitz",
+    "subject": "chore: refresh generated version history",
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-6c7c3c5f08256bd1b250343b8f46290ee2da4c1c",
@@ -93,7 +295,8 @@
     "date": "2026-05-08",
     "author": "Grant Fitz",
     "subject": "fix: align teeth guide bounce to bpm",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-303e1a2622281b9f19d2693ef15c57497570eb0e",
@@ -105,7 +308,34 @@
     "date": "2026-05-08",
     "author": "Grant Fitz",
     "subject": "chore: refresh generated version history",
-    "body": ""
+    "body": "",
+    "tags": []
+  },
+  {
+    "id": "commit-9201a9cbecd4275e67fd3006ed96f528541be55f",
+    "kind": "commit",
+    "source": "git-history",
+    "sha": "9201a9cbecd4275e67fd3006ed96f528541be55f",
+    "shortSha": "9201a9c",
+    "timestamp": "2026-05-08T08:07:53-04:00",
+    "date": "2026-05-08",
+    "author": "Grant Fitz",
+    "subject": "fix: replace useEffectEvent with useCallback in Player; add root error boundary",
+    "body": "",
+    "tags": []
+  },
+  {
+    "id": "commit-cc9109ee85495b641ef3834da31855267bc71663",
+    "kind": "commit",
+    "source": "git-history",
+    "sha": "cc9109ee85495b641ef3834da31855267bc71663",
+    "shortSha": "cc9109e",
+    "timestamp": "2026-05-08T08:07:53-04:00",
+    "date": "2026-05-08",
+    "author": "Grant Fitz",
+    "subject": "fix: replace useEffectEvent with useCallback in Player; add root error boundary",
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-5ff5e84d432828e8f03a7c356f9cf4f11ae211b5",
@@ -117,7 +347,34 @@
     "date": "2026-05-08",
     "author": "Grant Fitz",
     "subject": "fix: replace useEffectEvent with useCallback in Player; add root error boundary",
-    "body": ""
+    "body": "",
+    "tags": []
+  },
+  {
+    "id": "commit-bcd43d9f5698731901f0cb7b41e1e0468a94fff4",
+    "kind": "commit",
+    "source": "git-history",
+    "sha": "bcd43d9f5698731901f0cb7b41e1e0468a94fff4",
+    "shortSha": "bcd43d9",
+    "timestamp": "2026-05-08T07:52:14-04:00",
+    "date": "2026-05-08",
+    "author": "Grant Fitz",
+    "subject": "feat: persist founder/early-adopter token on first install",
+    "body": "",
+    "tags": []
+  },
+  {
+    "id": "commit-822387a265e67ec2730cfbd932f16b46576ce0d6",
+    "kind": "commit",
+    "source": "git-history",
+    "sha": "822387a265e67ec2730cfbd932f16b46576ce0d6",
+    "shortSha": "822387a",
+    "timestamp": "2026-05-08T07:52:14-04:00",
+    "date": "2026-05-08",
+    "author": "Grant Fitz",
+    "subject": "feat: persist founder/early-adopter token on first install",
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-7f163a577644c703fab75b5f48678de0c63cc76d",
@@ -129,7 +386,34 @@
     "date": "2026-05-08",
     "author": "Grant Fitz",
     "subject": "feat: persist founder/early-adopter token on first install",
-    "body": ""
+    "body": "",
+    "tags": []
+  },
+  {
+    "id": "commit-4b1549739f18182350f13c081648ffd1cecd6ebe",
+    "kind": "commit",
+    "source": "git-history",
+    "sha": "4b1549739f18182350f13c081648ffd1cecd6ebe",
+    "shortSha": "4b15497",
+    "timestamp": "2026-05-08T07:48:14-04:00",
+    "date": "2026-05-08",
+    "author": "Grant Fitz",
+    "subject": "fix: navigate to step 3 immediately on queue; allow github pages in cors",
+    "body": "",
+    "tags": []
+  },
+  {
+    "id": "commit-1209b394c2715177d37603de0276275ca4dcf81b",
+    "kind": "commit",
+    "source": "git-history",
+    "sha": "1209b394c2715177d37603de0276275ca4dcf81b",
+    "shortSha": "1209b39",
+    "timestamp": "2026-05-08T07:48:14-04:00",
+    "date": "2026-05-08",
+    "author": "Grant Fitz",
+    "subject": "fix: navigate to step 3 immediately on queue; allow github pages in cors",
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-5a94d1c21cae082a4ea22fdb98131bdb3b06870c",
@@ -141,7 +425,34 @@
     "date": "2026-05-08",
     "author": "Grant Fitz",
     "subject": "fix: navigate to step 3 immediately on queue; allow github pages in cors",
-    "body": ""
+    "body": "",
+    "tags": []
+  },
+  {
+    "id": "commit-f6ff2b0702269411ee476951e0e7164f24122b8c",
+    "kind": "commit",
+    "source": "git-history",
+    "sha": "f6ff2b0702269411ee476951e0e7164f24122b8c",
+    "shortSha": "f6ff2b0",
+    "timestamp": "2026-05-08T07:42:01-04:00",
+    "date": "2026-05-08",
+    "author": "Grant Fitz",
+    "subject": "fix: calculate bpm locally in frontend",
+    "body": "",
+    "tags": []
+  },
+  {
+    "id": "commit-126ae09b69bfe832ac7ea1805c87ac4f2e3e8a00",
+    "kind": "commit",
+    "source": "git-history",
+    "sha": "126ae09b69bfe832ac7ea1805c87ac4f2e3e8a00",
+    "shortSha": "126ae09",
+    "timestamp": "2026-05-08T07:42:01-04:00",
+    "date": "2026-05-08",
+    "author": "Grant Fitz",
+    "subject": "fix: calculate bpm locally in frontend",
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-185552c8ab3b8030234d54c3c4c217cd65ba0bad",
@@ -153,7 +464,34 @@
     "date": "2026-05-08",
     "author": "Grant Fitz",
     "subject": "fix: calculate bpm locally in frontend",
-    "body": ""
+    "body": "",
+    "tags": []
+  },
+  {
+    "id": "commit-cf67fe175d3685b83cc56356a011dca3b4007579",
+    "kind": "commit",
+    "source": "git-history",
+    "sha": "cf67fe175d3685b83cc56356a011dca3b4007579",
+    "shortSha": "cf67fe1",
+    "timestamp": "2026-05-08T07:12:30-04:00",
+    "date": "2026-05-08",
+    "author": "Grant Fitz",
+    "subject": "debug: show mobile bpm formula details",
+    "body": "",
+    "tags": []
+  },
+  {
+    "id": "commit-9938c4320a4170aeda727ad62744e7010862c33d",
+    "kind": "commit",
+    "source": "git-history",
+    "sha": "9938c4320a4170aeda727ad62744e7010862c33d",
+    "shortSha": "9938c43",
+    "timestamp": "2026-05-08T07:12:30-04:00",
+    "date": "2026-05-08",
+    "author": "Grant Fitz",
+    "subject": "debug: show mobile bpm formula details",
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-fff9ccc57d740f0f5606fac70b74a44fe6bc457a",
@@ -165,7 +503,34 @@
     "date": "2026-05-08",
     "author": "Grant Fitz",
     "subject": "debug: show mobile bpm formula details",
-    "body": ""
+    "body": "",
+    "tags": []
+  },
+  {
+    "id": "commit-1ae65a911bedd7dedf7c8ea0ca74fba8e380faab",
+    "kind": "commit",
+    "source": "git-history",
+    "sha": "1ae65a911bedd7dedf7c8ea0ca74fba8e380faab",
+    "shortSha": "1ae65a9",
+    "timestamp": "2026-05-08T07:10:40-04:00",
+    "date": "2026-05-08",
+    "author": "Grant Fitz",
+    "subject": "fix: recalculate bpm after restored mobile session changes",
+    "body": "",
+    "tags": []
+  },
+  {
+    "id": "commit-794ca9a8d8119e6e6bfdf72d6457ebdfc565b6ed",
+    "kind": "commit",
+    "source": "git-history",
+    "sha": "794ca9a8d8119e6e6bfdf72d6457ebdfc565b6ed",
+    "shortSha": "794ca9a",
+    "timestamp": "2026-05-08T07:10:40-04:00",
+    "date": "2026-05-08",
+    "author": "Grant Fitz",
+    "subject": "fix: recalculate bpm after restored mobile session changes",
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-891efbad196a11d61fb10e06fd742c87946072df",
@@ -177,7 +542,34 @@
     "date": "2026-05-08",
     "author": "Grant Fitz",
     "subject": "fix: recalculate bpm after restored mobile session changes",
-    "body": ""
+    "body": "",
+    "tags": []
+  },
+  {
+    "id": "commit-3f55f913e1ccd9ba6379555d519f581094576f89",
+    "kind": "commit",
+    "source": "git-history",
+    "sha": "3f55f913e1ccd9ba6379555d519f581094576f89",
+    "shortSha": "3f55f91",
+    "timestamp": "2026-05-08T07:06:10-04:00",
+    "date": "2026-05-08",
+    "author": "Grant Fitz",
+    "subject": "feat: add contact email to my story page",
+    "body": "",
+    "tags": []
+  },
+  {
+    "id": "commit-1d0275d66543d5689d97d9cb7fbdac9756d289fd",
+    "kind": "commit",
+    "source": "git-history",
+    "sha": "1d0275d66543d5689d97d9cb7fbdac9756d289fd",
+    "shortSha": "1d0275d",
+    "timestamp": "2026-05-08T07:06:10-04:00",
+    "date": "2026-05-08",
+    "author": "Grant Fitz",
+    "subject": "feat: add contact email to my story page",
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-d5ccd4aa6d46e10af988f827c5e39ec032778389",
@@ -189,7 +581,21 @@
     "date": "2026-05-08",
     "author": "Grant Fitz",
     "subject": "feat: add contact email to my story page",
-    "body": ""
+    "body": "",
+    "tags": []
+  },
+  {
+    "id": "commit-b866d509d79058db43d9fdf8e332350a49f4ed46",
+    "kind": "commit",
+    "source": "git-history",
+    "sha": "b866d509d79058db43d9fdf8e332350a49f4ed46",
+    "shortSha": "b866d50",
+    "timestamp": "2026-05-08T07:02:32-04:00",
+    "date": "2026-05-08",
+    "author": "Grant Fitz",
+    "subject": "Merge pull request #6 from fitzgr/hotfix/prod-rollback-v0-22-00",
+    "body": "Rollback production to Apr 30 stable (v0.22.00 line)",
+    "tags": []
   },
   {
     "id": "commit-70b90c0523f6abe40d846e9918bab510986d0d98",
@@ -201,7 +607,34 @@
     "date": "2026-05-08",
     "author": "Grant Fitz",
     "subject": "feat: add my story about the app developer page",
-    "body": ""
+    "body": "",
+    "tags": []
+  },
+  {
+    "id": "commit-b2ef03edd380b9d9754204016666ead27d1a7eec",
+    "kind": "commit",
+    "source": "git-history",
+    "sha": "b2ef03edd380b9d9754204016666ead27d1a7eec",
+    "shortSha": "b2ef03e",
+    "timestamp": "2026-05-08T06:47:08-04:00",
+    "date": "2026-05-08",
+    "author": "Grant Fitz",
+    "subject": "feat: add my story about the app developer page",
+    "body": "",
+    "tags": []
+  },
+  {
+    "id": "commit-53bd02a08ff38a9a59d626640801e8a4c4a1c4c1",
+    "kind": "commit",
+    "source": "git-history",
+    "sha": "53bd02a08ff38a9a59d626640801e8a4c4a1c4c1",
+    "shortSha": "53bd02a",
+    "timestamp": "2026-05-08T06:44:04-04:00",
+    "date": "2026-05-08",
+    "author": "Grant Fitz",
+    "subject": "feat: drive search BPM by teeth and brush duration; move brush controls to step 1",
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-995884449c88e9e4acb7cccf8119d19d5a433daa",
@@ -213,7 +646,21 @@
     "date": "2026-05-08",
     "author": "Grant Fitz",
     "subject": "feat: drive search BPM by teeth and brush duration; move brush controls to step 1",
-    "body": ""
+    "body": "",
+    "tags": []
+  },
+  {
+    "id": "commit-b236b4fa588a9e7196cebd1a4ccfb68b70b50d9c",
+    "kind": "commit",
+    "source": "git-history",
+    "sha": "b236b4fa588a9e7196cebd1a4ccfb68b70b50d9c",
+    "shortSha": "b236b4f",
+    "timestamp": "2026-05-08T06:27:26-04:00",
+    "date": "2026-05-08",
+    "author": "Grant Fitz",
+    "subject": "fix: prevent blank screen when queueing and repair tr locale json",
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-53b691048370f399fa2344de4fa52494f59a2fbf",
@@ -225,7 +672,8 @@
     "date": "2026-05-08",
     "author": "Grant Fitz",
     "subject": "fix: prevent blank screen when queueing and repair tr locale json",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-8b7bc1902bcfbda8ba29f57e646cb29cff71682f",
@@ -237,7 +685,8 @@
     "date": "2026-05-08",
     "author": "Grant Fitz",
     "subject": "Revert \"feat: link water-flossing mix slider to TTS and player volume\"",
-    "body": "This reverts commit 208b3e5576aacd156552ad260a977f3b4fe29356."
+    "body": "This reverts commit 208b3e5576aacd156552ad260a977f3b4fe29356.",
+    "tags": []
   },
   {
     "id": "commit-3d6c19696526208a4dcbf9fe0134d668e6b9eacc",
@@ -249,7 +698,8 @@
     "date": "2026-05-06",
     "author": "Grant Fitz",
     "subject": "Revert \"fix: make water-flossing mix slider a true music-tts crossfade\"",
-    "body": "This reverts commit c7c5aed3f39f2fe9749b4f58ec2565aa30c11932."
+    "body": "This reverts commit c7c5aed3f39f2fe9749b4f58ec2565aa30c11932.",
+    "tags": []
   },
   {
     "id": "commit-19ed6bea07a9c33273082ae0ac332575967f2768",
@@ -261,7 +711,34 @@
     "date": "2026-05-06",
     "author": "Grant Fitz",
     "subject": "Revert \"fix: hard-mute youtube audio at 100% tts endpoint\"",
-    "body": "This reverts commit 13ac258000ee041ff5578c292c589cc0522343d6."
+    "body": "This reverts commit 13ac258000ee041ff5578c292c589cc0522343d6.",
+    "tags": []
+  },
+  {
+    "id": "commit-ea09902b3cf8c0ebf14b9e90fb8efc23224b3c64",
+    "kind": "commit",
+    "source": "git-history",
+    "sha": "ea09902b3cf8c0ebf14b9e90fb8efc23224b3c64",
+    "shortSha": "ea09902",
+    "timestamp": "2026-05-06T12:41:19-04:00",
+    "date": "2026-05-06",
+    "author": "Grant Fitz",
+    "subject": "feat: support multi-repo GitHub Pages base path",
+    "body": "",
+    "tags": []
+  },
+  {
+    "id": "commit-82838c53cd56071aa869ef3b43190e2d4013ec9a",
+    "kind": "commit",
+    "source": "git-history",
+    "sha": "82838c53cd56071aa869ef3b43190e2d4013ec9a",
+    "shortSha": "82838c5",
+    "timestamp": "2026-05-06T07:38:17-04:00",
+    "date": "2026-05-06",
+    "author": "Grant Fitz",
+    "subject": "Set up GitHub dev and prod environments",
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-13ac258000ee041ff5578c292c589cc0522343d6",
@@ -273,7 +750,8 @@
     "date": "2026-05-01",
     "author": "Grant Fitz",
     "subject": "fix: hard-mute youtube audio at 100% tts endpoint",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-c7c5aed3f39f2fe9749b4f58ec2565aa30c11932",
@@ -285,7 +763,8 @@
     "date": "2026-04-30",
     "author": "Grant Fitz",
     "subject": "fix: make water-flossing mix slider a true music-tts crossfade",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-208b3e5576aacd156552ad260a977f3b4fe29356",
@@ -297,7 +776,8 @@
     "date": "2026-04-30",
     "author": "Grant Fitz",
     "subject": "feat: link water-flossing mix slider to TTS and player volume",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-880f8278f763a345f2c6c8bbcd73078339c9542f",
@@ -309,7 +789,8 @@
     "date": "2026-04-30",
     "author": "Grant Fitz",
     "subject": "refine: reposition voice test and add persisted music-vs-tts balance slider",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-234527dd19e60d1515093dfd2320ae7e65c1f7ee",
@@ -321,7 +802,8 @@
     "date": "2026-04-30",
     "author": "Grant Fitz",
     "subject": "feat: add configurable water-flossing voice guidance settings",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-6b3609df6e38ec7999dc81c01cfe29852ddaa768",
@@ -333,7 +815,8 @@
     "date": "2026-04-30",
     "author": "Grant Fitz",
     "subject": "feat: add water-flossing voice guidance module with TTS",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-b487ccf3e15dc4bef433fe1e410016dc946eaecb",
@@ -345,7 +828,8 @@
     "date": "2026-04-25",
     "author": "Grant Fitz",
     "subject": "fix: increase mobile video frame min-height to 240px for proper YouTube playback",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-b65645bc503c32065abf5f31fa4a729b39f7a178",
@@ -357,7 +841,8 @@
     "date": "2026-04-25",
     "author": "Grant Fitz",
     "subject": "fix: position orientation indicator proportionally between teeth and center",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-512d2328f154035f7ccc790115312f5fa2c3bddf",
@@ -369,7 +854,8 @@
     "date": "2026-04-25",
     "author": "Grant Fitz",
     "subject": "fix: 16:9 video frame, jaw-aware orientation + coaching hint positioning",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-0a0f45e7bdb926e21bae1e094eb6e5bf8125ae9b",
@@ -381,7 +867,8 @@
     "date": "2026-04-25",
     "author": "Grant Fitz",
     "subject": "feat: combine mobile brush view into single now-playing + map card",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-3e5308e77828117b993f7d38446a136fd3581b2f",
@@ -393,7 +880,8 @@
     "date": "2026-04-24",
     "author": "Grant Fitz",
     "subject": "style: lower in-map brush orientation layer",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-89ebadb1ce63c0c5b237c1978262f7a364913dbe",
@@ -405,7 +893,8 @@
     "date": "2026-04-23",
     "author": "Grant Fitz",
     "subject": "Continue work + pulled overlay assets",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-5b80480d3b5bf39cbc1ad3c19d9317aabb5f7484",
@@ -417,7 +906,8 @@
     "date": "2026-04-23",
     "author": "Grant Fitz",
     "subject": "Add starter kids overlay SVG sprite",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-584836b3e4441dc0c495febc818f4968e3248334",
@@ -429,7 +919,8 @@
     "date": "2026-04-23",
     "author": "Grant Fitz",
     "subject": "Add kids theme overlay manifest",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-b3f740c01062bca103c96262561d7b9394a9c51f",
@@ -441,7 +932,8 @@
     "date": "2026-04-23",
     "author": "Grant Fitz",
     "subject": "fix: localize stage label and move hand orientation into map",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-c225a7cea5db19652055fab7cbb28bc8cae26fc4",
@@ -453,7 +945,8 @@
     "date": "2026-04-23",
     "author": "Grant Fitz",
     "subject": "security: harden user input handling and add backend tests",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-b02a212d364fac2d979056575923e51670ef35b3",
@@ -465,7 +958,8 @@
     "date": "2026-04-23",
     "author": "Grant Fitz",
     "subject": "feat: add age-curated overlay theme system",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-76ed13e660c4449f86a757858b0132958d3d3ed3",
@@ -477,7 +971,8 @@
     "date": "2026-04-22",
     "author": "Grant Fitz",
     "subject": "Soften brush map tooth tint",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-f88d1a498ae6a670fbf517daa392d166b60a3b5b",
@@ -489,7 +984,8 @@
     "date": "2026-04-22",
     "author": "Grant Fitz",
     "subject": "Pulse electric lift cue at transitions",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-d342df0756e2b3f843b3971bbe788fe16f2b8008",
@@ -501,7 +997,8 @@
     "date": "2026-04-22",
     "author": "Grant Fitz",
     "subject": "Add electric lift cue and soften default tooth tones",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-6140aa0f93a9e1d21b565a94d33d00ba40872b81",
@@ -513,7 +1010,8 @@
     "date": "2026-04-22",
     "author": "Grant Fitz",
     "subject": "Polish realistic tooth map spacing and anatomy",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-fcee8041fdb0f4fb37015c75519df2232aa352a6",
@@ -525,7 +1023,8 @@
     "date": "2026-04-21",
     "author": "Grant Fitz",
     "subject": "Refine convex arch tooth selection",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-50b947cd6af31ae397d5fa528d6c1eb10eb41f74",
@@ -537,7 +1036,8 @@
     "date": "2026-04-21",
     "author": "Grant Fitz",
     "subject": "Separate top and bottom arch projection",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-d3744b2587c49b15ea5077d7aaeb1e7884e38645",
@@ -549,7 +1049,8 @@
     "date": "2026-04-21",
     "author": "Grant Fitz",
     "subject": "Restore distinct top and bottom brush arches",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-141ee587c2136b9a6bfe1342269aae5cf9622b03",
@@ -561,7 +1062,8 @@
     "date": "2026-04-21",
     "author": "Grant Fitz",
     "subject": "Match brush map tooth layout to SVG",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-6b07d4b3cc1dd90fb9d638f466920fad41422429",
@@ -573,7 +1075,8 @@
     "date": "2026-04-21",
     "author": "Grant Fitz",
     "subject": "Refine age lab and brush map teeth",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-a8b7d0a9cdb040a6327cc3af7b4e6ced3d4c28b1",
@@ -585,7 +1088,8 @@
     "date": "2026-04-20",
     "author": "Grant Fitz",
     "subject": "Add age-driven UI theme profiles",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-5fc1e5b85cf74f5bad4c8f9ebf70111b5a626a74",
@@ -597,7 +1101,8 @@
     "date": "2026-04-20",
     "author": "Grant Fitz",
     "subject": "Add workshop age experience toggle",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-518f6018969f80d386710e4a1600f6e106b12e79",
@@ -609,7 +1114,8 @@
     "date": "2026-04-19",
     "author": "Grant Fitz",
     "subject": "Add age experience simulator previews",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-b2ce5637b71958a9339dcca48ce39b3ef73e24e3",
@@ -621,7 +1127,8 @@
     "date": "2026-04-17",
     "author": "Grant Fitz",
     "subject": "Enforce household cloud sync gate",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-f2b8ee5502d5c16bf84f5eee465e359360134e60",
@@ -633,7 +1140,8 @@
     "date": "2026-04-17",
     "author": "Grant Fitz",
     "subject": "Hydrate subscribed households from cloud",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-12f9da56571a77941e75969321bc88fec349f2b9",
@@ -645,7 +1153,8 @@
     "date": "2026-04-17",
     "author": "Grant Fitz",
     "subject": "Gate cloud sync by subscription tier",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-e5c48f79eeb5f4bdbce96a0ad20403c43ac77444",
@@ -657,7 +1166,8 @@
     "date": "2026-04-17",
     "author": "Grant Fitz",
     "subject": "Fix YouTube player black-screen rendering",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-213bb737010d8d3652205fa973247ba8327b2d5a",
@@ -669,7 +1179,8 @@
     "date": "2026-04-17",
     "author": "Grant Fitz",
     "subject": "Add household snapshot sync to Postgres",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-b234e838dd1e7a2603da2a3c58a6f67baf966d02",
@@ -681,7 +1192,8 @@
     "date": "2026-04-17",
     "author": "Grant Fitz",
     "subject": "Add backend Postgres integration scaffolding",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-eb9abde684205860863927fcef57651c9f1777c0",
@@ -693,7 +1205,8 @@
     "date": "2026-04-16",
     "author": "Grant Fitz",
     "subject": "Fix household management form behavior",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-f266c695395927f4b8a3c7e7d6b8560237f34e8b",
@@ -705,7 +1218,8 @@
     "date": "2026-04-16",
     "author": "Grant Fitz",
     "subject": "Mark roadmap phases 1 through 4 complete",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-cd977003677bcdd551fc7ac743ddcfdbd04403d4",
@@ -717,7 +1231,8 @@
     "date": "2026-04-16",
     "author": "Grant Fitz",
     "subject": "Restore brush map tracker visibility",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-0ccc58764f872f00bfd6611da2bc942d06b6d7d7",
@@ -729,7 +1244,8 @@
     "date": "2026-04-16",
     "author": "Grant Fitz",
     "subject": "Complete Phase 4 progression and caregiver nudges",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-535657d18d8a6cb3468d5bfb6d0f565688fc83f7",
@@ -741,7 +1257,8 @@
     "date": "2026-04-16",
     "author": "Grant Fitz",
     "subject": "Start Phase 4 achievement engine",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-aeb6491231f2cf7dbd6560e3a695f812bde44f2f",
@@ -753,7 +1270,8 @@
     "date": "2026-04-16",
     "author": "Grant Fitz",
     "subject": "Complete Phase 3 household management flows",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-dbb2a4c4bc9b69cff7a35a77204fff6315dbf24e",
@@ -765,7 +1283,8 @@
     "date": "2026-04-16",
     "author": "Grant Fitz",
     "subject": "Add Phase 3 progress dashboard tracking",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-2b1e2fee9efbca51e9353bc694fe8440c69591b4",
@@ -777,7 +1296,8 @@
     "date": "2026-04-16",
     "author": "Grant Fitz",
     "subject": "Start Phase 3 household overview slice",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-2a29d0ba7046b1544d79c2c7c2f540b3368049ee",
@@ -789,7 +1309,8 @@
     "date": "2026-04-16",
     "author": "Grant Fitz",
     "subject": "Complete Phase 2 IndexedDB migration flow",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-74e12549db234579da0783a653d3be96188759ca",
@@ -801,7 +1322,8 @@
     "date": "2026-04-16",
     "author": "Grant Fitz",
     "subject": "Build Phase 2 legacy storage migration flow",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-8ea70286ffa02f2db547b701c8725d7f1d7b70f9",
@@ -813,7 +1335,8 @@
     "date": "2026-04-16",
     "author": "Grant Fitz",
     "subject": "Build MVP1 IndexedDB foundation",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-d5bd7f3eba53d87abab1a35b998d16aef0631e90",
@@ -825,7 +1348,8 @@
     "date": "2026-04-16",
     "author": "Grant Fitz",
     "subject": "Align roadmap exports and add MVP1 prompt",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-6158b0e27fd6dcfcb961c03aa3aeedee703f6e31",
@@ -837,7 +1361,8 @@
     "date": "2026-04-16",
     "author": "Grant Fitz",
     "subject": "Export roadmap for machine-readable access",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-2aeccfe3970f9f74ef8725a01cb240e296899d94",
@@ -849,7 +1374,8 @@
     "date": "2026-04-16",
     "author": "Grant Fitz",
     "subject": "Add development roadmap section and roadmap doc",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-a0fdc9314bdf64194b54d0691bd186e8e0eb9127",
@@ -861,7 +1387,8 @@
     "date": "2026-04-16",
     "author": "Grant Fitz",
     "subject": "Show history dates only and add release versions",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-d6255167a40e96ea301bbe147b6ed29c6a25d6a0",
@@ -873,7 +1400,8 @@
     "date": "2026-04-15",
     "author": "Grant Fitz",
     "subject": "Fetch full git history in Pages deploy",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-532cbec12bc4800aa6dad06fb22e538940b5a7a3",
@@ -885,7 +1413,8 @@
     "date": "2026-04-15",
     "author": "Grant Fitz",
     "subject": "Fix full versions and activity history rendering",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-13c5fb9c39c000506ac7b3c32b3f583abf796874",
@@ -897,7 +1426,8 @@
     "date": "2026-04-15",
     "author": "Grant Fitz",
     "subject": "Move desktop brush actions into guide and retain full commit details in history",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-d5e7e6878ddf9e0f0fe9397c28ac1cbad5c091ea",
@@ -909,7 +1439,8 @@
     "date": "2026-04-14",
     "author": "Grant Fitz",
     "subject": "Add roadmap-style release history and development activity view",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-0f3e95b6b3b8b5723f1cbe1a09a6affe5a604ab4",
@@ -921,7 +1452,8 @@
     "date": "2026-04-14",
     "author": "Grant Fitz",
     "subject": "Rebase favicon assets on the new mint tooth-and-note SVG design",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-f0cc761640841a35df51f5f7af2495c8f1bf9db7",
@@ -933,7 +1465,8 @@
     "date": "2026-04-14",
     "author": "Grant Fitz",
     "subject": "Fix English locale JSON so fallback language text renders correctly",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-2fa42720d387166ed940b77b47a9b09a9e4256ef",
@@ -945,7 +1478,8 @@
     "date": "2026-04-14",
     "author": "Grant Fitz",
     "subject": "Switch version history to full git changelog and refine desktop flow",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-64306cd2af056fb703b738bf327159235d1191f7",
@@ -957,7 +1491,8 @@
     "date": "2026-04-14",
     "author": "Grant Fitz",
     "subject": "Show queued stored pick state and use direct YouTube song matching",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-2ccd0afad638c457dc717aa2563cfde1e033d907",
@@ -969,7 +1504,8 @@
     "date": "2026-04-13",
     "author": "Grant Fitz",
     "subject": "Persist brushType in stored preferences and last session payloads",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-7c1184fb676e8773c3b133b1d50a8ac3f044792b",
@@ -981,7 +1517,8 @@
     "date": "2026-04-13",
     "author": "Grant Fitz",
     "subject": "Add lift-between-teeth coaching tip to all electric brush age phases",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-80cc282fdbb821de4ba185869ba94720f6948deb",
@@ -993,7 +1530,8 @@
     "date": "2026-04-13",
     "author": "Grant Fitz",
     "subject": "Keep music tab on queue and backfill specific comments for older push history",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-bd8709258ea5ff973ebf894da9718eed8925100e",
@@ -1005,7 +1543,8 @@
     "date": "2026-04-13",
     "author": "Grant Fitz",
     "subject": "Activate flossing and water-picking cards with best-practice content and teal styling",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-038977ced69e3e12d084b5ac654aa9f7f8871990",
@@ -1017,7 +1556,8 @@
     "date": "2026-04-13",
     "author": "Grant Fitz",
     "subject": "Show commit messages in push history entries; use Manual/Electric labels in all locales",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-7b5c7edf90b3f218734c5f44d010961844a72565",
@@ -1029,7 +1569,8 @@
     "date": "2026-04-13",
     "author": "Grant Fitz",
     "subject": "Add brush-type coaching tips and strengthen mobile shortcut favicon contrast",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-467ee99dffd4093e1a931bdafcc459f3dfb46989",
@@ -1041,7 +1582,8 @@
     "date": "2026-04-12",
     "author": "Grant Fitz",
     "subject": "Merge GitHub push events with git commit history for ongoing version tracking",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-7223810e4092a810e0674cde5602fa61a840df4a",
@@ -1053,7 +1595,8 @@
     "date": "2026-04-12",
     "author": "Grant Fitz",
     "subject": "Add version history page and ad-aware brushing start flow",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-1574bea639b0e6aebaff17544fa60cdc797610fc",
@@ -1065,7 +1608,8 @@
     "date": "2026-04-12",
     "author": "Grant Fitz",
     "subject": "Add cookie-stored favorites with music-step queue from stored picks",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-602d2419bd21ebee744725735677cf22d126fada",
@@ -1077,7 +1621,8 @@
     "date": "2026-04-12",
     "author": "Grant Fitz",
     "subject": "Replace session label with percent complete in brush map",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-149357d7ac574f9dfc4bbb7c83144d313963a106",
@@ -1089,7 +1634,8 @@
     "date": "2026-04-12",
     "author": "Grant Fitz",
     "subject": "Show short commit id beside top BrushBeats label",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-226ea679c4ac28c485775deb23730e0d2f32e5a6",
@@ -1101,7 +1647,8 @@
     "date": "2026-04-12",
     "author": "Grant Fitz",
     "subject": "Improve brush-map transition orientation and in-map progress cues",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-1bd081f417cdd5e1670fba1b34518f6aa9440b52",
@@ -1113,7 +1660,8 @@
     "date": "2026-04-12",
     "author": "Grant Fitz",
     "subject": "Add GetSongBPM query debug chip in music step",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-abbb0c53d53fd3ba627c351d1ad76592de6efdf4",
@@ -1125,7 +1673,8 @@
     "date": "2026-04-12",
     "author": "Grant Fitz",
     "subject": "Personalize GetSongBPM query with locale and age context",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-aff23f9e9efb395bd9d807be6cbdeab8fb760e0c",
@@ -1137,7 +1686,8 @@
     "date": "2026-04-12",
     "author": "Grant Fitz",
     "subject": "Add localized age-aware YouTube query and ranking pipeline",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-aa00cb9a65a4dc26801b17bfd44d7ad5cb712537",
@@ -1149,7 +1699,8 @@
     "date": "2026-04-12",
     "author": "Grant Fitz",
     "subject": "Add switch cues, age-based completion messages, and geo country debug",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-1e71f2d089c5c6d7057640f95b4c7a7441c93ca1",
@@ -1161,7 +1712,8 @@
     "date": "2026-04-10",
     "author": "Grant Fitz",
     "subject": "Reduce restored-session backend wakeups",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-44e26afb6cda06e16a0ca47cd73707274f4c272c",
@@ -1173,7 +1725,8 @@
     "date": "2026-04-10",
     "author": "Grant Fitz",
     "subject": "Refine repeat brushing and returning visit UI",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-5f3b09f53185796f3b7d9d7c7ba10d8c35d7ac95",
@@ -1185,7 +1738,8 @@
     "date": "2026-04-10",
     "author": "Grant Fitz",
     "subject": "Add brushing countdown and reset flow",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-ac543b1824b7315f9e3048097abe02a3a344d8f1",
@@ -1197,7 +1751,8 @@
     "date": "2026-04-06",
     "author": "Grant Fitz",
     "subject": "Enlarge tooth favicon",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-bbde8d44564b8723f871c1f250a633347d360c0d",
@@ -1209,7 +1764,8 @@
     "date": "2026-04-06",
     "author": "Grant Fitz",
     "subject": "Simplify compact favicon",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-d8b20c1e19958ddbef74b2d929d290801bde41e2",
@@ -1221,7 +1777,8 @@
     "date": "2026-04-06",
     "author": "Grant Fitz",
     "subject": "Refresh favicon options",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-46c4868503a66ea19b038806d9eabf297092e618",
@@ -1233,7 +1790,8 @@
     "date": "2026-04-06",
     "author": "Grant Fitz",
     "subject": "Resume brushing from paused state",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-a289c1f65f4699388a1f1118c0b348b32ac4e468",
@@ -1245,7 +1803,8 @@
     "date": "2026-04-06",
     "author": "Grant Fitz",
     "subject": "Hide restored mobile ready cue",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-94956bddd30465fefa868a02467497ed693b38ee",
@@ -1257,7 +1816,8 @@
     "date": "2026-04-06",
     "author": "Grant Fitz",
     "subject": "Tighten mobile brush flow layout",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-5f7f3ae87431f18ef87e4ce07727569c2bc43c1c",
@@ -1269,7 +1829,8 @@
     "date": "2026-04-06",
     "author": "Grant Fitz",
     "subject": "Reorder mobile brush flow layout",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-f855f8884ed1de441d6f3f7c03160c2ed59c92bd",
@@ -1281,7 +1842,8 @@
     "date": "2026-04-06",
     "author": "Grant Fitz",
     "subject": "Simplify brush flow controls and layout",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-8d855acb0c8e2a81a175c3a99ff04c8e2028554c",
@@ -1293,7 +1855,8 @@
     "date": "2026-04-06",
     "author": "Grant Fitz",
     "subject": "Refine brush map timing and layout",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-e17b879a8deaeaf0960e337c4664995d8fffb95a",
@@ -1305,7 +1868,8 @@
     "date": "2026-04-05",
     "author": "Grant Fitz",
     "subject": "Add translation workshop and brushing flow improvements",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-31964a1e80048bc2a0c9b30e0326a99b7d90e44a",
@@ -1317,7 +1881,8 @@
     "date": "2026-04-04",
     "author": "Grant Fitz",
     "subject": "Add detailed storage notice modal",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-129182ac43ad7c28c9211890bd4c3f8600b4d36f",
@@ -1329,7 +1894,8 @@
     "date": "2026-04-04",
     "author": "Grant Fitz",
     "subject": "Add Spanish support and improve brushing guidance",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-c4cc55830e83615edef91b66baf77193c9c85bc7",
@@ -1341,7 +1907,8 @@
     "date": "2026-04-03",
     "author": "Grant Fitz",
     "subject": "Refine teeth step growth guidance",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-9b27578bd0821b5fea1aa1329d2cbc8da0691fb8",
@@ -1353,7 +1920,8 @@
     "date": "2026-04-03",
     "author": "Grant Fitz",
     "subject": "Add teeth-to-age stage lookup",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-c9225c894fb6ab39bd0b460683e4c9715c8c5a0f",
@@ -1365,7 +1933,8 @@
     "date": "2026-04-03",
     "author": "Grant Fitz",
     "subject": "Add transition-aware brushing timing",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-b689c7b25b92a9d0727c27cb45e2391dbf2cf385",
@@ -1377,7 +1946,8 @@
     "date": "2026-04-03",
     "author": "Grant Fitz",
     "subject": "Add kids brushing mode and music bias",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-6d5c4b5f8818e83f4db207517ef91c86279219ce",
@@ -1389,7 +1959,8 @@
     "date": "2026-04-02",
     "author": "Grant Fitz",
     "subject": "Move teeth slider ticks into track",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-8b389d7cc2a76e63072bc4e00c4b19ac631df2d7",
@@ -1401,7 +1972,8 @@
     "date": "2026-04-02",
     "author": "Grant Fitz",
     "subject": "Add tick marks to teeth count sliders",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-99b957dcc21cc86cbc5c77306469820018711c1b",
@@ -1413,7 +1985,8 @@
     "date": "2026-04-02",
     "author": "Grant Fitz",
     "subject": "Refine desktop step layout sizing",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-3e279eb28ecccc1f3eeb72091f0540a3b92038c2",
@@ -1425,7 +1998,8 @@
     "date": "2026-04-02",
     "author": "Grant Fitz",
     "subject": "Align desktop workflow with step-based flow",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-5df1a0032eb77d54117f6ab811eb962b83946ad0",
@@ -1437,7 +2011,8 @@
     "date": "2026-04-02",
     "author": "Grant Fitz",
     "subject": "Delay song filter fetch until slider release",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-69ee2f5411aed8cae7f0c51156760165dc0b6d43",
@@ -1449,7 +2024,8 @@
     "date": "2026-04-02",
     "author": "Grant Fitz",
     "subject": "Add randomized song vibe preference sliders",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-1cd826273b778a8b42f2628fe548acea294b0d52",
@@ -1461,7 +2037,8 @@
     "date": "2026-04-02",
     "author": "Grant Fitz",
     "subject": "Refine backend loading status copy",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-14762ad42628b38aa8c331d7799a4264ea8aac0a",
@@ -1473,7 +2050,8 @@
     "date": "2026-04-02",
     "author": "Grant Fitz",
     "subject": "Auto-advance to brush tab on mobile when song selected",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-45b7af54de3bab52e0d2527df07d79b35a1e9013",
@@ -1485,7 +2063,8 @@
     "date": "2026-04-02",
     "author": "Grant Fitz",
     "subject": "Add mobile 3-step workflow tabs for teeth, music, and brushing",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-fcf83e5243ce02cde099a03f0d814e4277872a00",
@@ -1497,7 +2076,8 @@
     "date": "2026-04-02",
     "author": "Grant Fitz",
     "subject": "Add device-aware mobile and desktop UI modes",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-39fb122e94279356d6c4aaaa9b6dfc630917931d",
@@ -1509,7 +2089,8 @@
     "date": "2026-04-02",
     "author": "Grant Fitz",
     "subject": "Ignore local .references workspace links",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-0cc41fdd3cf7b865663493a89a50dcd8709fcbf4",
@@ -1521,7 +2102,8 @@
     "date": "2026-04-02",
     "author": "Grant Fitz",
     "subject": "Add storage consent notice and persist last brushed song",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-61094fc1bd1b52eeab4f70d46905cd10ac7e2c8b",
@@ -1533,7 +2115,8 @@
     "date": "2026-04-01",
     "author": "Grant Fitz",
     "subject": "Add in-app privacy policy modal with consent details",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-da69147435ff6654d9e59218836fd0a3afab4f9c",
@@ -1545,7 +2128,8 @@
     "date": "2026-04-01",
     "author": "Grant Fitz",
     "subject": "Add privacy consent controls to gate analytics tracking",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-f6003ee8892a1e82c821f4354747b0c239ca68de",
@@ -1557,7 +2141,8 @@
     "date": "2026-04-01",
     "author": "Grant Fitz",
     "subject": "Change restart action to timer reset without auto-start",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-4c682b9c22cad262b2fe1fda95d2190d168cd824",
@@ -1569,7 +2154,8 @@
     "date": "2026-04-01",
     "author": "Grant Fitz",
     "subject": "Add GA4 analytics: init on mount, track bpm_calculated, song_selected, song_auto_queued, brushing_started, brushing_completed",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-7e183320fd71c31c9a302dcd9fc3475779ae9a5b",
@@ -1581,7 +2167,21 @@
     "date": "2026-04-01",
     "author": "Grant Fitz",
     "subject": "Sync tooth indicator to playback beats across pauses and song switches",
-    "body": ""
+    "body": "",
+    "tags": []
+  },
+  {
+    "id": "commit-18e010361b2bbdc018787021f23aa6efc8bc3491",
+    "kind": "commit",
+    "source": "git-history",
+    "sha": "18e010361b2bbdc018787021f23aa6efc8bc3491",
+    "shortSha": "18e0103",
+    "timestamp": "2026-04-01T09:04:48-04:00",
+    "date": "2026-04-01",
+    "author": "Grant Fitz",
+    "subject": "On feat/video-tooth-sync-analytics: wip-analytics-branch",
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-d3f6344a4b8d0f22e3ebd7372c9d5c829cde5f16",
@@ -1593,7 +2193,34 @@
     "date": "2026-04-01",
     "author": "Grant Fitz",
     "subject": "Apply index credit cleanup and song pool exhaustion messaging",
-    "body": ""
+    "body": "",
+    "tags": []
+  },
+  {
+    "id": "commit-8e15c91b1f06b2d29188a45d707f34859dcdb6a5",
+    "kind": "commit",
+    "source": "git-history",
+    "sha": "8e15c91b1f06b2d29188a45d707f34859dcdb6a5",
+    "shortSha": "8e15c91",
+    "timestamp": "2026-04-01T09:04:48-04:00",
+    "date": "2026-04-01",
+    "author": "Grant Fitz",
+    "subject": "index on feat/video-tooth-sync-analytics: fdbbdee Apply index credit cleanup and song pool exhaustion messaging",
+    "body": "",
+    "tags": []
+  },
+  {
+    "id": "commit-fdbbdee0acd259017a048eef26b54406763c9a9a",
+    "kind": "commit",
+    "source": "git-history",
+    "sha": "fdbbdee0acd259017a048eef26b54406763c9a9a",
+    "shortSha": "fdbbdee",
+    "timestamp": "2026-04-01T09:04:32-04:00",
+    "date": "2026-04-01",
+    "author": "Grant Fitz",
+    "subject": "Apply index credit cleanup and song pool exhaustion messaging",
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-f59d63452a7b8b638994f06a37e05ecfc2635faf",
@@ -1605,7 +2232,8 @@
     "date": "2026-04-01",
     "author": "Grant Fitz",
     "subject": "Align brush timing with 2-surface per tooth formula",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-84d4a92b9f4415d6001fd5c7d6fe556c8968fe18",
@@ -1617,7 +2245,8 @@
     "date": "2026-04-01",
     "author": "Grant Fitz",
     "subject": "Fix BPM search math for fixed 2-minute brushing model",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-81be99438b02c11a559d86e8d6c6f75656730068",
@@ -1629,7 +2258,8 @@
     "date": "2026-04-01",
     "author": "Grant Fitz",
     "subject": "Show backend wake-up status during free-tier cold starts",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-1620339dd89d047df731261ad881c010ded2994b",
@@ -1641,7 +2271,8 @@
     "date": "2026-04-01",
     "author": "Grant Fitz",
     "subject": "Show front and back tooth surfaces whitening separately",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-ffa28cea656f3c9b927349828b04bfae40d57953",
@@ -1653,7 +2284,8 @@
     "date": "2026-04-01",
     "author": "Grant Fitz",
     "subject": "Teeth progress visual: dirty to white, hard-code 2:00 ADA brushing time, remove section selector",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-eeca4b153cf5d34e4da03aad404230012fd3c34a",
@@ -1665,7 +2297,8 @@
     "date": "2026-04-01",
     "author": "Grant Fitz",
     "subject": "Auto-play next song only during brushing, make section/total time dynamic",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-3d5866811f13ec822314cd3bab9f4904de015814",
@@ -1677,7 +2310,8 @@
     "date": "2026-04-01",
     "author": "Grant Fitz",
     "subject": "Fix blank screen when switching songs by keeping iframe div in DOM",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-c79997d80754dd1bc23a77c9f32aa72698cbb66a",
@@ -1689,7 +2323,8 @@
     "date": "2026-04-01",
     "author": "Grant Fitz",
     "subject": "Add git commit SHA display for version debugging",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-30f4aeb27ceb0fdb5aca3fcc5310625486fcbd6c",
@@ -1701,7 +2336,8 @@
     "date": "2026-04-01",
     "author": "Grant Fitz",
     "subject": "Update timer format to m:ss and clarify brushing completeness label",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-13e7e3ecbba921a33a4ab868b9c8bfc49437a602",
@@ -1713,7 +2349,8 @@
     "date": "2026-04-01",
     "author": "Grant Fitz",
     "subject": "Beat-sync brush guide and improve song rotation diversity",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-001b7fa99c45ab5acced65bb7fdc5ed4d289d521",
@@ -1725,7 +2362,8 @@
     "date": "2026-04-01",
     "author": "Grant Fitz",
     "subject": "Wire Render API and improve brushing guidance UX",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-e1d92d2b66bf0607ed7e94ea0fca6d9f9c77c4d0",
@@ -1737,7 +2375,8 @@
     "date": "2026-03-31",
     "author": "Grant Fitz",
     "subject": "Add static GetSongBPM backlink to index.html for crawler visibility",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-ffd70ac84a1d2a7c854bfe74cf2a93d339677738",
@@ -1749,7 +2388,8 @@
     "date": "2026-03-31",
     "author": "Grant Fitz",
     "subject": "Fix BPM calculation: default 15s sections, matching 28-tooth=112BPM, 32-tooth=128BPM",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-073f0ea36adc51284cefab232591e44e23ad9801",
@@ -1761,7 +2401,8 @@
     "date": "2026-03-31",
     "author": "Grant Fitz",
     "subject": "Initial BrushBeats full-stack app with GitHub Pages deploy",
-    "body": ""
+    "body": "",
+    "tags": []
   },
   {
     "id": "commit-1bb25add928cda6477586d6068ed83515bb73189",
@@ -1773,6 +2414,7 @@
     "date": "2026-03-31",
     "author": "Grant Fitz",
     "subject": "Initial commit",
-    "body": ""
+    "body": "",
+    "tags": []
   }
 ]
