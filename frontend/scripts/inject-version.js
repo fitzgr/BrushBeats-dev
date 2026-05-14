@@ -17,9 +17,66 @@ function runGit(command, fallback = '') {
   }
 }
 
+function getTagsByCommitSha() {
+  const raw = runGit('git show-ref --tags -d', '');
+  if (!raw) {
+    return new Map();
+  }
+
+  const tagToSha = new Map();
+
+  raw
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .forEach((line) => {
+      const [sha, refName] = line.split(' ');
+      if (!sha || !refName || !refName.startsWith('refs/tags/')) {
+        return;
+      }
+
+      const isPeeledTagRef = refName.endsWith('^{}');
+      const normalizedRefName = isPeeledTagRef ? refName.slice(0, -3) : refName;
+      const tagName = normalizedRefName.replace('refs/tags/', '').trim();
+      if (!tagName) {
+        return;
+      }
+
+      const existingTagMeta = tagToSha.get(tagName) || {};
+      if (isPeeledTagRef) {
+        existingTagMeta.peeledSha = sha;
+      } else {
+        existingTagMeta.directSha = sha;
+      }
+
+      tagToSha.set(tagName, existingTagMeta);
+    });
+
+  const commitToTags = new Map();
+  for (const [tagName, shaMeta] of tagToSha.entries()) {
+    const commitSha = shaMeta.peeledSha || shaMeta.directSha;
+    if (!commitSha) {
+      continue;
+    }
+
+    if (!commitToTags.has(commitSha)) {
+      commitToTags.set(commitSha, []);
+    }
+
+    commitToTags.get(commitSha).push(tagName);
+  }
+
+  for (const tags of commitToTags.values()) {
+    tags.sort((left, right) => left.localeCompare(right));
+  }
+
+  return commitToTags;
+}
+
 function getGitCommitHistory(limit) {
+  const tagsByCommitSha = getTagsByCommitSha();
   const raw = runGit(
-    `git log --date=iso-strict --pretty=format:"%H%x1f%h%x1f%ad%x1f%an%x1f%s%x1f%b%x1e" -${limit}`,
+    `git log --all --date=iso-strict --pretty=format:"%H%x1f%h%x1f%ad%x1f%an%x1f%s%x1f%b%x1e" -${limit}`,
     ''
   );
 
@@ -50,7 +107,8 @@ function getGitCommitHistory(limit) {
         date: String(timestamp || '').slice(0, 10),
         author: author || 'BrushBeats',
         subject,
-        body: String(body || '').trim()
+        body: String(body || '').trim(),
+        tags: tagsByCommitSha.get(sha) || []
       };
     })
     .filter(Boolean);
