@@ -737,6 +737,13 @@
   align-items: flex-start;
 }
 
+.version-history-header-actions {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
 .version-history-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -972,6 +979,15 @@
 }
 
 @media (max-width: 900px) {
+  .version-history-header {
+    flex-direction: column;
+  }
+
+  .version-history-header-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
   .version-history-grid {
     grid-template-columns: 1fr;
   }

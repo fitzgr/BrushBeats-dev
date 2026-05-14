@@ -140,7 +140,7 @@ function buildReleaseHistory(entries, t) {
   return releases.reverse();
 }
 
-function VersionHistory({ onExit }) {
+function VersionHistory({ onExit, onOpenStory }) {
   const { t } = useTranslation();
   const entries = useMemo(() => normalizeHistoryEntries(versionHistory), []);
   const releaseHistory = useMemo(() => buildReleaseHistory(entries, t), [entries, t]);
@@ -154,9 +154,14 @@ function VersionHistory({ onExit }) {
           <h2>{t("history.title")}</h2>
           <p>{t("history.intro")}</p>
         </div>
-        <button type="button" className="action-btn secondary" onClick={onExit}>
-          {t("history.backToApp")}
-        </button>
+        <div className="version-history-header-actions">
+          <button type="button" className="action-btn secondary" onClick={onOpenStory}>
+            About the Developer
+          </button>
+          <button type="button" className="action-btn secondary" onClick={onExit}>
+            {t("history.backToApp")}
+          </button>
+        </div>
       </div>
 
       <div className="version-history-grid">
