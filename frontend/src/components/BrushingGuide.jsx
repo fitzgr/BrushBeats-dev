@@ -858,40 +858,6 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
     : transitionFromJaw && transitionToJaw && transitionFromJaw !== transitionToJaw
       ? `${t(`brushing.jaw.${transitionFromJaw}`)} -> ${t(`brushing.jaw.${transitionToJaw}`)}`
       : null;
-  const guideStatusText = brushingPhase === "countdown"
-    ? t("brushing.guide.countdownCallout", { seconds: formatTenths(startCountdownRemainingMs / 1000) })
-    : brushingPhase === "awaitingPlayback"
-      ? t("brushing.guide.awaitingPlaybackCallout")
-    : brushingPhase === "running"
-    ? activeEntry?.type === "transition"
-      ? activeEntry.transitionCue === "switchHand"
-        ? transitionDirection
-          ? `${t("brushing.guide.switchHandCallout")} ${transitionDirection}.`
-          : t("brushing.guide.switchHandCallout")
-        : activeEntry.transitionCue === "rotate"
-          ? transitionDirection
-            ? `${t("brushing.guide.rotateCallout")} ${transitionDirection}.`
-            : t("brushing.guide.rotateCallout")
-          : t("brushing.guide.transitionCallout", {
-              fromLabel: getSegmentLabel(t, activeEntry.fromLabel),
-              toLabel: getSegmentLabel(t, activeEntry.toLabel),
-              seconds: formatTenths(transitionCountdownSeconds)
-            })
-      : t("brushing.guide.activeCurrentCallout", {
-          label: getSegmentLabel(t, activeToothEntry?.label),
-          toothLabel: getToothLabel(t, activeToothMeta),
-          position: activeToothEntry?.segmentPosition,
-          size: activeToothEntry?.segmentSize,
-          seconds: nextMoveSeconds
-        })
-    : brushingPhase === "paused"
-        ? t("brushing.guide.pausedCallout")
-    : brushingPhase === "complete"
-        ? t("brushing.guide.completeCallout")
-        : "";
-  const inactiveGuideText = !timer.running && brushingPhase === "idle"
-    ? t("brushing.guide.inactiveCallout")
-    : "";
   const centerLabel = brushingPhase === "countdown"
     ? t("brushing.guide.startLabel")
     : brushingPhase === "complete"
@@ -1235,8 +1201,6 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
         </svg>
         </div>
       </div>
-      {guideStatusText && !(brushingPhase === "complete" && completionMessage) && <p className={`guide-callout${brushingPhase === "complete" ? " complete" : ""}`}>{guideStatusText}</p>}
-      {inactiveGuideText && <p className="guide-callout">{inactiveGuideText}</p>}
       {brushingPhase === "running" && activeTip && (
         <p className="guide-technique-tip" aria-live="polite">{activeTip}</p>
       )}
