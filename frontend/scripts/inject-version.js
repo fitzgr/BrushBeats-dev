@@ -76,7 +76,8 @@ function getTagsByCommitSha() {
 function getGitCommitHistory(limit) {
   const tagsByCommitSha = getTagsByCommitSha();
   const raw = runGit(
-    `git log --all --date=iso-strict --pretty=format:"%H%x1f%h%x1f%ad%x1f%an%x1f%s%x1f%b%x1e" -${limit}`,
+    // Use branches and tags only so stash/reflog metadata never appears in app history.
+    `git log --branches --tags --date=iso-strict --pretty=format:"%H%x1f%h%x1f%ad%x1f%an%x1f%s%x1f%b%x1e" -${limit}`,
     ''
   );
 
