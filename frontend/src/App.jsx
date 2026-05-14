@@ -714,6 +714,16 @@ function App() {
   }, [appView, device.isMobile]);
 
   useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    if (appView === "story" || appView === "history" || (appView === "workshop" && !device.isMobile)) {
+      window.scrollTo({ top: 0, behavior: "auto" });
+    }
+  }, [appView, device.isMobile]);
+
+  useEffect(() => {
     setLanguageFallbackState(getLanguageFallbackInfo());
   }, [i18n.language, i18n.resolvedLanguage]);
 
@@ -3059,8 +3069,12 @@ function App() {
           <button type="button" className="privacy-toggle" onClick={() => setAppView("history")}>
             {t("common.buttons.versionHistory")}
           </button>
-          <button type="button" className="privacy-toggle" onClick={() => setAppView("story")}>
-            About the Developer
+          <button
+            type="button"
+            className="privacy-toggle"
+            onClick={() => setAppView((current) => (current === "story" ? "brush" : "story"))}
+          >
+            {appView === "story" ? "Return to brushing flow" : "About the Developer"}
           </button>
         </div>
       </footer>
