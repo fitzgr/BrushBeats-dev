@@ -5583,6 +5583,121 @@ select {
   color: #155d49;
 }
 
+/* ── Artist debug panel ─────────────────────────────────── */
+.artist-debug-panel {
+  margin-top: 28px;
+  border-top: 1px dashed rgba(16, 33, 37, 0.15);
+  padding-top: 10px;
+}
+
+.artist-debug-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.78rem;
+  color: rgba(16, 33, 37, 0.45);
+  padding: 4px 0;
+}
+
+.artist-debug-toggle:hover {
+  color: rgba(16, 33, 37, 0.75);
+}
+
+.artist-debug-body {
+  margin-top: 10px;
+  background: rgba(16, 33, 37, 0.035);
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-size: 0.78rem;
+}
+
+.artist-debug-env {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 3px 12px;
+  margin: 0 0 10px;
+}
+
+.artist-debug-env dt {
+  font-weight: 600;
+  color: rgba(16, 33, 37, 0.55);
+  white-space: nowrap;
+}
+
+.artist-debug-env dd {
+  margin: 0;
+  word-break: break-all;
+}
+
+.artist-debug-env code {
+  font-size: 0.75rem;
+  background: rgba(16, 33, 37, 0.07);
+  padding: 1px 4px;
+  border-radius: 4px;
+}
+
+.artist-debug-copy-btn {
+  display: inline-block;
+  margin-bottom: 8px;
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  border: 1px solid rgba(21, 93, 73, 0.4);
+  border-radius: 6px;
+  background: rgba(21, 93, 73, 0.07);
+  color: #155d49;
+  cursor: pointer;
+}
+
+.artist-debug-copy-btn:hover {
+  background: rgba(21, 93, 73, 0.14);
+}
+
+.artist-debug-empty {
+  color: rgba(16, 33, 37, 0.45);
+  font-style: italic;
+  margin: 0;
+}
+
+.artist-debug-log {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.artist-debug-entry {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.6);
+  border-left: 3px solid rgba(16, 33, 37, 0.15);
+}
+
+.artist-debug-entry.ok { border-left-color: #2a9d6f; }
+.artist-debug-entry.error { border-left-color: #c0392b; background: rgba(192, 57, 43, 0.05); }
+.artist-debug-entry.pending { border-left-color: #e67e22; }
+
+.artist-debug-status {
+  font-weight: 700;
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+}
+
+.artist-debug-entry.ok .artist-debug-status { color: #2a9d6f; }
+.artist-debug-entry.error .artist-debug-status { color: #c0392b; }
+.artist-debug-entry.pending .artist-debug-status { color: #e67e22; }
+
+.artist-debug-query { font-weight: 500; }
+.artist-debug-duration { color: rgba(16, 33, 37, 0.5); font-size: 0.72rem; }
+.artist-debug-count { color: #2a9d6f; font-size: 0.72rem; }
+.artist-debug-error { color: #c0392b; font-size: 0.72rem; width: 100%; word-break: break-word; }
+.artist-debug-time { color: rgba(16, 33, 37, 0.35); font-size: 0.68rem; margin-left: auto; }
+
 .artist-search-result img {
   width: 128px;
   aspect-ratio: 16 / 9;

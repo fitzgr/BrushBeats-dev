@@ -1,6 +1,8 @@
 import { useMemo, useState } from "react";
 import { searchYoutubeVideos } from "../api/client";
 
+const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:4000";
+
 const YOUTUBE_VIDEO_ID_REGEX = /^[a-zA-Z0-9_-]{11}$/;
 
 function normalizeYoutubeVideoId(value) {
@@ -84,6 +86,9 @@ export default function ArtistPromoPage({
   const [shareLink, setShareLink] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [copyMessage, setCopyMessage] = useState("");
+  const [debugOpen, setDebugOpen] = useState(false);
+  const [debugLog, setDebugLog] = useState([]);
+  const [debugCopied, setDebugCopied] = useState(false);
 
   const personalizationLabel = useMemo(() => {
     if (activeUserName && profileLabel) {
@@ -119,9 +124,24 @@ export default function ArtistPromoPage({
     setSearchMessage("Searching YouTube via BrushBeats backend (YouTube Data API) — may take a moment on first use.");
     setErrorMessage("");
 
+    const startMs = Date.now();
+    const debugEntry = {
+      time: new Date().toISOString(),
+      query,
+      apiBase: API_BASE,
+      endpoint: `${API_BASE}/api/youtube/search?q=${encodeURIComponent(query)}&maxResults=8`,
+      status: "pending",
+      durationMs: null,
+      resultCount: null,
+      error: null,
+    };
+
     try {
       const response = await searchYoutubeVideos({ query, maxResults: 8 });
       const nextResults = Array.isArray(response?.items) ? response.items : [];
+      debugEntry.status = "ok";
+      debugEntry.durationMs = Date.now() - startMs;
+      debugEntry.resultCount = nextResults.length;
       setSearchResults(nextResults);
 
       if (!nextResults.length) {
@@ -130,10 +150,14 @@ export default function ArtistPromoPage({
         setSearchMessage("");
       }
     } catch (error) {
+      debugEntry.status = "error";
+      debugEntry.durationMs = Date.now() - startMs;
+      debugEntry.error = error?.message || String(error);
       setSearchResults([]);
       setSearchMessage(error?.message || "Search failed. The backend may still be starting up — wait a few seconds and try again.");
     } finally {
       setSearchLoading(false);
+      setDebugLog((prev) => [debugEntry, ...prev].slice(0, 10));
     }
   }
 
@@ -308,6 +332,70 @@ export default function ArtistPromoPage({
         <button type="button" className="action-btn secondary" onClick={onExit}>
           Return to brushing flow
         </button>
+      </div>
+
+      <div className="artist-debug-panel">
+        <button
+          type="button"
+          className="artist-debug-toggle"
+          onClick={() => setDebugOpen((v) => !v)}
+          aria-expanded={debugOpen}
+        >
+          {debugOpen ? "▲ Hide debug info" : "▼ Show debug info"}
+        </button>
+        {debugOpen && (
+          <div className="artist-debug-body">
+            <dl className="artist-debug-env">
+              <dt>Backend URL</dt>
+              <dd><code>{API_BASE}</code></dd>
+              <dt>Search endpoint</dt>
+              <dd><code>{API_BASE}/api/youtube/search</code></dd>
+              <dt>Page origin</dt>
+              <dd><code>{typeof window !== "undefined" ? window.location.origin : "—"}</code></dd>
+            </dl>
+            {debugLog.length === 0 ? (
+              <p className="artist-debug-empty">No searches yet. Run a search to capture timing &amp; status.</p>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  className="artist-debug-copy-btn"
+                  onClick={async () => {
+                    const text = [
+                      `Backend: ${API_BASE}`,
+                      `Origin: ${window.location.origin}`,
+                      `Searches:`,
+                      ...debugLog.map((e) =>
+                        `  [${e.time}] "${e.query}" → ${e.status} (${e.durationMs ?? "?"}ms)${e.resultCount != null ? ` · ${e.resultCount} results` : ""}${e.error ? ` · ERROR: ${e.error}` : ""}`
+                      ),
+                    ].join("\n");
+                    try {
+                      await navigator.clipboard.writeText(text);
+                      setDebugCopied(true);
+                      setTimeout(() => setDebugCopied(false), 3000);
+                    } catch {
+                      setDebugCopied(false);
+                    }
+                  }}
+                >
+                  {debugCopied ? "Copied!" : "Copy debug info"}
+                </button>
+                <ul className="artist-debug-log">
+                  {debugLog.map((entry, i) => (
+                    <li key={i} className={`artist-debug-entry ${entry.status}`}>
+                      <span className="artist-debug-status">{entry.status.toUpperCase()}</span>
+                      <span className="artist-debug-query">"{entry.query}"</span>
+                      <span className="artist-debug-duration">{entry.durationMs != null ? `${entry.durationMs}ms` : "pending"}</span>
+                      {entry.resultCount != null && <span className="artist-debug-count">{entry.resultCount} results</span>}
+                      {entry.error && <span className="artist-debug-error">{entry.error}</span>}
+                      <span className="artist-debug-time">{entry.time}</span>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
+          </div>
+        )}
       </div>
     </section>
   );
