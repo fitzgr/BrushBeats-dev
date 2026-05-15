@@ -563,7 +563,10 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
   const useChildToothChart = topTeeth <= 10 && bottomTeeth <= 10 && topTeeth + bottomTeeth <= 20;
   const topToothChart = selectVisibleToothChart(useChildToothChart ? CHILD_TOP_TOOTH_CHART : ADULT_TOP_TOOTH_CHART, topTeeth);
   const bottomToothChart = selectVisibleToothChart(useChildToothChart ? CHILD_BOTTOM_TOOTH_CHART : ADULT_BOTTOM_TOOTH_CHART, bottomTeeth);
-  const safeBpm = Math.max(40, Math.min(240, Number(selectedBpm) || 120));
+  // Use baseBpm (pre-multiplier) for ball animation so the bounce matches the actual song tempo.
+  // searchBpm (post-multiplier) is used for song lookup only.
+  const animationBpm = Number(bpmData?.baseBpm) || Number(selectedBpm) || 120;
+  const safeBpm = Math.max(40, Math.min(240, animationBpm));
   const toothDurationSeconds = Number(bpmData?.secondsPerTooth || totalSeconds / Math.max(1, (topTeeth + bottomTeeth) * 2));
   const transitionBufferSeconds = Number(bpmData?.transitionBufferSeconds || 1);
   const segments = buildSegments(topTeeth, bottomTeeth);
