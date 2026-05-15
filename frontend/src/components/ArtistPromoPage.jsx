@@ -213,6 +213,12 @@ export default function ArtistPromoPage({
             type="text"
             value={searchQuery}
             onChange={(event) => setSearchQuery(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") {
+                event.preventDefault();
+                void handleSearchInPage();
+              }
+            }}
             placeholder="Search terms (artist + track)"
             aria-label="YouTube search query"
           />

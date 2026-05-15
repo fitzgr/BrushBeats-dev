@@ -621,6 +621,7 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
   }, [topTeeth, bottomTeeth]);
   const tips = useMemo(() => getBrushTechniqueTips(brushType, ageUiProfile?.phase || agePhase), [agePhase, ageUiProfile?.phase, brushType]);
   const [activeTip, setActiveTip] = useState("");
+  const [animationNowMs, setAnimationNowMs] = useState(() => Date.now());
   const tipIndexRef = useRef(0);
 
   useEffect(() => {
@@ -640,6 +641,25 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
       window.clearInterval(interval);
     };
   }, [brushingPhase, tips]);
+
+  useEffect(() => {
+    if (!timer.running) {
+      return;
+    }
+
+    let animationFrameId = 0;
+
+    const tick = () => {
+      setAnimationNowMs(Date.now());
+      animationFrameId = window.requestAnimationFrame(tick);
+    };
+
+    animationFrameId = window.requestAnimationFrame(tick);
+
+    return () => {
+      window.cancelAnimationFrame(animationFrameId);
+    };
+  }, [timer.running]);
 
   useEffect(() => {
     if (!onCueChange) {
@@ -793,16 +813,20 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
       })()
     : null;
   const pausedBeatPhase = beatDurationMs > 0 ? normalizedBeatAnchorMs / beatDurationMs : 0;
-  const pausedBouncePoint = activeToothPoint && activeBounceStartPoint
-    ? getBouncePointForPhase(activeToothPoint, activeBounceStartPoint, pausedBeatPhase)
+  const runningBeatPhase = beatDurationMs > 0
+    ? ((((animationNowMs + beatPhaseOffsetMs) % beatDurationMs) + beatDurationMs) % beatDurationMs) / beatDurationMs
+    : 0;
+  const activeBeatPhase = timer.running ? runningBeatPhase : pausedBeatPhase;
+  const liveBouncePoint = activeToothPoint && activeBounceStartPoint
+    ? getBouncePointForPhase(activeToothPoint, activeBounceStartPoint, activeBeatPhase)
     : null;
-  const pausedTailPoints = activeToothPoint && activeBounceStartPoint
+  const liveTailPoints = activeToothPoint && activeBounceStartPoint
     ? [0.2, 0.12, 0.06].map((offset) => {
-        const phase = (((pausedBeatPhase - offset) % 1) + 1) % 1;
+        const phase = (((activeBeatPhase - offset) % 1) + 1) % 1;
         return getBouncePointForPhase(activeToothPoint, activeBounceStartPoint, phase);
       })
     : [];
-  const pausedBounceRadius = getBounceRadiusForPhase(pausedBeatPhase);
+  const liveBounceRadius = getBounceRadiusForPhase(activeBeatPhase);
 
   function getToothState(jaw, mapIndex) {
     if (brushingPhase === "complete") {
@@ -1030,132 +1054,36 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
 
           {bottomPoints.map((point, index) => renderTooth(point, "bottom", bottomToothChart[index], index))}
 
-          {timer.running && activeToothPoint && activeBounceStartPoint && (
+          {(timer.running || isPaused) && activeToothPoint && activeBounceStartPoint && liveBouncePoint && (
             <g>
-              <circle
-                cx={activeToothPoint.x}
-                cy={activeToothPoint.y}
-                r="4.4"
-                className={`active-brush-tail tail-3 ${activeToothEntry?.surface || "front"}`}
-              >
-                <animate
-                  attributeName="cx"
-                  values={`${activeToothPoint.x};${activeBounceStartPoint.x};${activeToothPoint.x}`}
-                  dur={`${beatDurationMs}ms`}
-                  begin={`${beatPhaseOffsetMs - beatDurationMs * 0.2}ms`}
-                  repeatCount="indefinite"
-                />
-                <animate
-                  attributeName="cy"
-                  values={`${activeToothPoint.y};${activeBounceStartPoint.y};${activeToothPoint.y}`}
-                  dur={`${beatDurationMs}ms`}
-                  begin={`${beatPhaseOffsetMs - beatDurationMs * 0.2}ms`}
-                  repeatCount="indefinite"
-                />
-              </circle>
-              <circle
-                cx={activeToothPoint.x}
-                cy={activeToothPoint.y}
-                r="5"
-                className={`active-brush-tail tail-2 ${activeToothEntry?.surface || "front"}`}
-              >
-                <animate
-                  attributeName="cx"
-                  values={`${activeToothPoint.x};${activeBounceStartPoint.x};${activeToothPoint.x}`}
-                  dur={`${beatDurationMs}ms`}
-                  begin={`${beatPhaseOffsetMs - beatDurationMs * 0.12}ms`}
-                  repeatCount="indefinite"
-                />
-                <animate
-                  attributeName="cy"
-                  values={`${activeToothPoint.y};${activeBounceStartPoint.y};${activeToothPoint.y}`}
-                  dur={`${beatDurationMs}ms`}
-                  begin={`${beatPhaseOffsetMs - beatDurationMs * 0.12}ms`}
-                  repeatCount="indefinite"
-                />
-              </circle>
-              <circle
-                cx={activeToothPoint.x}
-                cy={activeToothPoint.y}
-                r="5.5"
-                className={`active-brush-tail tail-1 ${activeToothEntry?.surface || "front"}`}
-              >
-                <animate
-                  attributeName="cx"
-                  values={`${activeToothPoint.x};${activeBounceStartPoint.x};${activeToothPoint.x}`}
-                  dur={`${beatDurationMs}ms`}
-                  begin={`${beatPhaseOffsetMs - beatDurationMs * 0.06}ms`}
-                  repeatCount="indefinite"
-                />
-                <animate
-                  attributeName="cy"
-                  values={`${activeToothPoint.y};${activeBounceStartPoint.y};${activeToothPoint.y}`}
-                  dur={`${beatDurationMs}ms`}
-                  begin={`${beatPhaseOffsetMs - beatDurationMs * 0.06}ms`}
-                  repeatCount="indefinite"
-                />
-              </circle>
-              <circle
-                cx={activeToothPoint.x}
-                cy={activeToothPoint.y}
-                r="6"
-                className={`active-brush-ball ${activeToothEntry?.surface || "front"}`}
-              >
-                <animate
-                  attributeName="cx"
-                  values={`${activeToothPoint.x};${activeBounceStartPoint.x};${activeToothPoint.x}`}
-                  dur={`${beatDurationMs}ms`}
-                  begin={`${beatPhaseOffsetMs}ms`}
-                  repeatCount="indefinite"
-                />
-                <animate
-                  attributeName="cy"
-                  values={`${activeToothPoint.y};${activeBounceStartPoint.y};${activeToothPoint.y}`}
-                  dur={`${beatDurationMs}ms`}
-                  begin={`${beatPhaseOffsetMs}ms`}
-                  repeatCount="indefinite"
-                />
-                <animate
-                  attributeName="r"
-                  values="5.2;6.4;5.2"
-                  dur={`${beatDurationMs}ms`}
-                  begin={`${beatPhaseOffsetMs}ms`}
-                  repeatCount="indefinite"
-                />
-              </circle>
-            </g>
-          )}
-
-          {isPaused && activeToothPoint && activeBounceStartPoint && pausedBouncePoint && (
-            <g>
-              {pausedTailPoints[0] && (
+              {liveTailPoints[0] && (
                 <circle
-                  cx={pausedTailPoints[0].x}
-                  cy={pausedTailPoints[0].y}
+                  cx={liveTailPoints[0].x}
+                  cy={liveTailPoints[0].y}
                   r="4.4"
                   className={`active-brush-tail tail-3 ${activeToothEntry?.surface || "front"}`}
                 />
               )}
-              {pausedTailPoints[1] && (
+              {liveTailPoints[1] && (
                 <circle
-                  cx={pausedTailPoints[1].x}
-                  cy={pausedTailPoints[1].y}
+                  cx={liveTailPoints[1].x}
+                  cy={liveTailPoints[1].y}
                   r="5"
                   className={`active-brush-tail tail-2 ${activeToothEntry?.surface || "front"}`}
                 />
               )}
-              {pausedTailPoints[2] && (
+              {liveTailPoints[2] && (
                 <circle
-                  cx={pausedTailPoints[2].x}
-                  cy={pausedTailPoints[2].y}
+                  cx={liveTailPoints[2].x}
+                  cy={liveTailPoints[2].y}
                   r="5.5"
                   className={`active-brush-tail tail-1 ${activeToothEntry?.surface || "front"}`}
                 />
               )}
               <circle
-                cx={pausedBouncePoint.x}
-                cy={pausedBouncePoint.y}
-                r={pausedBounceRadius}
+                cx={liveBouncePoint.x}
+                cy={liveBouncePoint.y}
+                r={liveBounceRadius}
                 className={`active-brush-ball ${activeToothEntry?.surface || "front"}`}
               />
             </g>
