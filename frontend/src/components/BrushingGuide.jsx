@@ -566,7 +566,7 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
   // The ball travels to the tooth and back in one beat cycle (phase 0→0.5→1).
   // This means it visually contacts the tooth twice per beat (at 0.5 and again at 0 of next beat).
   // Halving the BPM makes the full round-trip span two beats so the downbeat lands on the tooth.
-  const safeBpm = Math.max(40, Math.min(240, (Number(selectedBpm) || 120) / 64));
+  const safeBpm = Math.max(40, Math.min(240, (Number(selectedBpm) || 120) / 32));
   const toothDurationSeconds = Number(bpmData?.secondsPerTooth || totalSeconds / Math.max(1, (topTeeth + bottomTeeth) * 2));
   const transitionBufferSeconds = Number(bpmData?.transitionBufferSeconds || 1);
   const segments = buildSegments(topTeeth, bottomTeeth);
