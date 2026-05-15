@@ -102,6 +102,37 @@ export default function ArtistPromoPage({
     return profileLabel || "Current BrushBeats user";
   }, [activeUserName, profileLabel]);
 
+  const apiBaseWarning = useMemo(() => {
+    const rawApiBase = String(API_BASE || "").trim();
+
+    if (!rawApiBase) {
+      return "VITE_API_BASE is empty. Set it to your deployed backend URL.";
+    }
+
+    let parsedApiBase;
+    try {
+      parsedApiBase = new URL(rawApiBase);
+    } catch {
+      return "VITE_API_BASE is not a valid URL. Use a full URL like https://your-backend.onrender.com.";
+    }
+
+    const host = parsedApiBase.hostname.toLowerCase();
+
+    if (host.includes("github.com") || host.includes("github.io")) {
+      return "VITE_API_BASE points to GitHub, not your backend API. Use your backend service URL.";
+    }
+
+    if (typeof window !== "undefined" && window.location.hostname.includes("github.io") && host === "localhost") {
+      return "VITE_API_BASE points to localhost while this page is hosted on GitHub Pages. Use your deployed backend URL.";
+    }
+
+    if (parsedApiBase.protocol !== "https:" && parsedApiBase.protocol !== "http:") {
+      return "VITE_API_BASE must start with http:// or https://.";
+    }
+
+    return "";
+  }, []);
+
   function handleOpenYoutubeSearch() {
     const query = String(searchQuery || "").trim();
     if (!query || typeof window === "undefined") {
@@ -269,6 +300,11 @@ export default function ArtistPromoPage({
           </button>
           {debugOpen && (
             <div className="artist-debug-body">
+              {apiBaseWarning && (
+                <p className="artist-debug-warning" role="alert">
+                  Config warning: {apiBaseWarning}
+                </p>
+              )}
               <dl className="artist-debug-env">
                 <dt>Backend URL</dt>
                 <dd><code>{API_BASE}</code></dd>
@@ -288,6 +324,7 @@ export default function ArtistPromoPage({
                       const text = [
                         `Backend: ${API_BASE}`,
                         `Origin: ${window.location.origin}`,
+                        `Config warning: ${apiBaseWarning || "none"}`,
                         `Searches:`,
                         ...debugLog.map((e) =>
                           `  [${e.time}] "${e.query}" → ${e.status} (${e.durationMs ?? "?"}ms)${e.resultCount != null ? ` · ${e.resultCount} results` : ""}${e.error ? ` · ERROR: ${e.error}` : ""}`
