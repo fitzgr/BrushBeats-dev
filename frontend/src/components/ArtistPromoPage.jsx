@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { searchYoutubeVideos } from "../api/client";
 
 const YOUTUBE_VIDEO_ID_REGEX = /^[a-zA-Z0-9_-]{11}$/;
 
@@ -73,6 +74,9 @@ export default function ArtistPromoPage({
   activeUserName
 }) {
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [searchResults, setSearchResults] = useState([]);
+  const [searchMessage, setSearchMessage] = useState("");
   const [youtubeInput, setYoutubeInput] = useState("");
   const [videoTitle, setVideoTitle] = useState("");
   const [generatedVideoId, setGeneratedVideoId] = useState("");
@@ -100,6 +104,50 @@ export default function ArtistPromoPage({
 
     const searchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`;
     window.open(searchUrl, "_blank", "noopener,noreferrer");
+  }
+
+  async function handleSearchInPage() {
+    const query = String(searchQuery || "").trim();
+    if (!query) {
+      setSearchResults([]);
+      setSearchMessage("Enter search terms to find a YouTube video.");
+      return;
+    }
+
+    setSearchLoading(true);
+    setSearchMessage("");
+    setErrorMessage("");
+
+    try {
+      const response = await searchYoutubeVideos({ query, maxResults: 8 });
+      const nextResults = Array.isArray(response?.items) ? response.items : [];
+      setSearchResults(nextResults);
+
+      if (!nextResults.length) {
+        setSearchMessage("No matching videos found. Try a different title, artist, or spelling.");
+      }
+    } catch (error) {
+      setSearchResults([]);
+      setSearchMessage(error?.message || "Search failed. Please try again.");
+    } finally {
+      setSearchLoading(false);
+    }
+  }
+
+  function handleSelectSearchResult(result) {
+    const selectedVideoId = normalizeYoutubeVideoId(result?.videoId);
+    if (!selectedVideoId) {
+      return;
+    }
+
+    const selectedTitle = String(result?.title || "").trim();
+    const selectedYoutubeUrl = result?.youtubeUrl || `https://www.youtube.com/watch?v=${selectedVideoId}`;
+    setYoutubeInput(selectedYoutubeUrl);
+    setVideoTitle((current) => (String(current || "").trim() ? current : selectedTitle));
+    setGeneratedVideoId(selectedVideoId);
+    setShareLink(buildShareableLink(selectedVideoId, selectedTitle || videoTitle));
+    setErrorMessage("");
+    setCopyMessage("");
   }
 
   function handleGenerateLink() {
@@ -158,7 +206,7 @@ export default function ArtistPromoPage({
 
       <div className="artist-promo-section">
         <h3>1) Find Your Video</h3>
-        <p>Search YouTube for your upload, then paste the video URL below.</p>
+        <p>Search YouTube in this page, then click a result to auto-fill the video field below.</p>
         <div className="artist-promo-row">
           <input
             className="artist-promo-input"
@@ -168,10 +216,32 @@ export default function ArtistPromoPage({
             placeholder="Search terms (artist + track)"
             aria-label="YouTube search query"
           />
+          <button type="button" className="action-btn" onClick={handleSearchInPage} disabled={searchLoading}>
+            {searchLoading ? "Searching..." : "Search In Page"}
+          </button>
           <button type="button" className="action-btn secondary" onClick={handleOpenYoutubeSearch}>
             Open YouTube Search
           </button>
         </div>
+        {searchMessage && <p className="artist-promo-search-message">{searchMessage}</p>}
+        {searchResults.length > 0 && (
+          <div className="artist-search-results" aria-label="YouTube search results">
+            {searchResults.map((result) => (
+              <button
+                key={result.videoId}
+                type="button"
+                className="artist-search-result"
+                onClick={() => handleSelectSearchResult(result)}
+              >
+                {result.thumbnailUrl && <img src={result.thumbnailUrl} alt="YouTube thumbnail" loading="lazy" />}
+                <span>
+                  <strong>{result.title || "Untitled Video"}</strong>
+                  <small>{result.channelTitle || "Unknown channel"}</small>
+                </span>
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="artist-promo-section">

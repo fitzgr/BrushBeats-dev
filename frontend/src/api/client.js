@@ -77,6 +77,15 @@ export function getYoutubeVideo({ title, artist }) {
   return request(`/api/youtube?${params.toString()}`);
 }
 
+export function searchYoutubeVideos({ query, maxResults = 8 }) {
+  const params = new URLSearchParams({
+    q: String(query || "").trim(),
+    maxResults: String(Math.max(1, Math.min(15, Math.round(Number(maxResults) || 8))))
+  });
+
+  return request(`/api/youtube/search?${params.toString()}`);
+}
+
 export function getGeoCountry() {
   return request("/api/geo/country");
 }

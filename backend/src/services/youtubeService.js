@@ -59,6 +59,67 @@ async function executeSearchVariants(apiKey, requests) {
   return responses;
 }
 
+async function searchYoutubeVideosByQuery({ query, maxResults = 8 }) {
+  const apiKey = process.env.YOUTUBE_API_KEY;
+
+  if (!apiKey) {
+    return {
+      items: [],
+      warning: "YOUTUBE_API_KEY is not configured."
+    };
+  }
+
+  const safeQuery = String(query || "").trim();
+  const safeMaxResults = Math.max(1, Math.min(15, Math.round(Number(maxResults) || 8)));
+
+  if (!safeQuery) {
+    return {
+      items: []
+    };
+  }
+
+  const response = await axios.get("https://www.googleapis.com/youtube/v3/search", {
+    params: {
+      key: apiKey,
+      part: "snippet",
+      type: "video",
+      q: safeQuery,
+      maxResults: safeMaxResults,
+      videoEmbeddable: "true",
+      videoSyndicated: "true",
+      safeSearch: "moderate"
+    },
+    timeout: 8000
+  });
+
+  const items = (response.data?.items || [])
+    .map((item) => {
+      const videoId = item?.id?.videoId || null;
+      if (!videoId) {
+        return null;
+      }
+
+      return {
+        videoId,
+        title: item?.snippet?.title || null,
+        channelTitle: item?.snippet?.channelTitle || null,
+        publishedAt: item?.snippet?.publishedAt || null,
+        thumbnailUrl:
+          item?.snippet?.thumbnails?.medium?.url ||
+          item?.snippet?.thumbnails?.default?.url ||
+          null,
+        youtubeUrl: `https://www.youtube.com/watch?v=${videoId}`,
+        embedUrl: `https://www.youtube.com/embed/${videoId}`
+      };
+    })
+    .filter(Boolean);
+
+  return {
+    items,
+    query: safeQuery
+  };
+}
+
 async function searchYoutubeVideo({ title, artist, context = {} }) {
   const apiKey = process.env.YOUTUBE_API_KEY;
 
@@ -114,5 +175,6 @@ async function searchYoutubeVideo({ title, artist, context = {} }) {
 
 module.exports = {
   searchYoutubeVideo,
+  searchYoutubeVideosByQuery,
   buildUserMusicContext
 };
