@@ -77,6 +77,7 @@ export default function ArtistPromoPage({
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchResults, setSearchResults] = useState([]);
   const [searchMessage, setSearchMessage] = useState("");
+  const [selectedResultVideoId, setSelectedResultVideoId] = useState("");
   const [youtubeInput, setYoutubeInput] = useState("");
   const [videoTitle, setVideoTitle] = useState("");
   const [generatedVideoId, setGeneratedVideoId] = useState("");
@@ -115,7 +116,7 @@ export default function ArtistPromoPage({
     }
 
     setSearchLoading(true);
-    setSearchMessage("");
+    setSearchMessage("Searching YouTube via BrushBeats backend (YouTube Data API) — may take a moment on first use.");
     setErrorMessage("");
 
     try {
@@ -125,10 +126,12 @@ export default function ArtistPromoPage({
 
       if (!nextResults.length) {
         setSearchMessage("No matching videos found. Try a different title, artist, or spelling.");
+      } else {
+        setSearchMessage("");
       }
     } catch (error) {
       setSearchResults([]);
-      setSearchMessage(error?.message || "Search failed. Please try again.");
+      setSearchMessage(error?.message || "Search failed. The backend may still be starting up — wait a few seconds and try again.");
     } finally {
       setSearchLoading(false);
     }
@@ -142,6 +145,7 @@ export default function ArtistPromoPage({
 
     const selectedTitle = String(result?.title || "").trim();
     const selectedYoutubeUrl = result?.youtubeUrl || `https://www.youtube.com/watch?v=${selectedVideoId}`;
+    setSelectedResultVideoId(selectedVideoId);
     setYoutubeInput(selectedYoutubeUrl);
     setVideoTitle((current) => (String(current || "").trim() ? current : selectedTitle));
     setGeneratedVideoId(selectedVideoId);
@@ -236,8 +240,9 @@ export default function ArtistPromoPage({
               <button
                 key={result.videoId}
                 type="button"
-                className="artist-search-result"
+                className={`artist-search-result${selectedResultVideoId === result.videoId ? " selected" : ""}`}
                 onClick={() => handleSelectSearchResult(result)}
+                aria-pressed={selectedResultVideoId === result.videoId}
               >
                 {result.thumbnailUrl && <img src={result.thumbnailUrl} alt="YouTube thumbnail" loading="lazy" />}
                 <span>
