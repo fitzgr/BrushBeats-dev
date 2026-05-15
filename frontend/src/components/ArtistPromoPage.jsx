@@ -258,6 +258,69 @@ export default function ArtistPromoPage({
           </button>
         </div>
         {searchMessage && <p className="artist-promo-search-message">{searchMessage}</p>}
+        <div className="artist-debug-panel">
+          <button
+            type="button"
+            className="artist-debug-toggle"
+            onClick={() => setDebugOpen((v) => !v)}
+            aria-expanded={debugOpen}
+          >
+            {debugOpen ? "▲ Hide debug info" : "▼ Show debug info"}
+          </button>
+          {debugOpen && (
+            <div className="artist-debug-body">
+              <dl className="artist-debug-env">
+                <dt>Backend URL</dt>
+                <dd><code>{API_BASE}</code></dd>
+                <dt>Search endpoint</dt>
+                <dd><code>{API_BASE}/api/youtube/search</code></dd>
+                <dt>Page origin</dt>
+                <dd><code>{typeof window !== "undefined" ? window.location.origin : "—"}</code></dd>
+              </dl>
+              {debugLog.length === 0 ? (
+                <p className="artist-debug-empty">No searches yet. Run a search to capture timing &amp; status.</p>
+              ) : (
+                <>
+                  <button
+                    type="button"
+                    className="artist-debug-copy-btn"
+                    onClick={async () => {
+                      const text = [
+                        `Backend: ${API_BASE}`,
+                        `Origin: ${window.location.origin}`,
+                        `Searches:`,
+                        ...debugLog.map((e) =>
+                          `  [${e.time}] "${e.query}" → ${e.status} (${e.durationMs ?? "?"}ms)${e.resultCount != null ? ` · ${e.resultCount} results` : ""}${e.error ? ` · ERROR: ${e.error}` : ""}`
+                        ),
+                      ].join("\n");
+                      try {
+                        await navigator.clipboard.writeText(text);
+                        setDebugCopied(true);
+                        setTimeout(() => setDebugCopied(false), 3000);
+                      } catch {
+                        setDebugCopied(false);
+                      }
+                    }}
+                  >
+                    {debugCopied ? "Copied!" : "Copy debug info"}
+                  </button>
+                  <ul className="artist-debug-log">
+                    {debugLog.map((entry, i) => (
+                      <li key={i} className={`artist-debug-entry ${entry.status}`}>
+                        <span className="artist-debug-status">{entry.status.toUpperCase()}</span>
+                        <span className="artist-debug-query">"{entry.query}"</span>
+                        <span className="artist-debug-duration">{entry.durationMs != null ? `${entry.durationMs}ms` : "pending"}</span>
+                        {entry.resultCount != null && <span className="artist-debug-count">{entry.resultCount} results</span>}
+                        {entry.error && <span className="artist-debug-error">{entry.error}</span>}
+                        <span className="artist-debug-time">{entry.time}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              )}
+            </div>
+          )}
+        </div>
         {searchResults.length > 0 && (
           <div className="artist-search-results" aria-label="YouTube search results">
             {searchResults.map((result) => (
@@ -332,70 +395,6 @@ export default function ArtistPromoPage({
         <button type="button" className="action-btn secondary" onClick={onExit}>
           Return to brushing flow
         </button>
-      </div>
-
-      <div className="artist-debug-panel">
-        <button
-          type="button"
-          className="artist-debug-toggle"
-          onClick={() => setDebugOpen((v) => !v)}
-          aria-expanded={debugOpen}
-        >
-          {debugOpen ? "▲ Hide debug info" : "▼ Show debug info"}
-        </button>
-        {debugOpen && (
-          <div className="artist-debug-body">
-            <dl className="artist-debug-env">
-              <dt>Backend URL</dt>
-              <dd><code>{API_BASE}</code></dd>
-              <dt>Search endpoint</dt>
-              <dd><code>{API_BASE}/api/youtube/search</code></dd>
-              <dt>Page origin</dt>
-              <dd><code>{typeof window !== "undefined" ? window.location.origin : "—"}</code></dd>
-            </dl>
-            {debugLog.length === 0 ? (
-              <p className="artist-debug-empty">No searches yet. Run a search to capture timing &amp; status.</p>
-            ) : (
-              <>
-                <button
-                  type="button"
-                  className="artist-debug-copy-btn"
-                  onClick={async () => {
-                    const text = [
-                      `Backend: ${API_BASE}`,
-                      `Origin: ${window.location.origin}`,
-                      `Searches:`,
-                      ...debugLog.map((e) =>
-                        `  [${e.time}] "${e.query}" → ${e.status} (${e.durationMs ?? "?"}ms)${e.resultCount != null ? ` · ${e.resultCount} results` : ""}${e.error ? ` · ERROR: ${e.error}` : ""}`
-                      ),
-                    ].join("\n");
-                    try {
-                      await navigator.clipboard.writeText(text);
-                      setDebugCopied(true);
-                      setTimeout(() => setDebugCopied(false), 3000);
-                    } catch {
-                      setDebugCopied(false);
-                    }
-                  }}
-                >
-                  {debugCopied ? "Copied!" : "Copy debug info"}
-                </button>
-                <ul className="artist-debug-log">
-                  {debugLog.map((entry, i) => (
-                    <li key={i} className={`artist-debug-entry ${entry.status}`}>
-                      <span className="artist-debug-status">{entry.status.toUpperCase()}</span>
-                      <span className="artist-debug-query">"{entry.query}"</span>
-                      <span className="artist-debug-duration">{entry.durationMs != null ? `${entry.durationMs}ms` : "pending"}</span>
-                      {entry.resultCount != null && <span className="artist-debug-count">{entry.resultCount} results</span>}
-                      {entry.error && <span className="artist-debug-error">{entry.error}</span>}
-                      <span className="artist-debug-time">{entry.time}</span>
-                    </li>
-                  ))}
-                </ul>
-              </>
-            )}
-          </div>
-        )}
       </div>
     </section>
   );
