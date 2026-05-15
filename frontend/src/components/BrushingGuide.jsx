@@ -566,7 +566,7 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
   // The ball travels to the tooth and back in one beat cycle (phase 0→0.5→1).
   // This means it visually contacts the tooth twice per beat (at 0.5 and again at 0 of next beat).
   // Halving the BPM makes the full round-trip span two beats so the downbeat lands on the tooth.
-  const safeBpm = Math.max(40, Math.min(240, (Number(selectedBpm) || 120) / 8));
+  const safeBpm = Math.max(40, Math.min(240, (Number(selectedBpm) || 120) / 16));
   const toothDurationSeconds = Number(bpmData?.secondsPerTooth || totalSeconds / Math.max(1, (topTeeth + bottomTeeth) * 2));
   const transitionBufferSeconds = Number(bpmData?.transitionBufferSeconds || 1);
   const segments = buildSegments(topTeeth, bottomTeeth);
@@ -809,12 +809,12 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
     : 0;
   const activeBeatPhase = timer.running ? runningBeatPhase : pausedBeatPhase;
   const liveBouncePoint = activeToothPoint && activeBounceStartPoint
-    ? getBouncePointForPhase(activeToothPoint, activeBounceStartPoint, activeBeatPhase)
+    ? getBouncePointForPhase(activeBounceStartPoint, activeToothPoint, activeBeatPhase)
     : null;
   const liveTailPoints = activeToothPoint && activeBounceStartPoint
     ? [0.2, 0.12, 0.06].map((offset) => {
         const phase = (((activeBeatPhase - offset) % 1) + 1) % 1;
-        return getBouncePointForPhase(activeToothPoint, activeBounceStartPoint, phase);
+        return getBouncePointForPhase(activeBounceStartPoint, activeToothPoint, phase);
       })
     : [];
   const liveBounceRadius = getBounceRadiusForPhase(activeBeatPhase);
