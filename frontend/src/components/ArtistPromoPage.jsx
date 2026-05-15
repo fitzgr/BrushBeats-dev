@@ -162,6 +162,8 @@ export default function ArtistPromoPage({
       apiBase: API_BASE,
       endpoint: `${API_BASE}/api/youtube/search?q=${encodeURIComponent(query)}&maxResults=8`,
       status: "pending",
+      httpStatus: null,
+      errorCode: null,
       durationMs: null,
       resultCount: null,
       error: null,
@@ -183,9 +185,15 @@ export default function ArtistPromoPage({
     } catch (error) {
       debugEntry.status = "error";
       debugEntry.durationMs = Date.now() - startMs;
+      debugEntry.httpStatus = Number(error?.status) || null;
+      debugEntry.errorCode = error?.code || null;
       debugEntry.error = error?.message || String(error);
       setSearchResults([]);
-      setSearchMessage(error?.message || "Search failed. The backend may still be starting up — wait a few seconds and try again.");
+      if (Number(error?.status) === 404) {
+        setSearchMessage("Search endpoint not found on backend (HTTP 404). Deploy latest backend with /api/youtube/search route.");
+      } else {
+        setSearchMessage(error?.message || "Search failed. The backend may still be starting up — wait a few seconds and try again.");
+      }
     } finally {
       setSearchLoading(false);
       setDebugLog((prev) => [debugEntry, ...prev].slice(0, 10));
@@ -327,7 +335,7 @@ export default function ArtistPromoPage({
                         `Config warning: ${apiBaseWarning || "none"}`,
                         `Searches:`,
                         ...debugLog.map((e) =>
-                          `  [${e.time}] "${e.query}" → ${e.status} (${e.durationMs ?? "?"}ms)${e.resultCount != null ? ` · ${e.resultCount} results` : ""}${e.error ? ` · ERROR: ${e.error}` : ""}`
+                          `  [${e.time}] "${e.query}" → ${e.status} (${e.durationMs ?? "?"}ms)${e.httpStatus != null ? ` · HTTP ${e.httpStatus}` : ""}${e.errorCode ? ` · CODE ${e.errorCode}` : ""}${e.resultCount != null ? ` · ${e.resultCount} results` : ""}${e.error ? ` · ERROR: ${e.error}` : ""}`
                         ),
                       ].join("\n");
                       try {
@@ -347,6 +355,8 @@ export default function ArtistPromoPage({
                         <span className="artist-debug-status">{entry.status.toUpperCase()}</span>
                         <span className="artist-debug-query">"{entry.query}"</span>
                         <span className="artist-debug-duration">{entry.durationMs != null ? `${entry.durationMs}ms` : "pending"}</span>
+                        {entry.httpStatus != null && <span className="artist-debug-http">HTTP {entry.httpStatus}</span>}
+                        {entry.errorCode && <span className="artist-debug-code">{entry.errorCode}</span>}
                         {entry.resultCount != null && <span className="artist-debug-count">{entry.resultCount} results</span>}
                         {entry.error && <span className="artist-debug-error">{entry.error}</span>}
                         <span className="artist-debug-time">{entry.time}</span>

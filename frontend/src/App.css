@@ -5704,6 +5704,8 @@ select {
 
 .artist-debug-query { font-weight: 500; }
 .artist-debug-duration { color: rgba(16, 33, 37, 0.5); font-size: 0.72rem; }
+.artist-debug-http { color: #8a4f00; font-size: 0.72rem; font-weight: 600; }
+.artist-debug-code { color: #6c5ce7; font-size: 0.72rem; font-weight: 600; }
 .artist-debug-count { color: #2a9d6f; font-size: 0.72rem; }
 .artist-debug-error { color: #c0392b; font-size: 0.72rem; width: 100%; word-break: break-word; }
 .artist-debug-time { color: rgba(16, 33, 37, 0.35); font-size: 0.68rem; margin-left: auto; }
