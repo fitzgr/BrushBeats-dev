@@ -803,9 +803,11 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
       : bottomPoints[activeToothEntry.mapIndex]
     : null;
   const activeBounceStartPoint = activeToothPoint ? mapCenter : null;
+  const showMapHandOrientation = Boolean(isMobile && brushFacingDirection);
   // Ball phase = tooth progress: 0 = tooth just became active (downbeat, ball at tooth),
   // 0.5 = halfway through tooth time (ball returns to center), 1 = tooth done (ball back at tooth).
-  const ballPhase = activeToothProgress;
+  // Slow the bounce timing by 2x so movement feels less rushed.
+  const ballPhase = activeToothProgress * 0.5;
   const liveBouncePoint = activeToothPoint && activeBounceStartPoint
     ? getBouncePointForPhase(activeToothPoint, activeBounceStartPoint, ballPhase)
     : null;
@@ -1017,7 +1019,7 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
         />
         {showThemePanel && <AgeThemePanel profile={ageUiProfile} variant="guide" className="guide-age-overlay" chipLimit={2} />}
         <div className="mouth-map" role="img" aria-label={t("brushing.guide.mouthMapAria")}>
-        {brushFacingDirection && (
+        {showMapHandOrientation && (
           <div className={`map-hand-orientation-layer ${brushFacingDirection === "left" ? "facing-left" : "facing-right"}${activeJaw ? ` jaw-${activeJaw}` : ""}`} aria-hidden="true">
             <div className="brush-hand-orientation-visual" aria-hidden="true">
               <span className="brush-hand-orientation-hand" />
