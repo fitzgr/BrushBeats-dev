@@ -563,10 +563,10 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
   const useChildToothChart = topTeeth <= 10 && bottomTeeth <= 10 && topTeeth + bottomTeeth <= 20;
   const topToothChart = selectVisibleToothChart(useChildToothChart ? CHILD_TOP_TOOTH_CHART : ADULT_TOP_TOOTH_CHART, topTeeth);
   const bottomToothChart = selectVisibleToothChart(useChildToothChart ? CHILD_BOTTOM_TOOTH_CHART : ADULT_BOTTOM_TOOTH_CHART, bottomTeeth);
-  // The ball travels to the tooth and back in one beat cycle (phase 0→0.5→1).
-  // This means it visually contacts the tooth twice per beat (at 0.5 and again at 0 of next beat).
-  // Halving the BPM makes the full round-trip span two beats so the downbeat lands on the tooth.
-  const safeBpm = Math.max(0.5, Math.min(240, (Number(selectedBpm) || 120) / 64));
+  // Ball animation phase is tied directly to tooth progress (0→1 over each tooth's duration).
+  // This gives exactly one center→tooth→center round trip per tooth surface, always in sync.
+  // safeBpm is still used only for beatDurationMs (anchor sync), not for ball position.
+  const safeBpm = Math.max(1, Math.min(240, Number(selectedBpm) || 120));
   const toothDurationSeconds = Number(bpmData?.secondsPerTooth || totalSeconds / Math.max(1, (topTeeth + bottomTeeth) * 2));
   const transitionBufferSeconds = Number(bpmData?.transitionBufferSeconds || 1);
   const segments = buildSegments(topTeeth, bottomTeeth);
@@ -803,21 +803,19 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
       : bottomPoints[activeToothEntry.mapIndex]
     : null;
   const activeBounceStartPoint = activeToothPoint ? mapCenter : null;
-  const pausedBeatPhase = beatDurationMs > 0 ? normalizedBeatAnchorMs / beatDurationMs : 0;
-  const runningBeatPhase = beatDurationMs > 0
-    ? ((((animationNowMs + beatPhaseOffsetMs) % beatDurationMs) + beatDurationMs) % beatDurationMs) / beatDurationMs
-    : 0;
-  const activeBeatPhase = timer.running ? runningBeatPhase : pausedBeatPhase;
+  // Ball phase = tooth progress: 0 = tooth just became active (downbeat, ball at tooth),
+  // 0.5 = halfway through tooth time (ball returns to center), 1 = tooth done (ball back at tooth).
+  const ballPhase = activeToothProgress;
   const liveBouncePoint = activeToothPoint && activeBounceStartPoint
-    ? getBouncePointForPhase(activeBounceStartPoint, activeToothPoint, activeBeatPhase)
+    ? getBouncePointForPhase(activeToothPoint, activeBounceStartPoint, ballPhase)
     : null;
   const liveTailPoints = activeToothPoint && activeBounceStartPoint
     ? [0.2, 0.12, 0.06].map((offset) => {
-        const phase = (((activeBeatPhase - offset) % 1) + 1) % 1;
-        return getBouncePointForPhase(activeBounceStartPoint, activeToothPoint, phase);
+        const phase = Math.max(0, ballPhase - offset);
+        return getBouncePointForPhase(activeToothPoint, activeBounceStartPoint, phase);
       })
     : [];
-  const liveBounceRadius = getBounceRadiusForPhase(activeBeatPhase);
+  const liveBounceRadius = getBounceRadiusForPhase(ballPhase);
 
   function getToothState(jaw, mapIndex) {
     if (brushingPhase === "complete") {
