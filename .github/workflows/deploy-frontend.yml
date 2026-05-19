@@ -27,7 +27,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
         with:
+          ref: refs/heads/main
           fetch-depth: 0
+
+      - name: Show resolved commit
+        run: |
+          echo "GITHUB_SHA=${GITHUB_SHA}"
+          git rev-parse HEAD
+          git log -1 --oneline
 
       - name: Setup Node
         uses: actions/setup-node@v6
