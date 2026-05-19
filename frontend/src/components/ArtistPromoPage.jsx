@@ -272,6 +272,22 @@ export default function ArtistPromoPage({
       </div>
 
       <div className="artist-promo-section">
+        <h3>The Power of Daily Brushing Habits</h3>
+        <p>
+          YouTube views tell part of the story. But here's what makes BrushBeats different: <strong>repeat exposure</strong>.
+        </p>
+        <p>
+          When a subscriber adds your track to their brushing routine, your music doesn't just get watched once—it becomes part of their daily ritual. 
+          Think about it: if someone brushes twice a day, every single day, your song plays <strong>730 times a year</strong> from that one subscriber alone. 
+          That's consistent, recurring engagement that builds genuine fan loyalty and familiarity.
+        </p>
+        <p>
+          This isn't passive viewership. This is your music becoming woven into the daily habits of your audience—morning and night, day after day. 
+          It's the difference between a viral moment and building a lasting fanbase.
+        </p>
+      </div>
+
+      <div className="artist-promo-section">
         <h3>Artist-Friendly BPM Bands</h3>
         <p>Choose a song that matches your target audience for the best engagement:</p>
         <table className="artist-bpm-table">
