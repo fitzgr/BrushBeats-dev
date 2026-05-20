@@ -277,7 +277,7 @@ export default function ArtistPromoPage({
           YouTube views tell part of the story. But here's what makes BrushBeats different: <strong>repeat exposure</strong>.
         </p>
         <p>
-          When a subscriber adds your track to their brushing routine, your music doesn't just get watched once—it becomes part of their daily ritual. 
+          When a subscriber adds your track to their brushing routine, your music doesn't just get watched once—it can become part of their daily ritual. 
           Think about it: if someone brushes twice a day, every single day, your song plays <strong>730 times a year</strong> from that one subscriber alone. 
           That's consistent, recurring engagement that builds genuine fan loyalty and familiarity.
         </p>
