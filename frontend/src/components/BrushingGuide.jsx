@@ -580,7 +580,7 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
   const isPaused = brushingPhase === "paused";
   const hasActiveBrushTimeline = brushingPhase === "running" || isPaused || timer.running;
   const beatPhaseOffsetMs = timer.running
-    ? -normalizedBeatAnchorMs
+    ? -normalizedBounceAnchorMs
     : 0;
   const elapsedSeconds = brushingPhase === "complete"
     ? totalSeconds
