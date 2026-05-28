@@ -5072,6 +5072,12 @@ select {
   text-transform: none;
 }
 
+.map-score-label.beat-pulse {
+  transform-origin: center;
+  transform-box: fill-box;
+  transition: opacity 80ms linear;
+}
+
 .map-score-label.countdown {
   font-weight: 800;
 }
@@ -5100,6 +5106,13 @@ select {
   color: #244f44;
   line-height: 1.45;
   animation: tip-fade-in 600ms ease-out;
+}
+
+.guide-debug-timing {
+  margin-top: 0.45rem;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: rgba(31, 63, 87, 0.86);
 }
 
 @keyframes tip-fade-in {

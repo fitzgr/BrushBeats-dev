@@ -563,18 +563,23 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
   const useChildToothChart = topTeeth <= 10 && bottomTeeth <= 10 && topTeeth + bottomTeeth <= 20;
   const topToothChart = selectVisibleToothChart(useChildToothChart ? CHILD_TOP_TOOTH_CHART : ADULT_TOP_TOOTH_CHART, topTeeth);
   const bottomToothChart = selectVisibleToothChart(useChildToothChart ? CHILD_BOTTOM_TOOTH_CHART : ADULT_BOTTOM_TOOTH_CHART, bottomTeeth);
+  const totalTeeth = topTeeth + bottomTeeth;
   // Ball animation phase is tied directly to tooth progress (0→1 over each tooth's duration).
   // This gives exactly one center→tooth→center round trip per tooth surface, always in sync.
   // safeBpm is still used only for beatDurationMs (anchor sync), not for ball position.
   const safeBpm = Math.max(1, Math.min(240, Number(selectedBpm) || 120));
-  const toothDurationSeconds = Number(bpmData?.secondsPerTooth || totalSeconds / Math.max(1, (topTeeth + bottomTeeth) * 2));
+  const expectedToothActions = totalTeeth * 2;
+  const hasAlignedBpmSnapshot = Number(bpmData?.totalTeeth) === totalTeeth && Number.isFinite(Number(bpmData?.secondsPerTooth));
+  const fallbackSecondsPerTooth = totalSeconds / Math.max(1, expectedToothActions);
+  const toothDurationSeconds = hasAlignedBpmSnapshot ? Number(bpmData.secondsPerTooth) : fallbackSecondsPerTooth;
+  const timingSourceLabel = hasAlignedBpmSnapshot ? "snapshot" : "live-fallback";
+  const showTimingDebug = import.meta.env.DEV;
   const transitionBufferSeconds = Number(bpmData?.transitionBufferSeconds || 1);
   const segments = buildSegments(topTeeth, bottomTeeth);
   const timeline = buildTimeline(segments, toothDurationSeconds, transitionBufferSeconds);
   const toothEntries = timeline.filter((entry) => entry.type === "tooth");
   const beatDurationMs = Math.max(220, 60000 / safeBpm);
-  // One full bounce loop spans two beats: center -> tooth -> center.
-  const bounceCycleDurationMs = Math.max(440, beatDurationMs * 2);
+  const bounceCycleDurationMs = beatDurationMs;
   const normalizedBounceAnchorMs = (((Math.max(0, Number(playbackSeconds) || 0) * 1000) % bounceCycleDurationMs) + bounceCycleDurationMs) % bounceCycleDurationMs;
   const hasPlaybackProgress = (Number(playbackSeconds) || 0) > 0;
   const isPaused = brushingPhase === "paused";
@@ -807,10 +812,22 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
       : bottomPoints[activeToothEntry.mapIndex]
     : null;
   const activeBounceStartPoint = activeToothPoint ? mapCenter : null;
-  // Ball phase = tooth progress: 0 = tooth just became active (downbeat, ball at tooth),
-  // 0.5 = halfway through tooth time (ball returns to center), 1 = tooth done (ball back at tooth).
-  // Slow the bounce timing by 2x so movement feels less rushed.
-  const ballPhase = activeToothProgress * 0.5;
+  // Beat-locked bounce: every downbeat lands on the active tooth, every half-beat returns to center.
+  // Tooth-to-tooth direction can change as timeline advances, but beat timing remains constant.
+  const bounceClockMs = hasPlaybackProgress
+    ? Math.max(0, Number(playbackSeconds) || 0) * 1000
+    : animationNowMs + beatPhaseOffsetMs;
+  const normalizedBeatMs = ((bounceClockMs % beatDurationMs) + beatDurationMs) % beatDurationMs;
+  const ballPhase = normalizedBeatMs / beatDurationMs;
+  const beatAnchorDistance = Math.min(Math.abs(ballPhase), Math.abs(ballPhase - 0.5), Math.abs(1 - ballPhase));
+  const beatAnchorCloseness = clampNumber(1 - beatAnchorDistance / 0.2, 0, 1);
+  const shouldPulseCenterLabel = hasActiveBrushTimeline && Boolean(activeToothEntry);
+  const centerLabelPulseStyle = shouldPulseCenterLabel
+    ? {
+        transform: `scale(${(1 + beatAnchorCloseness * 0.06).toFixed(3)})`,
+        opacity: (0.86 + beatAnchorCloseness * 0.14).toFixed(3)
+      }
+    : undefined;
   const liveBouncePoint = activeToothPoint && activeBounceStartPoint
     ? getBouncePointForPhase(activeToothPoint, activeBounceStartPoint, ballPhase)
     : null;
@@ -1110,8 +1127,11 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
               x="180"
               y="238"
               textAnchor="middle"
-              className={`map-score-label${brushingPhase === "countdown" ? " countdown" : ""}`}
-              style={brushingPhase === "countdown" ? { fill: countdownSignal.label } : undefined}
+              className={`map-score-label${brushingPhase === "countdown" ? " countdown" : ""}${shouldPulseCenterLabel ? " beat-pulse" : ""}`}
+              style={{
+                ...(brushingPhase === "countdown" ? { fill: countdownSignal.label } : {}),
+                ...(centerLabelPulseStyle || {})
+              }}
             >
               {centerLabel}
             </text>
@@ -1139,6 +1159,11 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
       </div>
       {brushingPhase === "running" && activeTip && (
         <p className="guide-technique-tip" aria-live="polite">{activeTip}</p>
+      )}
+      {showTimingDebug && (
+        <p className="guide-debug-timing" aria-live="off">
+          Debug: {totalTeeth} teeth | {toothDurationSeconds.toFixed(2)}s/tooth | source: {timingSourceLabel}
+        </p>
       )}
 
     </section>

@@ -3075,6 +3075,7 @@ function App() {
                   </button>
                 </div>
                 <BrushingGuide
+                  key={`guide-mobile-${values.top}-${values.bottom}-${brushDurationSeconds}`}
                   bpmData={bpmData}
                   timer={timer}
                   brushingPhase={brushingPhase}
@@ -3117,6 +3118,7 @@ function App() {
 
           {!device.isMobile && (
             <BrushingGuide
+              key={`guide-desktop-${values.top}-${values.bottom}-${brushDurationSeconds}`}
               bpmData={bpmData}
               timer={timer}
               brushingPhase={brushingPhase}
