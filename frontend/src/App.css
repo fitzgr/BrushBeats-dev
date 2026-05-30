@@ -4913,7 +4913,7 @@ select {
 }
 
 .tooth-svg .tooth-face.active-surface {
-  fill: #7fe8cf;
+  fill: #2f80ff;
 }
 
 .tooth-svg.active-tooth .tooth-face.active-surface {
@@ -4921,26 +4921,26 @@ select {
 }
 
 .tooth-svg.active-tooth .tooth-outline {
-  stroke: #149d7f;
+  stroke: #174dbb;
   stroke-width: 1.8;
-  filter: drop-shadow(0 0 6px rgba(54, 211, 175, 0.55));
+  filter: drop-shadow(0 0 7px rgba(47, 128, 255, 0.62));
 }
 
 .tooth-svg.active-tooth .tooth-body-base {
-  filter: drop-shadow(0 0 6px rgba(156, 246, 220, 0.72));
+  filter: drop-shadow(0 0 7px rgba(147, 193, 255, 0.72));
 }
 
 @keyframes activeToothSurfacePulse {
   0% {
-    fill: #7fe8cf;
+    fill: #2f80ff;
   }
 
   50% {
-    fill: #c9fff2;
+    fill: #7fb4ff;
   }
 
   100% {
-    fill: #7fe8cf;
+    fill: #2f80ff;
   }
 }
 
