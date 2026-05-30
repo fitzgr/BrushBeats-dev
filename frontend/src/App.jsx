@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import BPMCalculator from "./components/BPMCalculator";
 import SongList from "./components/SongList";
@@ -1102,7 +1102,7 @@ function App() {
     })().catch((trackingError) => {
       setError(trackingError?.message || t("app.householdSetup.saveFailed"));
     });
-  }, [activeHouseholdUser?.userId, toothAgeEstimate?.phase, dbStatus.ready, householdOnboardingState?.completedAt, householdProfile?.householdId, progressDashboardFilters, storageConsent, t, values.bottom, values.top]);
+  }, [activeHouseholdUser?.userId, toothAgeEstimate?.phase, dbStatus.ready, householdOnboardingState?.completedAt, householdProfile?.goalSettings, householdProfile?.householdId, householdProfile?.rewardSettings, progressDashboardFilters, storageConsent, t, values.bottom, values.top]);
 
   useEffect(() => {
     if (storageConsent !== "granted" || !preferencesHydratedRef.current) {
@@ -1223,7 +1223,7 @@ function App() {
     })().catch((sessionError) => {
       setError(sessionError?.message || t("app.householdSetup.saveFailed"));
     });
-  }, [activeHouseholdUser?.userId, bpmData?.searchBpm, bpmData?.totalBrushingSeconds, brushDurationSeconds, brushingMusicElapsedSeconds, brushingPhase, dbStatus.ready, householdProfile?.householdId, progressDashboardFilters, selectedSong?.artist, selectedSong?.bpm, selectedSong?.title, storageConsent, t, toothAgeEstimate?.phase, values.bottom, values.top]);
+  }, [activeHouseholdUser?.userId, bpmData?.searchBpm, bpmData?.totalBrushingSeconds, brushDurationSeconds, brushType, brushingMusicElapsedSeconds, brushingPhase, dbStatus.ready, householdProfile?.goalSettings, householdProfile?.householdId, householdProfile?.rewardSettings, progressDashboardFilters, selectedSong?.artist, selectedSong?.bpm, selectedSong?.title, storageConsent, t, toothAgeEstimate?.phase, values.bottom, values.top]);
 
   async function handleAllowStorage() {
     const nextStatus = setStorageConsent(true);
@@ -2185,7 +2185,7 @@ function App() {
     return handleSelectSongWithOptions(song, { autoplay: false, source });
   }
 
-  function preloadSharedYoutubeVideo(videoId, videoTitle = "Artist Spotlight Video", source = "shared-video-id") {
+  const preloadSharedYoutubeVideo = useCallback((videoId, videoTitle = "Artist Spotlight Video", source = "shared-video-id") => {
     const safeVideoId = normalizeYoutubeVideoId(videoId);
     const embedUrl = buildYoutubeEmbedUrl(safeVideoId);
 
@@ -2227,7 +2227,7 @@ function App() {
     }));
     setError("");
     return true;
-  }
+  }, [activeHouseholdUser?.name, bpmData?.searchBpm]);
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -2246,7 +2246,7 @@ function App() {
     if (applied) {
       appliedSharedVideoRef.current = sharedVideoId;
     }
-  }, [activeHouseholdUser?.name, bpmData?.searchBpm]);
+  }, [activeHouseholdUser?.name, bpmData?.searchBpm, preloadSharedYoutubeVideo]);
 
   function handlePreviewArtistVideo({ videoId, title }) {
     preloadSharedYoutubeVideo(videoId, title, "artist-page-preview");

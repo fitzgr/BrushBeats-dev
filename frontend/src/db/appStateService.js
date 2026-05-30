@@ -17,7 +17,7 @@ async function ensureFounderToken() {
     tokenId: crypto.randomUUID(),
     tier: "founder",
     installedAt: new Date().toISOString(),
-    appVersion: typeof __APP_VERSION__ !== "undefined" ? __APP_VERSION__ : "unknown"
+    appVersion: typeof globalThis.__APP_VERSION__ !== "undefined" ? globalThis.__APP_VERSION__ : "unknown"
   };
 
   await setAppSetting("system.founderToken", token);

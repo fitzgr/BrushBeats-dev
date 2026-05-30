@@ -137,9 +137,9 @@ export async function updateHousehold(householdId, updates = {}) {
 
 export async function createUser(input = {}) {
   const baseFields = buildSyncFields();
+  const userId = input.userId || createPrefixedId("user");
+  const householdId = input.householdId;
   const user = {
-    userId: input.userId || createPrefixedId("user"),
-    householdId: input.householdId,
     name: input.name || "New User",
     avatar: input.avatar || null,
     birthYear: input.birthYear || null,
@@ -152,8 +152,8 @@ export async function createUser(input = {}) {
     isActive: Boolean(input.isActive),
     ...baseFields,
     ...input,
-    userId: input.userId || createPrefixedId("user"),
-    householdId: input.householdId,
+    userId,
+    householdId,
     createdAt: input.createdAt || baseFields.createdAt,
     updatedAt: input.updatedAt || baseFields.updatedAt,
     syncVersion: input.syncVersion || baseFields.syncVersion,

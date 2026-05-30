@@ -4913,7 +4913,35 @@ select {
 }
 
 .tooth-svg .tooth-face.active-surface {
-  fill: #ffe08a;
+  fill: #ffd672;
+}
+
+.tooth-svg.active-tooth .tooth-face.active-surface {
+  animation: activeToothSurfacePulse 760ms ease-in-out infinite;
+}
+
+.tooth-svg.active-tooth .tooth-outline {
+  stroke: #ea7f33;
+  stroke-width: 1.8;
+  filter: drop-shadow(0 0 5px rgba(234, 127, 51, 0.35));
+}
+
+.tooth-svg.active-tooth .tooth-body-base {
+  filter: drop-shadow(0 0 4px rgba(255, 219, 138, 0.42));
+}
+
+@keyframes activeToothSurfacePulse {
+  0% {
+    fill: #ffd672;
+  }
+
+  50% {
+    fill: #ffe39f;
+  }
+
+  100% {
+    fill: #ffd672;
+  }
 }
 
 .map-electric-cue {
@@ -4984,43 +5012,6 @@ select {
   stroke-linejoin: round;
 }
 
-.active-brush-tail {
-  pointer-events: none;
-}
-
-.active-brush-tail.front {
-  fill: rgba(234, 127, 51, 0.26);
-}
-
-.active-brush-tail.back {
-  fill: rgba(57, 181, 255, 0.26);
-}
-
-.active-brush-tail.tail-1 {
-  opacity: 0.24;
-}
-
-.active-brush-tail.tail-2 {
-  opacity: 0.16;
-}
-
-.active-brush-tail.tail-3 {
-  opacity: 0.1;
-}
-
-.active-brush-ball {
-  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.42));
-  pointer-events: none;
-}
-
-.active-brush-ball.front {
-  fill: #ea7f33;
-}
-
-.active-brush-ball.back {
-  fill: #39b5ff;
-}
-
 .map-score {
   font-size: 34px;
   fill: #ffffff;
@@ -5075,7 +5066,21 @@ select {
 .map-score-label.beat-pulse {
   transform-origin: center;
   transform-box: fill-box;
-  transition: opacity 80ms linear;
+  animation: mapLabelPulse 760ms ease-in-out infinite;
+}
+
+@keyframes mapLabelPulse {
+  0% {
+    opacity: 0.86;
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0.86;
+  }
 }
 
 .map-score-label.countdown {
@@ -5106,6 +5111,13 @@ select {
   color: #244f44;
   line-height: 1.45;
   animation: tip-fade-in 600ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tooth-svg.active-tooth .tooth-face.active-surface,
+  .map-score-label.beat-pulse {
+    animation: none;
+  }
 }
 
 .guide-debug-timing {

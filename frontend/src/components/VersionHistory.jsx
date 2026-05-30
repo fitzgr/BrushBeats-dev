@@ -84,7 +84,7 @@ function summarizeReleaseNotes(items) {
   return items.slice(0, 4).map((item) => item.subject);
 }
 
-function buildReleaseHistory(entries, t) {
+function buildReleaseHistory(entries) {
   const taggedReleases = entries
     .flatMap((entry) =>
       (entry?.tags || []).map((tagName) => ({
@@ -143,7 +143,7 @@ function buildReleaseHistory(entries, t) {
 function VersionHistory({ onExit, onOpenStory }) {
   const { t } = useTranslation();
   const entries = useMemo(() => normalizeHistoryEntries(versionHistory), []);
-  const releaseHistory = useMemo(() => buildReleaseHistory(entries, t), [entries, t]);
+  const releaseHistory = useMemo(() => buildReleaseHistory(entries), [entries]);
   const developmentActivity = useMemo(() => entries, [entries]);
 
   return (

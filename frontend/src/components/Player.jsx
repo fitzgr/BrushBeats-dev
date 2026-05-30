@@ -219,7 +219,7 @@ function Player({
       stopTickTimer();
       destroyPlayer();
     };
-  }, [apiReady, destroyPlayer, selectedSong?.title, startTickTimer, stopTickTimer, t, videoId]);
+  }, [apiReady, applyPlayerCommand, destroyPlayer, selectedSong?.title, startTickTimer, stopTickTimer, t, videoId]);
 
   useEffect(() => {
     if (!playerRef.current || !videoId) {

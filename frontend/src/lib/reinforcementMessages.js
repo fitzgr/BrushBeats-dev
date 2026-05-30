@@ -155,7 +155,8 @@ export function getBrushTechniqueTips(brushType, phase) {
 export function buildReinforcementPool(phase, teethCount = 32, brushType = "manual") {
   const groupKey = toPhase(phase);
   const group = GROUP_LIBRARY[groupKey];
-  const seedBase = stableNumber(`${groupKey}:${Math.max(0, Math.floor(Number(teethCount) || 0))}`);
+  const safeType = brushType === "electric" ? "electric" : "manual";
+  const seedBase = stableNumber(`${groupKey}:${safeType}:${Math.max(0, Math.floor(Number(teethCount) || 0))}`);
   const combinations = [];
 
   for (let i = 0; i < group.openers.length; i += 1) {

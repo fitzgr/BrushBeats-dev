@@ -50,7 +50,6 @@ export async function loadUserProgressDashboard(userId, filters = { timeRange: "
   });
 
   const filteredToothHistory = allToothHistory.filter((entry) => isWithinRange(entry.recordedAt, filters.timeRange));
-  const filteredAchievements = allAchievements.filter((achievement) => isWithinRange(achievement.awardedAt, filters.timeRange));
   const completedSessions = filteredSessions.filter((session) => session.completed);
   const weeklySessions = allSessions.filter((session) => isWithinRange(session.completedAt || session.startedAt, "7d") && session.completed);
   const monthlySessions = allSessions.filter((session) => isWithinRange(session.completedAt || session.startedAt, "30d") && session.completed);

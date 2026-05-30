@@ -6,7 +6,7 @@
     "dev:frontend": "npm run dev --prefix frontend",
     "dev:backend": "npm run dev --prefix backend",
     "build": "npm run build --prefix frontend",
-    "test": "echo \"No tests configured yet\""
+    "test": "npm run test --prefix frontend && npm run test --prefix backend"
   },
   "keywords": [],
   "author": "",

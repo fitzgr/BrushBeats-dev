@@ -457,7 +457,7 @@ function TeethScreen({ read, selectedPath, onSelectPath, interactive, sampleValu
   );
 }
 
-function MusicScreen({ read, selectedPath, onSelectPath, interactive, sampleValues }) {
+function MusicScreen({ read, selectedPath, onSelectPath, sampleValues }) {
   return (
     <>
       <section className="workshop-phone-hero compact-hero">
@@ -515,7 +515,7 @@ function MusicScreen({ read, selectedPath, onSelectPath, interactive, sampleValu
   );
 }
 
-function BrushScreen({ read, selectedPath, onSelectPath, interactive, sampleValues }) {
+function BrushScreen({ read, selectedPath, onSelectPath, sampleValues }) {
   return (
     <>
       <section className="workshop-phone-hero compact-hero">
