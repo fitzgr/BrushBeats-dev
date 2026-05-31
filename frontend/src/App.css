@@ -4913,29 +4913,20 @@ select {
 }
 
 .mouth-map.completion-finished .tooth-svg .tooth-face {
-  fill: var(--mint);
-}
-
-.mouth-map.completion-finished .tooth-svg .tooth-outline {
-  stroke: #3f8f6b;
-}
-
-.mouth-map.completion-finished .tooth-svg .tooth-groove {
-  stroke: #9ac8b1;
-  opacity: 0.86;
+  fill: #fffdf8;
 }
 
 .mouth-map.completion-flash .tooth-svg .tooth-face {
-  animation: completionMintTripleFlash 1800ms ease-in-out 1;
+  animation: completionBlueTripleFlash 1800ms ease-in-out 1;
 }
 
-@keyframes completionMintTripleFlash {
+@keyframes completionBlueTripleFlash {
   0% {
     fill: #fffdf8;
   }
 
   15% {
-    fill: var(--mint);
+    fill: #2f80ff;
   }
 
   30% {
@@ -4943,7 +4934,7 @@ select {
   }
 
   47% {
-    fill: var(--mint);
+    fill: #2f80ff;
   }
 
   62% {
@@ -4951,11 +4942,11 @@ select {
   }
 
   80% {
-    fill: var(--mint);
+    fill: #2f80ff;
   }
 
   100% {
-    fill: var(--mint);
+    fill: #fffdf8;
   }
 }
 
