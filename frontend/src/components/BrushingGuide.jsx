@@ -347,14 +347,6 @@ function formatTenths(seconds) {
   return Math.max(0, seconds).toFixed(1);
 }
 
-function mixColor(start, end, amount) {
-  return start.map((channel, index) => Math.round(channel + (end[index] - channel) * clampNumber(amount, 0, 1)));
-}
-
-function toRgb(channels) {
-  return `rgb(${channels[0]} ${channels[1]} ${channels[2]})`;
-}
-
 function getActiveToothPulseMs(bpm) {
   const safeBpm = Number(bpm);
   if (!Number.isFinite(safeBpm) || safeBpm <= 0) {
@@ -557,30 +549,7 @@ function RowCelebrationCascade({ celebration, reducedMotion, lowPerformanceMode 
   return <canvas className={`row-celebration-cascade${celebration ? " active" : ""}`} ref={canvasRef} aria-hidden="true" />;
 }
 
-function getCountdownSignal(remainingMs, totalMs) {
-  const safeTotalMs = Math.max(1, Number(totalMs) || 0);
-  const progress = clampNumber(1 - (Number(remainingMs) || 0) / safeTotalMs, 0, 1);
-  const red = [239, 68, 68];
-  const yellow = [250, 204, 21];
-  const green = [34, 197, 94];
-  const warmWhite = [255, 252, 245];
-  const coolWhite = [240, 255, 245];
-  const base = progress < 0.5
-    ? mixColor(red, yellow, progress / 0.5)
-    : mixColor(yellow, green, (progress - 0.5) / 0.5);
-  const accent = mixColor(base, [255, 255, 255], 0.18);
-  const label = progress < 0.5
-    ? mixColor(warmWhite, [255, 244, 184], progress / 0.5)
-    : mixColor([255, 244, 184], coolWhite, (progress - 0.5) / 0.5);
-
-  return {
-    primary: toRgb(base),
-    accent: toRgb(accent),
-    label: toRgb(label)
-  };
-}
-
-function BrushingGuide({ timer, brushingPhase, values, bpmData, isMobile, brushingMusicElapsedSeconds, startCountdownTotalMs = 5000, startCountdownRemainingMs = 0, brushingHand, brushType = "manual", hideIntro = false, onCueChange, completionMessage = "", brushControlCue, primaryBrushActionLabel, onPrimaryBrushAction, onRestartBrushing, ageUiProfile, embedded = false, showThemePanel = true }) {
+function BrushingGuide({ timer, brushingPhase, values, bpmData, isMobile, brushingMusicElapsedSeconds, startCountdownRemainingMs = 0, brushingHand, brushType = "manual", hideIntro = false, onCueChange, completionMessage = "", brushControlCue, primaryBrushActionLabel, onPrimaryBrushAction, onRestartBrushing, ageUiProfile, embedded = false, showThemePanel = true }) {
   const { t } = useTranslation();
   const totalSeconds = Number(bpmData?.totalBrushingSeconds || 120);
   const topTeeth = Number(values?.top || 16);
@@ -922,7 +891,6 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, isMobile, brushi
 
   const topPoints = createJawToothLayout({ chart: topToothChart, jaw: "top", child: useChildToothChart, mapCenter });
   const bottomPoints = createJawToothLayout({ chart: bottomToothChart, jaw: "bottom", child: useChildToothChart, mapCenter });
-  const shouldPulseCenterLabel = hasActiveBrushTimeline && Boolean(activeToothEntry);
 
   function getToothState(jaw, mapIndex) {
     if (brushingPhase === "complete") {
@@ -970,7 +938,6 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, isMobile, brushi
         ? "right"
         : "left"
     : null;
-  const showMapHandOrientation = Boolean(isMobile && brushFacingDirection);
   const transitionFromSide = activeEntry?.type === "transition" ? getLabelSide(activeEntry.fromLabel) : null;
   const transitionToSide = activeEntry?.type === "transition" ? getLabelSide(activeEntry.toLabel) : null;
   const transitionFromJaw = activeEntry?.type === "transition" ? getLabelJaw(activeEntry.fromLabel) : null;
@@ -1001,8 +968,13 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, isMobile, brushi
   const completionLines = brushingPhase === "complete" && completionMessage
     ? splitMessageIntoLines(completionMessage, 24, 3)
     : [];
-  const countdownSignal = getCountdownSignal(startCountdownRemainingMs, startCountdownTotalMs);
-  const [countdownWhole = "0", countdownFraction = "0"] = centerValue.split(".");
+  const mapBrushDirectionClass = brushFacingDirection === "left" ? "facing-left" : "facing-right";
+  const mapBrushMessagePrimary = brushingPhase === "complete" && completionLines.length > 0
+    ? completionLines[0]
+    : centerValue;
+  const mapBrushMessageSecondary = brushingPhase === "complete" && completionLines.length > 1
+    ? completionLines.slice(1).join(" ")
+    : centerLabel;
   const activeAgePhase = ageUiProfile?.phase || agePhase;
   const coachingMode = brushType === "electric" ? "electric" : "manual";
   const coachingSet = AGE_HYGIENE_COACHING[coachingMode][activeAgePhase] || AGE_HYGIENE_COACHING[coachingMode].adult;
@@ -1155,18 +1127,24 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, isMobile, brushi
           reducedMotion={reducedMotion}
           lowPerformanceMode={lowPerformanceCelebrationMode}
         />
-        {showMapHandOrientation && (
-          <div className={`map-hand-orientation-layer ${brushFacingDirection === "left" ? "facing-left" : "facing-right"}${activeJaw ? ` jaw-${activeJaw}` : ""}`} aria-hidden="true">
+        <div
+          className={`map-hand-orientation-layer ${mapBrushDirectionClass}${activeJaw ? ` jaw-${activeJaw}` : ""}${!brushFacingDirection ? " neutral-orientation" : ""}${brushingPhase === "countdown" ? " countdown" : ""}${activeEntry?.type === "transition" ? " transition" : ""}${brushingPhase === "complete" ? " complete" : ""}`}
+          aria-hidden="true"
+        >
             <div className="brush-hand-orientation-visual" aria-hidden="true">
               <span className="brush-hand-orientation-hand" />
-              <span className="brush-hand-orientation-handle" />
+              <span className="brush-hand-orientation-handle">
+                <span className="map-brush-message-primary">{mapBrushMessagePrimary}</span>
+                {mapBrushMessageSecondary ? (
+                  <span className="map-brush-message-secondary">{mapBrushMessageSecondary}</span>
+                ) : null}
+              </span>
               <span className="brush-hand-orientation-neck" />
               <span className="brush-hand-orientation-head">
                 <span className="brush-hand-orientation-bristles" />
               </span>
             </div>
-          </div>
-        )}
+        </div>
         <svg viewBox="0 0 360 420" preserveAspectRatio="xMidYMid meet">
           <defs>
             <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
@@ -1180,39 +1158,6 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, isMobile, brushi
           {topPoints.map((point, index) => renderTooth(point, "top", topToothChart[index], index))}
 
           {bottomPoints.map((point, index) => renderTooth(point, "bottom", bottomToothChart[index], index))}
-
-          {brushingPhase === "countdown" ? (
-            <text x="180" y="216" textAnchor="middle" className="map-score countdown">
-              <tspan className="map-score-whole" style={{ fill: countdownSignal.primary }}>{countdownWhole}</tspan>
-              <tspan className="map-score-fraction" style={{ fill: countdownSignal.accent }}>{`.${countdownFraction}`}</tspan>
-            </text>
-          ) : brushingPhase === "complete" && completionLines.length > 0 ? (
-            <text x="180" y="206" textAnchor="middle" className="map-score complete-message">
-              {completionLines.map((line, index) => (
-                <tspan key={`${line}-${index}`} x="180" dy={index === 0 ? 0 : 14}>{line}</tspan>
-              ))}
-            </text>
-          ) : (
-            <text
-              x="180"
-              y="216"
-              textAnchor="middle"
-              className={`map-score word${activeEntry?.type === "transition" ? " orientation-emphasis" : ""}`}
-            >
-              {centerValue}
-            </text>
-          )}
-          {centerLabel && (
-            <text
-              x="180"
-              y="238"
-              textAnchor="middle"
-              className={`map-score-label${brushingPhase === "countdown" ? " countdown" : ""}${shouldPulseCenterLabel ? " beat-pulse" : ""}`}
-              style={brushingPhase === "countdown" ? { fill: countdownSignal.label } : undefined}
-            >
-              {centerLabel}
-            </text>
-          )}
           {showElectricLiftCue && (
             <text
               key={`electric-cue-${activeEntry?.key || "idle"}`}
