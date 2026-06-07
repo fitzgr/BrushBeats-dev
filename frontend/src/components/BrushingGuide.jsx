@@ -356,7 +356,7 @@ function getActiveToothPulseMs(bpm) {
   return clampNumber(Math.round((60 / safeBpm) * 1000), 375, 1200);
 }
 
-const ROW_CELEBRATION_DURATION_MS = 2000;
+const ROW_CELEBRATION_DURATION_MS = 3800;
 const TOTAL_BRUSH_ROWS = 4;
 
 function getRowNumberFromLabel(label) {
