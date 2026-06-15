@@ -204,6 +204,8 @@ function normalizeLastSession(parsed) {
     keyword: typeof parsed.keyword === "string" ? parsed.keyword : "",
     brushingHand: parsed.brushingHand === "left" ? "left" : "right",
     brushType: parsed.brushType === "electric" ? "electric" : "manual",
+    rotatingStartEnabled: Boolean(parsed.rotatingStartEnabled),
+    rotatingStartIndex: clampInteger(parsed.rotatingStartIndex, 0, 7, 0),
     brushDurationSeconds: normalizedBrushDurationSeconds,
     savedAt: Number.isFinite(Number(parsed.savedAt)) ? Number(parsed.savedAt) : undefined
   };
@@ -272,6 +274,8 @@ function normalizePreferences(parsed) {
     keyword: typeof parsed.keyword === "string" ? parsed.keyword : "",
     brushingHand: parsed.brushingHand === "left" ? "left" : "right",
     brushType: parsed.brushType === "electric" ? "electric" : "manual",
+    rotatingStartEnabled: Boolean(parsed.rotatingStartEnabled),
+    rotatingStartIndex: clampInteger(parsed.rotatingStartIndex, 0, 7, 0),
     overlayTheme: typeof parsed.overlayTheme === "string" ? parsed.overlayTheme : "auto",
     brushDurationSeconds: clampInteger(parsed.brushDurationSeconds, 90, 180, 120),
     savedAt: Number.isFinite(Number(parsed.savedAt)) ? Number(parsed.savedAt) : undefined
@@ -459,6 +463,8 @@ export function saveLastBrushedSong(song) {
     keyword: "",
     brushingHand: "right",
     brushType: "manual",
+    rotatingStartEnabled: false,
+    rotatingStartIndex: 0,
     brushDurationSeconds: 120,
     savedAt: Date.now()
   });

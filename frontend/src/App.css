@@ -3089,6 +3089,25 @@
   margin: 0 0 0.9rem;
 }
 
+.brush-start-rotation-toggle {
+  display: grid;
+  gap: 0.35rem;
+  margin: 0 0 0.9rem;
+}
+
+.brush-start-rotation-toggle-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  color: #22373b;
+  font-weight: 700;
+}
+
+.brush-start-rotation-toggle-row input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+}
+
 .guide-top-controls {
   display: grid;
   gap: 0.7rem;
@@ -5103,6 +5122,16 @@ select {
   fill: #2f80ff;
 }
 
+.tooth-svg .tooth-face.countdown-preview-surface {
+  animation: countdownPreviewFlash 620ms ease-in-out infinite;
+}
+
+.tooth-svg.countdown-preview-tooth .tooth-outline {
+  stroke: #d96f12;
+  stroke-width: 1.8;
+  filter: drop-shadow(0 0 6px rgba(224, 129, 37, 0.58));
+}
+
 .tooth-svg.active-tooth .tooth-face.active-surface {
   animation: activeToothSurfacePulse var(--active-tooth-pulse-duration, 760ms) ease-in-out infinite;
 }
@@ -5128,6 +5157,20 @@ select {
 
   100% {
     fill: #2f80ff;
+  }
+}
+
+@keyframes countdownPreviewFlash {
+  0% {
+    fill: #ffd68d;
+  }
+
+  50% {
+    fill: #ef8c2a;
+  }
+
+  100% {
+    fill: #ffd68d;
   }
 }
 

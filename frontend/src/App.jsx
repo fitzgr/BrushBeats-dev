@@ -63,6 +63,16 @@ const DEFAULT_VALUES = { top: 16, bottom: 16 };
 const DEFAULT_BRUSH_DURATION_SECONDS = 120;
 const BRUSH_DURATION_OPTIONS = [90, 120, 150, 180];
 const START_DELAY_SECONDS = 5;
+const ROTATING_START_SEGMENT_SEQUENCE = [
+  "back-top-left",
+  "front-top-left",
+  "back-top-right",
+  "front-top-right",
+  "back-bottom-left",
+  "front-bottom-left",
+  "back-bottom-right",
+  "front-bottom-right"
+];
 const DEFAULT_AGE_SIMULATION = { active: false, mode: "exact", phase: "primary", value: 2, unit: "years" };
 const YOUTUBE_VIDEO_ID_REGEX = /^[a-zA-Z0-9_-]{11}$/;
 
@@ -187,6 +197,8 @@ function buildHouseholdSetupDraft({ household, activeUser, onboardingDraft, user
     bottomTeethCount,
     brushingHand: onboardingDraft?.brushingHand || userDefaults?.brushingHand || "right",
     brushType: onboardingDraft?.brushType || userDefaults?.brushType || "manual",
+    rotatingStartEnabled: Boolean(onboardingDraft?.rotatingStartEnabled ?? userDefaults?.rotatingStartEnabled ?? false),
+    rotatingStartIndex: clampValue(Math.floor(Number(onboardingDraft?.rotatingStartIndex ?? userDefaults?.rotatingStartIndex ?? 0) || 0), 0, ROTATING_START_SEGMENT_SEQUENCE.length - 1),
     overlayTheme: onboardingDraft?.overlayTheme || userDefaults?.overlayTheme || OVERLAY_THEME_AUTO,
     brushDurationSeconds: Number(onboardingDraft?.brushDurationSeconds || userDefaults?.brushDurationSeconds || DEFAULT_BRUSH_DURATION_SECONDS),
     keyword: onboardingDraft?.keyword || userDefaults?.keyword || "",
@@ -476,6 +488,9 @@ function App() {
   const [overlayThemeChoice, setOverlayThemeChoice] = useState(OVERLAY_THEME_AUTO);
   const [expandedRoutineCard, setExpandedRoutineCard] = useState(null);
   const [brushDurationSeconds, setBrushDurationSeconds] = useState(DEFAULT_BRUSH_DURATION_SECONDS);
+  const [rotatingStartEnabled, setRotatingStartEnabled] = useState(false);
+  const [rotatingStartIndex, setRotatingStartIndex] = useState(0);
+  const [sessionStartSegmentKey, setSessionStartSegmentKey] = useState(null);
   const [brushControlCue, setBrushControlCue] = useState(null);
   const [queuedSongPreview, setQueuedSongPreview] = useState(null);
   const [playerCommand, setPlayerCommand] = useState({ type: "idle", nonce: 0 });
@@ -787,6 +802,8 @@ function App() {
     setKeyword(session.keyword || "");
     setBrushingHand(session.brushingHand || "right");
     setBrushType(session.brushType || "manual");
+    setRotatingStartEnabled(Boolean(session.rotatingStartEnabled));
+    setRotatingStartIndex(clampValue(Math.floor(Number(session.rotatingStartIndex) || 0), 0, ROTATING_START_SEGMENT_SEQUENCE.length - 1));
     setOverlayThemeChoice(session.overlayTheme || OVERLAY_THEME_AUTO);
     setBrushDurationSeconds(session.brushDurationSeconds || DEFAULT_BRUSH_DURATION_SECONDS);
   }
@@ -1115,11 +1132,13 @@ function App() {
       keyword,
       brushingHand,
       brushType,
+      rotatingStartEnabled,
+      rotatingStartIndex,
       overlayTheme: overlayThemeChoice,
       brushDurationSeconds,
       savedAt: Date.now()
     });
-  }, [brushDurationSeconds, brushingHand, brushType, keyword, overlayThemeChoice, songFilters, storageConsent, values]);
+  }, [brushDurationSeconds, brushingHand, brushType, keyword, overlayThemeChoice, rotatingStartEnabled, rotatingStartIndex, songFilters, storageConsent, values]);
 
   useEffect(() => {
     if (storageConsent !== "granted" || !dbStatus.ready || !activeHouseholdUser?.userId || !preferencesHydratedRef.current) {
@@ -1132,11 +1151,13 @@ function App() {
       keyword,
       brushingHand,
       brushType,
+      rotatingStartEnabled,
+      rotatingStartIndex,
       overlayTheme: overlayThemeChoice,
       brushDurationSeconds,
       savedAt: Date.now()
     });
-  }, [activeHouseholdUser?.userId, brushDurationSeconds, brushingHand, brushType, dbStatus.ready, keyword, overlayThemeChoice, songFilters, storageConsent, values]);
+  }, [activeHouseholdUser?.userId, brushDurationSeconds, brushingHand, brushType, dbStatus.ready, keyword, overlayThemeChoice, rotatingStartEnabled, rotatingStartIndex, songFilters, storageConsent, values]);
 
   useEffect(() => {
     if (storageConsent !== "granted" || !dbStatus.ready || !activeHouseholdUser?.userId || !preferencesHydratedRef.current) {
@@ -1397,6 +1418,8 @@ function App() {
             keyword,
             brushingHand,
             brushType,
+            rotatingStartEnabled,
+            rotatingStartIndex,
             brushDurationSeconds
           },
           migrationState: persistedMigrationState
@@ -1532,7 +1555,7 @@ function App() {
         loadHouseholdOverview(householdProfile.householdId),
         management.household.activeUserId
           ? getUserScopedState(management.household.activeUserId, {
-              defaults: { values, filters: songFilters, keyword, brushingHand, brushType, overlayTheme: overlayThemeChoice, brushDurationSeconds },
+              defaults: { values, filters: songFilters, keyword, brushingHand, brushType, rotatingStartEnabled, rotatingStartIndex, overlayTheme: overlayThemeChoice, brushDurationSeconds },
               lastSession,
               favoriteSongs
             })
@@ -1594,7 +1617,7 @@ function App() {
         loadHouseholdOverview(householdProfile.householdId),
         management?.household?.activeUserId
           ? getUserScopedState(management.household.activeUserId, {
-              defaults: { values, filters: songFilters, keyword, brushingHand, brushType, overlayTheme: overlayThemeChoice, brushDurationSeconds },
+              defaults: { values, filters: songFilters, keyword, brushingHand, brushType, rotatingStartEnabled, rotatingStartIndex, overlayTheme: overlayThemeChoice, brushDurationSeconds },
               lastSession,
               favoriteSongs
             })
@@ -1691,6 +1714,8 @@ function App() {
             keyword,
             brushingHand,
             brushType,
+            rotatingStartEnabled,
+            rotatingStartIndex,
             brushDurationSeconds
           },
           lastSession,
@@ -1774,6 +1799,14 @@ function App() {
   function beginBrushingCountdown() {
     const totalSeconds = Number(bpmData?.totalBrushingSeconds || brushDurationSeconds);
     const startDelayMs = START_DELAY_SECONDS * 1000;
+    if (rotatingStartEnabled) {
+      const safeIndex = clampValue(Math.floor(Number(rotatingStartIndex) || 0), 0, ROTATING_START_SEGMENT_SEQUENCE.length - 1);
+      const nextStartSegmentKey = ROTATING_START_SEGMENT_SEQUENCE[safeIndex];
+      setSessionStartSegmentKey(nextStartSegmentKey);
+      setRotatingStartIndex((safeIndex + 1) % ROTATING_START_SEGMENT_SEQUENCE.length);
+    } else {
+      setSessionStartSegmentKey(null);
+    }
     countdownDeadlineRef.current = Date.now() + startDelayMs;
     setCountdownRemainingMs(startDelayMs);
     setTimer({ running: false, remaining: totalSeconds });
@@ -2404,6 +2437,8 @@ function App() {
         keyword,
         brushingHand,
         brushType,
+        rotatingStartEnabled,
+        rotatingStartIndex,
         brushDurationSeconds,
         savedAt: Date.now()
       };
@@ -2414,6 +2449,8 @@ function App() {
         keyword,
         brushingHand,
         brushType,
+        rotatingStartEnabled,
+        rotatingStartIndex,
         overlayTheme: overlayThemeChoice,
         brushDurationSeconds,
         savedAt: sessionToSave.savedAt
@@ -2464,6 +2501,7 @@ function App() {
 
     setBrushingMusicElapsedSeconds(0);
     setCountdownRemainingMs(0);
+    setSessionStartSegmentKey(null);
     countdownDeadlineRef.current = null;
     playOnCountdownEndRef.current = false;
     sessionStartedAtRef.current = null;
@@ -2893,8 +2931,10 @@ function App() {
             ageUiProfile={ageUiProfile}
             brushingHand={brushingHand}
             brushType={brushType}
+            rotatingStartEnabled={rotatingStartEnabled}
             onBrushingHandChange={setBrushingHand}
             onBrushTypeChange={setBrushType}
+            onRotatingStartEnabledChange={setRotatingStartEnabled}
             brushDurationOptions={BRUSH_DURATION_OPTIONS}
             onBrushDurationChange={handleBrushDurationChange}
             isBrushControlsLocked={brushingPhase === "running" || brushingPhase === "countdown" || brushingPhase === "paused"}
@@ -3087,6 +3127,7 @@ function App() {
                 brushingMusicElapsedSeconds={brushingMusicElapsedSeconds}
                 startCountdownTotalMs={START_DELAY_SECONDS * 1000}
                 startCountdownRemainingMs={countdownRemainingMs}
+                sessionStartSegmentKey={sessionStartSegmentKey}
                 brushingHand={brushingHand}
                 brushType={brushType}
                 hideIntro

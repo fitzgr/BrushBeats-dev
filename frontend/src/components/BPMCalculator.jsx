@@ -36,8 +36,10 @@ function BPMCalculator({
   ageUiProfile,
   brushingHand,
   brushType,
+  rotatingStartEnabled,
   onBrushingHandChange,
   onBrushTypeChange,
+  onRotatingStartEnabledChange,
   brushDurationOptions,
   onBrushDurationChange,
   isBrushControlsLocked,
@@ -294,6 +296,20 @@ function BPMCalculator({
             </button>
           </div>
         </div>
+
+        <label className="brush-start-rotation-toggle">
+          <span className="profile-summary-label">{t("brushing.rotatingStartToggle.label")}</span>
+          <span className="brush-start-rotation-toggle-row">
+            <input
+              type="checkbox"
+              checked={Boolean(rotatingStartEnabled)}
+              onChange={(event) => onRotatingStartEnabledChange?.(event.target.checked)}
+              disabled={isBrushControlsLocked}
+            />
+            <span>{t("brushing.rotatingStartToggle.option")}</span>
+          </span>
+          <span className="brush-duration-hint">{t("brushing.rotatingStartToggle.hint")}</span>
+        </label>
 
         <label className="brush-duration-picker">
           <span className="profile-summary-label">{t("brushing.duration")}</span>

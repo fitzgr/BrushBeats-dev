@@ -504,6 +504,11 @@
     "selectedSong": "Seleccionada: {{title}} de {{artist}}",
     "upNext": "Siguiente: {{title}} de {{artist}}",
     "handPreference": "Mano para cepillarse",
+    "rotatingStartToggle": {
+      "label": "Vista previa de inicio",
+      "option": "Rotar la posicion inicial en cada sesion",
+      "hint": "Durante la cuenta regresiva de 5 segundos, parpadea la siguiente zona de inicio. El inicio rota por superior izquierda interna/externa, superior derecha interna/externa, inferior izquierda interna/externa e inferior derecha interna/externa."
+    },
     "duration": "Tiempo de cepillado",
     "durationHint": "El valor predeterminado es 2:00. Cambialo antes de empezar si esta persona necesita mas o menos tiempo.",
     "start": "Empezar cepillado ({{duration}})",
