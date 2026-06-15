@@ -37,6 +37,7 @@ function BPMCalculator({
   brushingHand,
   brushType,
   rotatingStartEnabled,
+  rotatingStartPersistStatus,
   onBrushingHandChange,
   onBrushTypeChange,
   onRotatingStartEnabledChange,
@@ -307,6 +308,17 @@ function BPMCalculator({
               disabled={isBrushControlsLocked}
             />
             <span>{t("brushing.rotatingStartToggle.option")}</span>
+            {rotatingStartPersistStatus !== "idle" && (
+              <span className={`brush-start-rotation-status ${rotatingStartPersistStatus}`}>
+                {rotatingStartPersistStatus === "saved"
+                  ? t("brushing.rotatingStartToggle.statusSaved")
+                  : rotatingStartPersistStatus === "saving"
+                    ? t("brushing.rotatingStartToggle.statusSaving")
+                    : rotatingStartPersistStatus === "storage-off"
+                      ? t("brushing.rotatingStartToggle.statusStorageOff")
+                      : t("brushing.rotatingStartToggle.statusError")}
+              </span>
+            )}
           </span>
           <span className="brush-duration-hint">{t("brushing.rotatingStartToggle.hint")}</span>
         </label>

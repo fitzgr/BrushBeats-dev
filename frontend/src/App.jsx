@@ -514,6 +514,7 @@ function App() {
   const [brushDurationSeconds, setBrushDurationSeconds] = useState(DEFAULT_BRUSH_DURATION_SECONDS);
   const [rotatingStartEnabled, setRotatingStartEnabled] = useState(false);
   const [rotatingStartIndex, setRotatingStartIndex] = useState(0);
+  const [rotatingStartPersistStatus, setRotatingStartPersistStatus] = useState("idle");
   const [sessionStartSegmentKey, setSessionStartSegmentKey] = useState(null);
   const [brushControlCue, setBrushControlCue] = useState(null);
   const [queuedSongPreview, setQueuedSongPreview] = useState(null);
@@ -581,6 +582,7 @@ function App() {
   const loggedCompletedSessionRef = useRef(null);
   const previousTrackedTeethRef = useRef(null);
   const appliedSharedVideoRef = useRef("");
+  const lastRotatingPersistedRef = useRef({ enabled: false, index: 0 });
   const analyticsAvailable = useMemo(() => analyticsEnabled(), []);
   const device = useDeviceContext();
   const totalTeeth = values.top + values.bottom;
@@ -826,10 +828,24 @@ function App() {
     setKeyword(session.keyword || "");
     setBrushingHand(session.brushingHand || "right");
     setBrushType(session.brushType || "manual");
-    setRotatingStartEnabled(Boolean(session.rotatingStartEnabled));
-    setRotatingStartIndex(clampValue(Math.floor(Number(session.rotatingStartIndex) || 0), 0, ROTATING_START_SEGMENT_SEQUENCE.length - 1));
+    const nextRotatingStartEnabled = Boolean(session.rotatingStartEnabled);
+    const nextRotatingStartIndex = clampValue(Math.floor(Number(session.rotatingStartIndex) || 0), 0, ROTATING_START_SEGMENT_SEQUENCE.length - 1);
+    setRotatingStartEnabled(nextRotatingStartEnabled);
+    setRotatingStartIndex(nextRotatingStartIndex);
+    lastRotatingPersistedRef.current = { enabled: nextRotatingStartEnabled, index: nextRotatingStartIndex };
     setOverlayThemeChoice(session.overlayTheme || OVERLAY_THEME_AUTO);
     setBrushDurationSeconds(session.brushDurationSeconds || DEFAULT_BRUSH_DURATION_SECONDS);
+  }
+
+  function handleRotatingStartEnabledChange(nextEnabled) {
+    setRotatingStartEnabled(Boolean(nextEnabled));
+
+    if (storageConsent !== "granted") {
+      setRotatingStartPersistStatus("storage-off");
+      return;
+    }
+
+    setRotatingStartPersistStatus("saving");
   }
 
   useEffect(() => {
@@ -1147,10 +1163,15 @@ function App() {
 
   useEffect(() => {
     if (storageConsent !== "granted" || !preferencesHydratedRef.current) {
+      setRotatingStartPersistStatus(storageConsent === "granted" ? "idle" : "storage-off");
       return;
     }
 
-    saveStoredPreferences({
+    const rotatingChanged =
+      lastRotatingPersistedRef.current.enabled !== rotatingStartEnabled ||
+      lastRotatingPersistedRef.current.index !== rotatingStartIndex;
+
+    const saved = saveStoredPreferences({
       values,
       filters: songFilters,
       keyword,
@@ -1162,6 +1183,15 @@ function App() {
       brushDurationSeconds,
       savedAt: Date.now()
     });
+
+    if (rotatingChanged) {
+      if (saved) {
+        lastRotatingPersistedRef.current = { enabled: rotatingStartEnabled, index: rotatingStartIndex };
+        setRotatingStartPersistStatus("saved");
+      } else {
+        setRotatingStartPersistStatus("error");
+      }
+    }
   }, [brushDurationSeconds, brushingHand, brushType, keyword, overlayThemeChoice, rotatingStartEnabled, rotatingStartIndex, songFilters, storageConsent, values]);
 
   useEffect(() => {
@@ -2956,9 +2986,10 @@ function App() {
             brushingHand={brushingHand}
             brushType={brushType}
             rotatingStartEnabled={rotatingStartEnabled}
+            rotatingStartPersistStatus={rotatingStartPersistStatus}
             onBrushingHandChange={setBrushingHand}
             onBrushTypeChange={setBrushType}
-            onRotatingStartEnabledChange={setRotatingStartEnabled}
+            onRotatingStartEnabledChange={handleRotatingStartEnabledChange}
             brushDurationOptions={BRUSH_DURATION_OPTIONS}
             onBrushDurationChange={handleBrushDurationChange}
             isBrushControlsLocked={brushingPhase === "running" || brushingPhase === "countdown" || brushingPhase === "paused"}

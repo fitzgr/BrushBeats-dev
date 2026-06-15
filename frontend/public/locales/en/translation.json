@@ -509,7 +509,11 @@
     "rotatingStartToggle": {
       "label": "Start position preview",
       "option": "Rotate start position each session",
-      "hint": "During the 5-second countdown, the next starting area flashes. The start rotates through top left inner/outer, top right inner/outer, bottom left inner/outer, and bottom right inner/outer."
+      "hint": "During the 5-second countdown, the next starting area flashes. The start rotates through top left inner/outer, top right inner/outer, bottom left inner/outer, and bottom right inner/outer.",
+      "statusSaved": "Saved",
+      "statusSaving": "Saving...",
+      "statusStorageOff": "Storage off",
+      "statusError": "Save failed"
     },
     "duration": "Brush time",
     "durationHint": "Default is 2:00. Change it before starting if this brusher needs more or less time.",

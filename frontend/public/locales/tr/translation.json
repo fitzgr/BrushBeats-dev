@@ -507,7 +507,11 @@
     "rotatingStartToggle": {
       "label": "Baslangic onizlemesi",
       "option": "Her oturumda baslangic konumunu dondur",
-      "hint": "5 saniyelik geri sayimda bir sonraki baslangic bolgesi yanip soner. Baslangic sirasi su sekilde doner: ust sol ic/dis, ust sag ic/dis, alt sol ic/dis ve alt sag ic/dis."
+      "hint": "5 saniyelik geri sayimda bir sonraki baslangic bolgesi yanip soner. Baslangic sirasi su sekilde doner: ust sol ic/dis, ust sag ic/dis, alt sol ic/dis ve alt sag ic/dis.",
+      "statusSaved": "Kaydedildi",
+      "statusSaving": "Kaydediliyor...",
+      "statusStorageOff": "Depolama kapali",
+      "statusError": "Kaydetme hatasi"
     },
     "duration": "Fırçalama süresi",
     "durationHint": "Varsayılan 2:00'dır. Bu fırçalayan daha fazla veya daha az süreye ihtiyaç duyuyorsa başlamadan önce değiştirin.",
