@@ -5149,13 +5149,20 @@ select {
 }
 
 .tooth-svg .tooth-face.countdown-preview-surface {
-  animation: countdownPreviewFlash 620ms ease-in-out infinite;
+  animation: countdownPathPulse 620ms ease-in-out infinite;
+  animation-delay: var(--countdown-path-delay, 0ms);
 }
 
 .tooth-svg.countdown-preview-tooth .tooth-outline {
-  stroke: #d96f12;
+  stroke: #1f63d8;
   stroke-width: 1.8;
-  filter: drop-shadow(0 0 6px rgba(224, 129, 37, 0.58));
+  filter: drop-shadow(0 0 6px rgba(38, 124, 255, 0.58));
+}
+
+.tooth-svg.countdown-start-tooth .tooth-outline {
+  stroke: #0e4fbe;
+  stroke-width: 2.05;
+  filter: drop-shadow(0 0 9px rgba(53, 151, 255, 0.76));
 }
 
 .tooth-svg.active-tooth .tooth-face.active-surface {
@@ -5186,17 +5193,17 @@ select {
   }
 }
 
-@keyframes countdownPreviewFlash {
+@keyframes countdownPathPulse {
   0% {
-    fill: #ffd68d;
+    fill: #dcebff;
   }
 
   50% {
-    fill: #ef8c2a;
+    fill: #2f80ff;
   }
 
   100% {
-    fill: #ffd68d;
+    fill: #dcebff;
   }
 }
 

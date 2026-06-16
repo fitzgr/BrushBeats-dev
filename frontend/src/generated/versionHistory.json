@@ -1,5 +1,18 @@
 [
   {
+    "id": "commit-5e2a0e48fa6fcafe59b637dfaede3e32fc03a29e",
+    "kind": "commit",
+    "source": "git-history",
+    "sha": "5e2a0e48fa6fcafe59b637dfaede3e32fc03a29e",
+    "shortSha": "5e2a0e4",
+    "timestamp": "2026-06-15T18:00:40-04:00",
+    "date": "2026-06-15",
+    "author": "Grant Fitz",
+    "subject": "Add debug save status for rotate-start toggle",
+    "body": "",
+    "tags": []
+  },
+  {
     "id": "commit-90ebb5fca794adb7dce6d827adc849dbb083d38c",
     "kind": "commit",
     "source": "git-history",
@@ -2583,19 +2596,6 @@
     "date": "2026-04-12",
     "author": "Grant Fitz",
     "subject": "Replace session label with percent complete in brush map",
-    "body": "",
-    "tags": []
-  },
-  {
-    "id": "commit-149357d7ac574f9dfc4bbb7c83144d313963a106",
-    "kind": "commit",
-    "source": "git-history",
-    "sha": "149357d7ac574f9dfc4bbb7c83144d313963a106",
-    "shortSha": "149357d",
-    "timestamp": "2026-04-12T08:47:08-04:00",
-    "date": "2026-04-12",
-    "author": "Grant Fitz",
-    "subject": "Show short commit id beside top BrushBeats label",
     "body": "",
     "tags": []
   }

@@ -306,6 +306,19 @@ function clampNumber(value, min, max) {
   return Math.min(max, Math.max(min, value));
 }
 
+function parseSegmentKey(key) {
+  const match = String(key || "").match(/^(front|back)-(top|bottom)-(left|right)$/);
+  if (!match) {
+    return null;
+  }
+
+  return {
+    surface: match[1],
+    jaw: match[2],
+    side: match[3]
+  };
+}
+
 function splitMessageIntoLines(message, maxLineLength = 24, maxLines = 3) {
   const words = String(message || "").trim().split(/\s+/).filter(Boolean);
   if (!words.length) {
@@ -961,6 +974,27 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, isMobile, brushi
     ? segments.find((segment) => segment.key === sessionStartSegmentKey) || null
     : null;
   const countdownPreviewLabel = countdownPreviewSegment ? getSegmentLabel(t, countdownPreviewSegment.label) : null;
+  const countdownPreviewTarget = useMemo(() => {
+    if (!countdownPreviewSegment) {
+      return null;
+    }
+
+    const parsed = parseSegmentKey(countdownPreviewSegment.key);
+    if (!parsed) {
+      return null;
+    }
+
+    const jawToothCount = parsed.jaw === "top" ? topTeeth : bottomTeeth;
+    const split = Math.ceil(jawToothCount / 2);
+    const startMapIndex = parsed.side === "left" ? 0 : Math.max(0, jawToothCount - 1);
+
+    return {
+      ...parsed,
+      jawToothCount,
+      split,
+      startMapIndex
+    };
+  }, [bottomTeeth, countdownPreviewSegment, topTeeth]);
   const centerLabel = brushingPhase === "countdown"
     ? t("brushing.guide.startLabel")
     : brushingPhase === "complete"
@@ -1024,12 +1058,22 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, isMobile, brushi
       ? countdownPreviewSegment.surface
       : null;
     const isCountdownPreviewTooth = Boolean(countdownSurface);
+    const countdownStep = countdownPreviewTarget?.jaw === jaw
+      ? countdownPreviewTarget.side === "left"
+        ? countdownPreviewTarget.split - 1 - mapIndex
+        : mapIndex - countdownPreviewTarget.split
+      : -1;
+    const isCountdownPathTooth = isCountdownPreviewTooth && Number.isFinite(countdownStep) && countdownStep >= 0;
+    const isCountdownStartTooth = Boolean(isCountdownPreviewTooth && countdownPreviewTarget?.jaw === jaw && mapIndex === countdownPreviewTarget.startMapIndex);
+    const countdownSurfaceStyle = isCountdownPathTooth
+      ? { "--countdown-path-delay": `${Math.round(countdownStep * 85)}ms` }
+      : undefined;
 
     return (
       <g
         key={toothId}
         transform={`translate(${point.x} ${point.y}) rotate(${point.rotationDeg ?? point.angleDeg - 90}) scale(${toothShape.scale * (point.layoutScale || 1)})`}
-        className={`tooth-svg ${meta?.type || "molar"}${isActiveTooth ? " active-tooth" : ""}${isCountdownPreviewTooth ? " countdown-preview-tooth" : ""}`}
+        className={`tooth-svg ${meta?.type || "molar"}${isActiveTooth ? " active-tooth" : ""}${isCountdownPreviewTooth ? " countdown-preview-tooth" : ""}${isCountdownStartTooth ? " countdown-start-tooth" : ""}`}
       >
         <title>{toothLabel}</title>
         <defs>
@@ -1045,11 +1089,13 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, isMobile, brushi
           className={`tooth-face back-face${state.backDone ? " clean" : ""}${activeSurface === "back" ? " active-surface" : ""}${countdownSurface === "back" ? " countdown-preview-surface" : ""}`}
           d={toothShape.path}
           clipPath={`url(#${toothId}-back-surface)`}
+          style={countdownSurface === "back" ? countdownSurfaceStyle : undefined}
         />
         <path
           className={`tooth-face front-face${state.frontDone ? " clean" : ""}${activeSurface === "front" ? " active-surface" : ""}${countdownSurface === "front" ? " countdown-preview-surface" : ""}`}
           d={toothShape.path}
           clipPath={`url(#${toothId}-front-surface)`}
+          style={countdownSurface === "front" ? countdownSurfaceStyle : undefined}
         />
         {celebrateBackSurface && (
           <path
