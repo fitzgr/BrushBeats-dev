@@ -914,29 +914,6 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, isMobile, brushi
 
   const topPoints = createJawToothLayout({ chart: topToothChart, jaw: "top", child: useChildToothChart, mapCenter });
   const bottomPoints = createJawToothLayout({ chart: bottomToothChart, jaw: "bottom", child: useChildToothChart, mapCenter });
-  const countdownStartPoint = useMemo(() => {
-    if (!countdownPreviewTarget) {
-      return null;
-    }
-
-    const pointSet = countdownPreviewTarget.jaw === "top" ? topPoints : bottomPoints;
-    const point = pointSet[countdownPreviewTarget.startMapIndex];
-    if (!point) {
-      return null;
-    }
-
-    const labelOffsetX = countdownPreviewTarget.side === "left" ? -30 : 30;
-    const labelOffsetY = countdownPreviewTarget.jaw === "top" ? -20 : 22;
-
-    return {
-      x: point.x,
-      y: point.y,
-      labelX: point.x + labelOffsetX,
-      labelY: point.y + labelOffsetY,
-      side: countdownPreviewTarget.side,
-      jaw: countdownPreviewTarget.jaw
-    };
-  }, [bottomPoints, countdownPreviewTarget, topPoints]);
 
   function getToothState(jaw, mapIndex) {
     if (brushingPhase === "complete") {
@@ -1018,6 +995,29 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, isMobile, brushi
       startMapIndex
     };
   }, [bottomTeeth, countdownPreviewSegment, topTeeth]);
+  const countdownStartPoint = useMemo(() => {
+    if (!countdownPreviewTarget) {
+      return null;
+    }
+
+    const pointSet = countdownPreviewTarget.jaw === "top" ? topPoints : bottomPoints;
+    const point = pointSet[countdownPreviewTarget.startMapIndex];
+    if (!point) {
+      return null;
+    }
+
+    const labelOffsetX = countdownPreviewTarget.side === "left" ? -30 : 30;
+    const labelOffsetY = countdownPreviewTarget.jaw === "top" ? -20 : 22;
+
+    return {
+      x: point.x,
+      y: point.y,
+      labelX: point.x + labelOffsetX,
+      labelY: point.y + labelOffsetY,
+      side: countdownPreviewTarget.side,
+      jaw: countdownPreviewTarget.jaw
+    };
+  }, [bottomPoints, countdownPreviewTarget, topPoints]);
   const countdownPathTotalSteps = countdownPreviewSegment?.mapIndices?.length || 0;
   const countdownPathStepDurationMs = 85;
   const countdownPathPulseWindowMs = countdownPathTotalSteps * countdownPathStepDurationMs;

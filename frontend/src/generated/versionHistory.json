@@ -1,5 +1,18 @@
 [
   {
+    "id": "commit-598ea841e81236f5d74a30d3b390281f1792cbc2",
+    "kind": "commit",
+    "source": "git-history",
+    "sha": "598ea841e81236f5d74a30d3b390281f1792cbc2",
+    "shortSha": "598ea84",
+    "timestamp": "2026-06-16T17:27:51-04:00",
+    "date": "2026-06-16",
+    "author": "Grant Fitz",
+    "subject": "Improve countdown start-tooth beacon visibility",
+    "body": "",
+    "tags": []
+  },
+  {
     "id": "commit-fa976dd79eb39408340dddf8198e227186e9ce76",
     "kind": "commit",
     "source": "git-history",
@@ -2583,19 +2596,6 @@
     "date": "2026-04-12",
     "author": "Grant Fitz",
     "subject": "Merge GitHub push events with git commit history for ongoing version tracking",
-    "body": "",
-    "tags": []
-  },
-  {
-    "id": "commit-7223810e4092a810e0674cde5602fa61a840df4a",
-    "kind": "commit",
-    "source": "git-history",
-    "sha": "7223810e4092a810e0674cde5602fa61a840df4a",
-    "shortSha": "7223810",
-    "timestamp": "2026-04-12T09:44:17-04:00",
-    "date": "2026-04-12",
-    "author": "Grant Fitz",
-    "subject": "Add version history page and ad-aware brushing start flow",
     "body": "",
     "tags": []
   }
