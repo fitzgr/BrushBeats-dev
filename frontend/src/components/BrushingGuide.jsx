@@ -562,7 +562,7 @@ function RowCelebrationCascade({ celebration, reducedMotion, lowPerformanceMode 
   return <canvas className={`row-celebration-cascade${celebration ? " active" : ""}`} ref={canvasRef} aria-hidden="true" />;
 }
 
-function BrushingGuide({ timer, brushingPhase, values, bpmData, isMobile, brushingMusicElapsedSeconds, startCountdownTotalMs = 5000, startCountdownRemainingMs = 0, sessionStartSegmentKey = null, brushingHand, brushType = "manual", hideIntro = false, onCueChange, completionMessage = "", brushControlCue, primaryBrushActionLabel, onPrimaryBrushAction, onRestartBrushing, ageUiProfile, embedded = false, showThemePanel = true }) {
+function BrushingGuide({ timer, brushingPhase, values, bpmData, isMobile, brushingMusicElapsedSeconds, startCountdownTotalMs = 5000, startCountdownRemainingMs = 0, sessionStartSegmentKey = null, brushingHand, brushType = "manual", hideIntro = false, onCueChange, brushControlCue, primaryBrushActionLabel, onPrimaryBrushAction, onRestartBrushing, rotatingStartEnabled = false, onRotatingStartEnabledChange, ageUiProfile, embedded = false, showThemePanel = true }) {
   const { t } = useTranslation();
   const totalSeconds = Number(bpmData?.totalBrushingSeconds || 120);
   const topTeeth = Number(values?.top || 16);
@@ -1050,17 +1050,14 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, isMobile, brushi
       : brushingPhase === "complete"
         ? t("brushing.guide.cleanShineLabel")
         : t("brushing.guide.brushNowLabel");
-  const completionLines = brushingPhase === "complete" && completionMessage
-    ? splitMessageIntoLines(completionMessage, 24, 3)
-    : [];
   const mapBrushDirectionClass = brushFacingDirection === "left" ? "facing-left" : "facing-right";
-  const mapBrushMessagePrimary = brushingPhase === "complete" && completionLines.length > 0
-    ? completionLines[0]
+  const mapBrushMessagePrimary = brushingPhase === "complete"
+    ? "Stop music"
     : centerValue;
   const mapBrushMessageSecondary = brushingPhase === "countdown" && countdownPreviewLabel
     ? countdownPreviewLabel
-    : brushingPhase === "complete" && completionLines.length > 1
-    ? completionLines.slice(1).join(" ")
+    : brushingPhase === "complete"
+    ? ""
     : centerLabel;
   const mapBrushMessageTertiary = brushingPhase === "countdown" && currentCountdownPathStep && countdownPathTotalSteps > 0
     ? t("brushing.guide.countdownPathStep", {
@@ -1201,7 +1198,7 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, isMobile, brushi
                 ? <span>{brushControlCue?.detail || t("brushing.readyDetail", { hand: t(`common.hands.${brushingHand}`) })}</span>
                 : null}
             </div>
-            <div className="session-actions guide-session-actions">
+            <div className="session-actions guide-session-actions with-rotate-start-copy">
               <button
                 type="button"
                 className="action-btn"
@@ -1212,6 +1209,14 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, isMobile, brushi
               <button type="button" className="action-btn secondary" onClick={onRestartBrushing}>
                 {t("brushing.stop")}
               </button>
+              <label className="brush-start-rotation-toggle-row guide-rotate-start-copy" aria-label="rotate start">
+                <input
+                  type="checkbox"
+                  checked={Boolean(rotatingStartEnabled)}
+                  onChange={(event) => onRotatingStartEnabledChange?.(event.target.checked)}
+                />
+                <span>rotate start</span>
+              </label>
             </div>
           </div>
         )}

@@ -3144,6 +3144,23 @@
   margin-bottom: 0.1rem;
 }
 
+.session-actions.with-rotate-start-copy {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) auto;
+  align-items: center;
+}
+
+.guide-rotate-start-copy {
+  white-space: nowrap;
+  justify-self: end;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.guide-rotate-start-copy input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+}
+
 .brush-duration-picker select {
   width: 100%;
   border: 1px solid rgba(16, 33, 37, 0.16);
@@ -6282,6 +6299,16 @@ select {
     padding: 0.52rem 0.6rem;
     min-height: 0;
     font-size: 0.88rem;
+  }
+
+  .session-actions.with-rotate-start-copy {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .session-actions.with-rotate-start-copy .guide-rotate-start-copy {
+    grid-column: 1 / -1;
+    justify-self: end;
+    font-size: 0.78rem;
   }
 
   .player .player-frame-shell {

@@ -2204,6 +2204,7 @@ function App() {
     });
 
     if (remaining <= 0) {
+      issuePlayerCommand("pause");
       trackEvent("brushing_completed");
       setBrushingPhase("complete");
     }
@@ -3157,7 +3158,7 @@ function App() {
           >
             <>
               {device.isMobile && (
-                <div className="session-actions compact-mobile-actions">
+                <div className="session-actions compact-mobile-actions with-rotate-start-copy">
                   <button
                     type="button"
                     className="action-btn"
@@ -3168,6 +3169,14 @@ function App() {
                   <button type="button" className="action-btn secondary" onClick={restartBrushing}>
                     {t("brushing.stop")}
                   </button>
+                  <label className="brush-start-rotation-toggle-row guide-rotate-start-copy" aria-label="rotate start">
+                    <input
+                      type="checkbox"
+                      checked={Boolean(rotatingStartEnabled)}
+                      onChange={(event) => handleRotatingStartEnabledChange(event.target.checked)}
+                    />
+                    <span>rotate start</span>
+                  </label>
                 </div>
               )}
               <BrushingGuide
@@ -3192,6 +3201,8 @@ function App() {
                 primaryBrushActionLabel={primaryBrushActionLabel}
                 onPrimaryBrushAction={handlePrimaryBrushAction}
                 onRestartBrushing={restartBrushing}
+                rotatingStartEnabled={rotatingStartEnabled}
+                onRotatingStartEnabledChange={handleRotatingStartEnabledChange}
                 ageUiProfile={ageUiProfile}
                 embedded
                 showThemePanel={false}
