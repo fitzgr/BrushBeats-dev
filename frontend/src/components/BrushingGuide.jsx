@@ -563,6 +563,9 @@ function RowCelebrationCascade({ celebration, reducedMotion, lowPerformanceMode 
 }
 
 function BrushingGuide({ timer, brushingPhase, values, bpmData, isMobile, brushingMusicElapsedSeconds, startCountdownTotalMs = 5000, startCountdownRemainingMs = 0, sessionStartSegmentKey = null, brushingHand, brushType = "manual", hideIntro = false, onCueChange, brushControlCue, primaryBrushActionLabel, onPrimaryBrushAction, onRestartBrushing, rotatingStartEnabled = false, onRotatingStartEnabledChange, ageUiProfile, embedded = false, showThemePanel = true }) {
+  const resetHoldTimerRef = useRef(null);
+  const resetHoldTriggeredRef = useRef(false);
+  const RESET_HOLD_MS = 700;
   const { t } = useTranslation();
   const totalSeconds = Number(bpmData?.totalBrushingSeconds || 120);
   const topTeeth = Number(values?.top || 16);
@@ -1052,7 +1055,7 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, isMobile, brushi
         : t("brushing.guide.brushNowLabel");
   const mapBrushDirectionClass = brushFacingDirection === "left" ? "facing-left" : "facing-right";
   const mapBrushMessagePrimary = brushingPhase === "complete"
-    ? "Stop music"
+    ? primaryBrushActionLabel
     : centerValue;
   const mapBrushMessageSecondary = brushingPhase === "countdown" && countdownPreviewLabel
     ? countdownPreviewLabel
@@ -1064,7 +1067,42 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, isMobile, brushi
       step: currentCountdownPathStep,
       total: countdownPathTotalSteps
     })
-    : "";
+    : "Tap to start/pause. Hold to reset.";
+
+  function clearResetHoldTimer() {
+    if (resetHoldTimerRef.current) {
+      clearTimeout(resetHoldTimerRef.current);
+      resetHoldTimerRef.current = null;
+    }
+  }
+
+  function handleBrushTriggerPointerDown() {
+    clearResetHoldTimer();
+    resetHoldTriggeredRef.current = false;
+    resetHoldTimerRef.current = setTimeout(() => {
+      resetHoldTriggeredRef.current = true;
+      onRestartBrushing?.();
+    }, RESET_HOLD_MS);
+  }
+
+  function handleBrushTriggerPointerUp() {
+    clearResetHoldTimer();
+    if (!resetHoldTriggeredRef.current) {
+      onPrimaryBrushAction?.();
+    }
+    resetHoldTriggeredRef.current = false;
+  }
+
+  function handleBrushTriggerPointerCancel() {
+    clearResetHoldTimer();
+    resetHoldTriggeredRef.current = false;
+  }
+
+  useEffect(() => {
+    return () => {
+      clearResetHoldTimer();
+    };
+  }, []);
   const activeAgePhase = ageUiProfile?.phase || agePhase;
   const coachingMode = brushType === "electric" ? "electric" : "manual";
   const coachingSet = AGE_HYGIENE_COACHING[coachingMode][activeAgePhase] || AGE_HYGIENE_COACHING[coachingMode].adult;
@@ -1198,17 +1236,7 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, isMobile, brushi
                 ? <span>{brushControlCue?.detail || t("brushing.readyDetail", { hand: t(`common.hands.${brushingHand}`) })}</span>
                 : null}
             </div>
-            <div className="session-actions guide-session-actions with-rotate-start-copy">
-              <button
-                type="button"
-                className="action-btn"
-                onClick={onPrimaryBrushAction}
-              >
-                {primaryBrushActionLabel}
-              </button>
-              <button type="button" className="action-btn secondary" onClick={onRestartBrushing}>
-                {t("brushing.stop")}
-              </button>
+            <div className="guide-session-actions">
               <label className="brush-start-rotation-toggle-row guide-rotate-start-copy" aria-label="rotate start">
                 <input
                   type="checkbox"
@@ -1247,7 +1275,16 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, isMobile, brushi
         >
             <div className="brush-hand-orientation-visual" aria-hidden="true">
               <span className="brush-hand-orientation-hand" />
-              <span className="brush-hand-orientation-handle">
+              <button
+                type="button"
+                className="brush-hand-orientation-handle map-hand-orientation-trigger"
+                onPointerDown={handleBrushTriggerPointerDown}
+                onPointerUp={handleBrushTriggerPointerUp}
+                onPointerCancel={handleBrushTriggerPointerCancel}
+                onPointerLeave={handleBrushTriggerPointerCancel}
+                aria-label={`${primaryBrushActionLabel}. Hold to reset timer.`}
+                title={`${primaryBrushActionLabel} (hold to reset timer)`}
+              >
                 <span className="map-brush-message-primary">{mapBrushMessagePrimary}</span>
                 {mapBrushMessageSecondary ? (
                   <span className="map-brush-message-secondary">{mapBrushMessageSecondary}</span>
@@ -1255,7 +1292,7 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, isMobile, brushi
                 {mapBrushMessageTertiary ? (
                   <span className="map-brush-message-tertiary">{mapBrushMessageTertiary}</span>
                 ) : null}
-              </span>
+              </button>
               <span className="brush-hand-orientation-neck" />
               <span className="brush-hand-orientation-head">
                 <span className="brush-hand-orientation-bristles" />

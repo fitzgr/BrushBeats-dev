@@ -3158,17 +3158,7 @@ function App() {
           >
             <>
               {device.isMobile && (
-                <div className="session-actions compact-mobile-actions with-rotate-start-copy">
-                  <button
-                    type="button"
-                    className="action-btn"
-                    onClick={handlePrimaryBrushAction}
-                  >
-                    {primaryBrushActionLabel}
-                  </button>
-                  <button type="button" className="action-btn secondary" onClick={restartBrushing}>
-                    {t("brushing.stop")}
-                  </button>
+                <div className="mobile-rotate-start-row">
                   <label className="brush-start-rotation-toggle-row guide-rotate-start-copy" aria-label="rotate start">
                     <input
                       type="checkbox"
