@@ -3148,13 +3148,13 @@ function App() {
             <>
               {device.isMobile && (
                 <div className="mobile-rotate-start-row">
-                  <label className="brush-start-rotation-toggle-row guide-rotate-start-copy" aria-label="rotate start">
+                  <label className="brush-start-rotation-toggle-row guide-rotate-start-copy" aria-label="rotate starting tooth">
                     <input
                       type="checkbox"
                       checked={Boolean(rotatingStartEnabled)}
                       onChange={(event) => handleRotatingStartEnabledChange(event.target.checked)}
                     />
-                    <span>rotate start</span>
+                    <span>rotate starting tooth</span>
                   </label>
                 </div>
               )}

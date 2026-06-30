@@ -1021,30 +1021,15 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, isMobile, brushi
       jaw: countdownPreviewTarget.jaw
     };
   }, [bottomPoints, countdownPreviewTarget, topPoints]);
-  const centerTickerPrimary = brushingPhase === "countdown"
-    ? `${formatTenths(startCountdownRemainingMs / 1000)}s`
-    : brushingPhase === "complete"
-      ? t("brushing.guide.cleanShineLabel")
-      : primaryBrushActionLabel;
-  const centerTickerSecondary = brushingPhase === "countdown"
-    ? countdownPreviewLabel
-      ? `Start: ${countdownPreviewLabel}`
-      : t("brushing.guide.startLabel")
-    : activeEntry?.type === "transition"
-    ? activeEntry.transitionCue === "rotate" && transitionDirection
-      ? `${t("brushing.switchPrompts.rotate")}: ${transitionDirection}`
-      : activeEntry.transitionCue === "transition" && transitionDirection
-        ? `${t("brushing.switchPrompts.transition")}: ${transitionDirection}`
-        : t(`brushing.switchPrompts.${activeEntry.transitionCue || "transition"}`)
-    : brushingPhase === "running" || brushingPhase === "paused"
-      ? `${Math.round(progress)}%`
-      : "Tap brush to start/pause. Hold to reset.";
+  const fallbackTip = tips[tipIndex] || tips[0] || "";
   const centerTickerMessage = brushingPhase === "complete"
-    ? completionMessage || centerTickerPrimary
-    : brushControlCue?.title || activeTip || centerTickerPrimary;
+    ? completionMessage || t("brushing.guide.cleanShineLabel")
+    : activeTip || fallbackTip || primaryBrushActionLabel;
   const centerTickerDetail = brushingPhase === "complete"
     ? ""
-    : brushControlCue?.detail || activeTip || centerTickerSecondary;
+    : brushingPhase === "idle" || brushingPhase === "awaitingPlayback"
+      ? "Tap brush to start/pause. Hold to reset."
+      : "";
   const showCenterTicker = brushingPhase === "running" || brushingPhase === "paused" || brushingPhase === "complete";
   const showBottomTicker = brushingPhase === "idle" || brushingPhase === "awaitingPlayback";
   const mapBrushDirectionClass = brushFacingDirection === "left" ? "facing-left" : "facing-right";
@@ -1226,13 +1211,13 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, isMobile, brushi
                 : null}
             </div>
             <div className="guide-session-actions">
-              <label className="brush-start-rotation-toggle-row guide-rotate-start-copy" aria-label="rotate start">
+              <label className="brush-start-rotation-toggle-row guide-rotate-start-copy" aria-label="rotate starting tooth">
                 <input
                   type="checkbox"
                   checked={Boolean(rotatingStartEnabled)}
                   onChange={(event) => onRotatingStartEnabledChange?.(event.target.checked)}
                 />
-                <span>rotate start</span>
+                <span>rotate starting tooth</span>
               </label>
             </div>
           </div>
@@ -1359,9 +1344,6 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, isMobile, brushi
         </svg>
         </div>
       </div>
-      {brushingPhase === "running" && activeTip && (
-        <p className="guide-technique-tip" aria-live="polite">{activeTip}</p>
-      )}
       {showTimingDebug && (
         <p className="guide-debug-timing" aria-live="off">
           Debug: {totalTeeth} teeth | {toothDurationSeconds.toFixed(2)}s/tooth | source: {timingSourceLabel}
