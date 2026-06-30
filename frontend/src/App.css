@@ -4260,18 +4260,18 @@ select {
 }
 
 .map-hand-orientation-layer .brush-hand-orientation-handle {
-  width: 182px;
-  min-height: 52px;
-  padding: 0.4rem 0.6rem;
+  width: 136px;
+  min-height: 42px;
+  padding: 0.25rem 0.45rem;
   border-radius: 999px;
   background: linear-gradient(95deg, #f18739, #f6b066);
   border: 1px solid rgba(108, 53, 16, 0.36);
   box-shadow:
     inset 0 2px 3px rgba(255, 220, 185, 0.5),
     inset 0 -6px 9px rgba(162, 75, 21, 0.28);
-  display: grid;
-  place-content: center;
-  gap: 0.08rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   text-align: center;
   line-height: 1.1;
 }
@@ -4308,28 +4308,19 @@ select {
   inset: 1px 1px 1px 2px;
 }
 
-.map-hand-orientation-layer .map-brush-message-primary {
-  font-size: 12px;
+.map-hand-orientation-layer .map-brush-action-glyph {
+  font-size: 20px;
   font-weight: 900;
   color: #fffaf2;
   text-shadow: 0 1px 2px rgba(88, 39, 8, 0.58);
-  letter-spacing: 0.01em;
+  line-height: 1;
 }
 
-.map-hand-orientation-layer .map-brush-message-secondary {
-  font-size: 9.4px;
+.map-status-ticker {
+  font-size: 10px;
   font-weight: 800;
-  color: rgba(255, 248, 231, 0.95);
-  text-shadow: 0 1px 1px rgba(88, 39, 8, 0.52);
+  fill: rgba(18, 56, 92, 0.9);
   letter-spacing: 0.02em;
-}
-
-.map-hand-orientation-layer .map-brush-message-tertiary {
-  font-size: 8.1px;
-  font-weight: 900;
-  color: rgba(230, 243, 255, 0.98);
-  text-shadow: 0 1px 1px rgba(12, 55, 102, 0.62);
-  letter-spacing: 0.03em;
   text-transform: uppercase;
 }
 
@@ -4355,9 +4346,9 @@ select {
   }
 
   .map-hand-orientation-layer .brush-hand-orientation-handle {
-    width: 156px;
-    min-height: 46px;
-    padding: 0.35rem 0.52rem;
+    width: 118px;
+    min-height: 38px;
+    padding: 0.2rem 0.42rem;
   }
 
   .map-hand-orientation-layer .brush-hand-orientation-hand {
@@ -4375,12 +4366,12 @@ select {
     height: 24px;
   }
 
-  .map-hand-orientation-layer .map-brush-message-primary {
-    font-size: 10.8px;
+  .map-hand-orientation-layer .map-brush-action-glyph {
+    font-size: 16px;
   }
 
-  .map-hand-orientation-layer .map-brush-message-secondary {
-    font-size: 8.6px;
+  .map-status-ticker {
+    font-size: 9px;
   }
 
   .map-hand-orientation-layer .map-brush-message-tertiary {

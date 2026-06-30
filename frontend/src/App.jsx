@@ -62,7 +62,7 @@ import "./App.css";
 const DEFAULT_VALUES = { top: 16, bottom: 16 };
 const DEFAULT_BRUSH_DURATION_SECONDS = 120;
 const BRUSH_DURATION_OPTIONS = [90, 120, 150, 180];
-const START_DELAY_SECONDS = 5;
+const START_DELAY_SECONDS = 0;
 const ROTATING_START_SEGMENT_SEQUENCE = [
   "back-top-left",
   "front-top-left",
@@ -1850,21 +1850,16 @@ function App() {
     setActiveModal(null);
   }
 
-  function beginBrushingCountdown() {
-    const totalSeconds = Number(bpmData?.totalBrushingSeconds || brushDurationSeconds);
-    const startDelayMs = START_DELAY_SECONDS * 1000;
+  function prepareNextSessionStartSegment() {
     if (rotatingStartEnabled) {
       const safeIndex = clampValue(Math.floor(Number(rotatingStartIndex) || 0), 0, ROTATING_START_SEGMENT_SEQUENCE.length - 1);
       const nextStartSegmentKey = ROTATING_START_SEGMENT_SEQUENCE[safeIndex];
       setSessionStartSegmentKey(nextStartSegmentKey);
       setRotatingStartIndex((safeIndex + 1) % ROTATING_START_SEGMENT_SEQUENCE.length);
-    } else {
-      setSessionStartSegmentKey(null);
+      return;
     }
-    countdownDeadlineRef.current = Date.now() + startDelayMs;
-    setCountdownRemainingMs(startDelayMs);
-    setTimer({ running: false, remaining: totalSeconds });
-    setBrushingPhase("countdown");
+
+    setSessionStartSegmentKey(null);
   }
 
   function toSongKey(song) {
@@ -2000,35 +1995,6 @@ function App() {
       return { running: false, remaining: nextSeconds };
     });
   }, [bpmData?.totalBrushingSeconds, brushDurationSeconds, brushingPhase, timer.running]);
-
-  useEffect(() => {
-    if (brushingPhase !== "countdown") {
-      return;
-    }
-
-    if (countdownRemainingMs <= 0) {
-      const totalSeconds = Number(bpmData?.totalBrushingSeconds || brushDurationSeconds);
-      countdownDeadlineRef.current = null;
-      setCountdownRemainingMs(0);
-      setTimer({ running: true, remaining: totalSeconds });
-      setBrushingPhase("running");
-      lastPlaybackTickRef.current = playbackSecondsRef.current;
-      if (playOnCountdownEndRef.current) {
-        playOnCountdownEndRef.current = false;
-        issuePlayerCommand("play");
-      }
-      return;
-    }
-
-    const intervalId = window.setInterval(() => {
-      const remaining = Math.max(0, (countdownDeadlineRef.current || 0) - Date.now());
-      setCountdownRemainingMs((previous) => (Math.abs(previous - remaining) < 20 ? previous : remaining));
-    }, 100);
-
-    return () => {
-      window.clearInterval(intervalId);
-    };
-  }, [bpmData?.totalBrushingSeconds, brushDurationSeconds, brushingPhase, countdownRemainingMs]);
 
   useEffect(() => {
     if (!bpmData?.searchBpm || (workflowStep !== "music" && brushingPhase !== "running")) {
@@ -2218,7 +2184,9 @@ function App() {
     setPlaybackSeconds(seconds);
 
     if (brushingPhase === "awaitingPlayback" && seconds > 0) {
-      beginBrushingCountdown();
+      const totalSeconds = Number(bpmData?.totalBrushingSeconds || brushDurationSeconds);
+      setTimer({ running: true, remaining: totalSeconds });
+      setBrushingPhase("running");
       lastPlaybackTickRef.current = seconds;
       return;
     }
@@ -2420,39 +2388,30 @@ function App() {
     const totalSeconds = Number(bpmData?.totalBrushingSeconds || brushDurationSeconds);
     const shouldResume = Boolean(options.resumeFromPause);
     const shouldRestartVideo = Boolean(options.restartVideo);
-    const hasPendingCountdown = countdownRemainingMs > 0;
-
     if (shouldResume) {
-      if (hasPendingCountdown) {
-        countdownDeadlineRef.current = Date.now() + countdownRemainingMs;
-        setBrushingPhase("countdown");
-      } else {
-        lastPlaybackTickRef.current = playbackSeconds;
-        setTimer((previous) => ({ ...previous, running: true }));
-        setBrushingPhase("running");
-      }
+      lastPlaybackTickRef.current = playbackSeconds;
+      setTimer((previous) => ({ ...previous, running: true }));
+      setBrushingPhase("running");
     } else {
+      prepareNextSessionStartSegment();
       setBrushingMusicElapsedSeconds(0);
       setPlaybackSeconds(shouldRestartVideo ? 0 : playbackSeconds);
       lastPlaybackTickRef.current = shouldRestartVideo ? 0 : playbackSeconds;
       setTimer({ running: false, remaining: totalSeconds });
 
       if ((shouldRestartVideo ? 0 : playbackSeconds) > 0) {
-        beginBrushingCountdown();
+        setTimer({ running: true, remaining: totalSeconds });
+        setBrushingPhase("running");
       } else {
         setBrushingPhase("awaitingPlayback");
       }
     }
 
     if (shouldResume) {
-      if (!hasPendingCountdown || !playOnCountdownEndRef.current) {
-        issuePlayerCommand("play");
-      }
+      issuePlayerCommand("play");
     } else if (shouldRestartVideo) {
-      playOnCountdownEndRef.current = false;
       issuePlayerCommand("restart");
     } else {
-      playOnCountdownEndRef.current = false;
       issuePlayerCommand("play");
     }
 
@@ -2519,17 +2478,13 @@ function App() {
   }
 
   function pauseBrushing() {
-    if (brushingPhase !== "running" && brushingPhase !== "countdown" && brushingPhase !== "awaitingPlayback") {
+    if (brushingPhase !== "running" && brushingPhase !== "awaitingPlayback") {
       return;
     }
 
     setTimer((previous) => ({ ...previous, running: false }));
     setBrushingPhase("paused");
     lastPlaybackTickRef.current = playbackSeconds;
-    if (brushingPhase === "countdown" && countdownDeadlineRef.current) {
-      setCountdownRemainingMs(Math.max(0, countdownDeadlineRef.current - Date.now()));
-      countdownDeadlineRef.current = null;
-    }
     issuePlayerCommand("pause");
   }
 
@@ -2641,13 +2596,9 @@ function App() {
   }
 
   const primaryBrushActionLabel =
-    brushingPhase === "running" || brushingPhase === "countdown" || brushingPhase === "awaitingPlayback"
+    brushingPhase === "running" || brushingPhase === "awaitingPlayback"
       ? t("brushing.pause")
-      : brushingPhase === "paused"
-        ? t("brushing.resume")
-        : brushingPhase === "complete"
-          ? t("brushing.again", { duration: formatTime(Number(bpmData?.totalBrushingSeconds || brushDurationSeconds)) })
-          : t("brushing.start", { duration: formatTime(Number(bpmData?.totalBrushingSeconds || brushDurationSeconds)) });
+      : t("brushing.start", { duration: formatTime(Number(bpmData?.totalBrushingSeconds || brushDurationSeconds)) });
 
   const showTopConsentNotices = workflowStep === "teeth";
   const requiresHouseholdSetup =

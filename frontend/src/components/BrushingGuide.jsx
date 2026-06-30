@@ -1021,53 +1021,20 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, isMobile, brushi
       jaw: countdownPreviewTarget.jaw
     };
   }, [bottomPoints, countdownPreviewTarget, topPoints]);
-  const countdownPathTotalSteps = countdownPreviewSegment?.mapIndices?.length || 0;
-  const countdownPathStepDurationMs = 85;
-  const countdownPathPulseWindowMs = countdownPathTotalSteps * countdownPathStepDurationMs;
-  const countdownElapsedMs = clampNumber(
-    Number(startCountdownTotalMs || 0) - Number(startCountdownRemainingMs || 0),
-    0,
-    Number(startCountdownTotalMs || 0)
-  );
-  const currentCountdownPathStep = brushingPhase === "countdown" && countdownPathTotalSteps > 0
-    ? Math.min(
-      countdownPathTotalSteps,
-      1 + Math.floor((countdownElapsedMs % Math.max(countdownPathStepDurationMs, countdownPathPulseWindowMs)) / countdownPathStepDurationMs)
-    )
-    : null;
-  const centerLabel = brushingPhase === "countdown"
-    ? t("brushing.guide.startLabel")
-    : brushingPhase === "complete"
-      ? ""
-    : activeEntry?.type === "transition"
-      ? t("brushing.guide.actionLabel")
-      : `${Math.round(progress)}%`;
-  const centerValue = brushingPhase === "countdown"
-    ? formatTenths(startCountdownRemainingMs / 1000)
-    : activeEntry?.type === "transition"
-      ? activeEntry.transitionCue === "rotate" && transitionDirection
-        ? `${t("brushing.switchPrompts.rotate")}: ${transitionDirection}`
-        : activeEntry.transitionCue === "transition" && transitionDirection
-          ? `${t("brushing.switchPrompts.transition")}: ${transitionDirection}`
-          : t(`brushing.switchPrompts.${activeEntry.transitionCue || "transition"}`)
-      : brushingPhase === "complete"
-        ? t("brushing.guide.cleanShineLabel")
-        : t("brushing.guide.brushNowLabel");
+  const centerTickerPrimary = brushingPhase === "complete"
+    ? t("brushing.guide.cleanShineLabel")
+    : primaryBrushActionLabel;
+  const centerTickerSecondary = activeEntry?.type === "transition"
+    ? activeEntry.transitionCue === "rotate" && transitionDirection
+      ? `${t("brushing.switchPrompts.rotate")}: ${transitionDirection}`
+      : activeEntry.transitionCue === "transition" && transitionDirection
+        ? `${t("brushing.switchPrompts.transition")}: ${transitionDirection}`
+        : t(`brushing.switchPrompts.${activeEntry.transitionCue || "transition"}`)
+    : brushingPhase === "running" || brushingPhase === "paused"
+      ? `${Math.round(progress)}%`
+      : "Tap brush to start/pause. Hold to reset.";
   const mapBrushDirectionClass = brushFacingDirection === "left" ? "facing-left" : "facing-right";
-  const mapBrushMessagePrimary = brushingPhase === "complete"
-    ? primaryBrushActionLabel
-    : centerValue;
-  const mapBrushMessageSecondary = brushingPhase === "countdown" && countdownPreviewLabel
-    ? countdownPreviewLabel
-    : brushingPhase === "complete"
-    ? ""
-    : centerLabel;
-  const mapBrushMessageTertiary = brushingPhase === "countdown" && currentCountdownPathStep && countdownPathTotalSteps > 0
-    ? t("brushing.guide.countdownPathStep", {
-      step: currentCountdownPathStep,
-      total: countdownPathTotalSteps
-    })
-    : "Tap to start/pause. Hold to reset.";
+  const brushActionGlyph = brushingPhase === "running" || brushingPhase === "awaitingPlayback" ? "❚❚" : "▶";
 
   function clearResetHoldTimer() {
     if (resetHoldTimerRef.current) {
@@ -1285,13 +1252,7 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, isMobile, brushi
                 aria-label={`${primaryBrushActionLabel}. Hold to reset timer.`}
                 title={`${primaryBrushActionLabel} (hold to reset timer)`}
               >
-                <span className="map-brush-message-primary">{mapBrushMessagePrimary}</span>
-                {mapBrushMessageSecondary ? (
-                  <span className="map-brush-message-secondary">{mapBrushMessageSecondary}</span>
-                ) : null}
-                {mapBrushMessageTertiary ? (
-                  <span className="map-brush-message-tertiary">{mapBrushMessageTertiary}</span>
-                ) : null}
+                <span className="map-brush-action-glyph" aria-hidden="true">{brushActionGlyph}</span>
               </button>
               <span className="brush-hand-orientation-neck" />
               <span className="brush-hand-orientation-head">
@@ -1312,7 +1273,7 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, isMobile, brushi
           {topPoints.map((point, index) => renderTooth(point, "top", topToothChart[index], index))}
 
           {bottomPoints.map((point, index) => renderTooth(point, "bottom", bottomToothChart[index], index))}
-          {countdownStartPoint && (
+          {brushingPhase === "countdown" && countdownStartPoint && (
             <g className="countdown-start-indicator" aria-hidden="true">
               <line
                 x1={mapCenter.x}
@@ -1355,6 +1316,10 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, isMobile, brushi
               Lift + Place
             </text>
           )}
+          <text x="180" y="210" textAnchor="middle" className="map-status-ticker" aria-hidden="true">
+            <tspan x="180" dy="0">{centerTickerPrimary}</tspan>
+            <tspan x="180" dy="14">{centerTickerSecondary}</tspan>
+          </text>
           {showMapCoaching && activeCoaching && (
             <text x="180" y={activeJaw === "bottom" ? "154" : "264"} textAnchor="middle" className="map-coaching" aria-hidden="true">
               <tspan x="180" dy="0">{activeCoaching.do}</tspan>
