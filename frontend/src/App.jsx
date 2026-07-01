@@ -2204,7 +2204,6 @@ function App() {
     });
 
     if (remaining <= 0) {
-      issuePlayerCommand("pause");
       trackEvent("brushing_completed");
       setBrushingPhase("complete");
     }
@@ -2570,6 +2569,11 @@ function App() {
       return;
     }
 
+    if (brushingPhase === "complete") {
+      issuePlayerCommand("pause");
+      return;
+    }
+
     if (brushingPhase === "paused") {
       startBrushing({ resumeFromPause: true });
       return;
@@ -2636,7 +2640,9 @@ function App() {
   const primaryBrushActionLabel =
     brushingPhase === "running" || brushingPhase === "countdown" || brushingPhase === "awaitingPlayback"
       ? t("brushing.pause")
-      : t("brushing.start", { duration: formatTime(Number(bpmData?.totalBrushingSeconds || brushDurationSeconds)) });
+      : brushingPhase === "complete"
+        ? t("common.buttons.stopMusic")
+        : t("brushing.start", { duration: formatTime(Number(bpmData?.totalBrushingSeconds || brushDurationSeconds)) });
 
   const showTopConsentNotices = workflowStep === "teeth";
   const requiresHouseholdSetup =

@@ -1032,13 +1032,21 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, isMobile, brushi
       : "";
   const showCenterTicker = brushingPhase === "running" || brushingPhase === "paused" || brushingPhase === "complete";
   const showBottomTicker = brushingPhase === "idle" || brushingPhase === "awaitingPlayback";
-  const mapBrushDirectionClass = brushFacingDirection === "left" ? "facing-left" : "facing-right";
+  const mapBrushDirectionClass = brushFacingDirection
+    ? brushFacingDirection === "left"
+      ? "facing-left"
+      : "facing-right"
+    : "";
   const brushActionGlyph = brushingPhase === "countdown"
     ? String(Math.max(1, Math.ceil(startCountdownRemainingMs / 1000)))
+    : brushingPhase === "complete"
+      ? "■"
     : brushingPhase === "running" || brushingPhase === "awaitingPlayback"
       ? "❚❚"
       : "▶";
-  const brushIndicatorJawClass = brushingPhase === "countdown"
+  const brushIndicatorJawClass = brushingPhase === "complete"
+    ? ""
+    : brushingPhase === "countdown"
     ? "jaw-top"
     : activeJaw
       ? `jaw-${activeJaw}`
