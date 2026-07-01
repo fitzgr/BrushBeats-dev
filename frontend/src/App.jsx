@@ -2570,7 +2570,16 @@ function App() {
     }
 
     if (brushingPhase === "complete") {
-      issuePlayerCommand("pause");
+      const totalSeconds = Number(bpmData?.totalBrushingSeconds || brushDurationSeconds);
+      issuePlayerCommand("reset");
+      setPlaybackSeconds(0);
+      lastPlaybackTickRef.current = 0;
+      setBrushingMusicElapsedSeconds(0);
+      setCountdownRemainingMs(0);
+      countdownDeadlineRef.current = null;
+      setSessionStartSegmentKey(null);
+      setTimer({ running: false, remaining: totalSeconds });
+      setBrushingPhase("idle");
       return;
     }
 
