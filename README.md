@@ -52,6 +52,18 @@ Copy .env.example to .env at the project root and fill values:
 - ADMIN_WORKSHOP_PASSWORD
 - DATABASE_URL
 - CLOUD_SYNC_ALLOWED_HOUSEHOLD_IDS (comma-separated list of household ids allowed to use cloud sync/readback)
+- DAILY_GA_REPORT_ENABLED (set `true` to enable backend scheduler)
+- DAILY_GA_REPORT_CRON (default: `0 4 * * *`)
+- DAILY_GA_REPORT_TIMEZONE (example: `America/New_York`)
+- DAILY_GA_REPORT_TO_EMAIL
+- DAILY_GA_REPORT_FROM_EMAIL (optional, defaults to SMTP_USER)
+- GA4_PROPERTY_ID (GA4 property number)
+- GA4_SERVICE_ACCOUNT_KEY_FILE (path to service-account JSON) or GA4_SERVICE_ACCOUNT_JSON
+- SMTP_HOST
+- SMTP_PORT
+- SMTP_SECURE (`true` for SMTPS/465, usually `false` for STARTTLS/587)
+- SMTP_USER
+- SMTP_PASS
 
 ## Run Locally
 
@@ -169,3 +181,60 @@ BrushBeats now supports an allowlist-based backend gate for household cloud sync
 Example:
 
 - `CLOUD_SYNC_ALLOWED_HOUSEHOLD_IDS=household_10b22295-2bca-430c-8c68-3bf1fedc6946`
+
+## Daily GA4 Email Report (4am)
+
+The backend can send a daily usage report from GA4 to your email inbox.
+
+### 1. Create GA4 service account access
+
+1. In Google Cloud, create a service account and generate a JSON key file.
+2. In Google Analytics (GA4), open Property Access Management and add that service account email as at least `Viewer`.
+3. Note your GA4 property id (numbers only).
+
+### 2. Configure `.env`
+
+Add these values to your root `.env`:
+
+```bash
+DAILY_GA_REPORT_ENABLED=true
+DAILY_GA_REPORT_CRON=0 4 * * *
+DAILY_GA_REPORT_TIMEZONE=America/New_York
+DAILY_GA_REPORT_TO_EMAIL=you@example.com
+DAILY_GA_REPORT_FROM_EMAIL=you@example.com
+
+GA4_PROPERTY_ID=123456789
+GA4_SERVICE_ACCOUNT_KEY_FILE=C:/secrets/brushbeats-ga4-service-account.json
+# Alternative to key file:
+# GA4_SERVICE_ACCOUNT_JSON={...json...}
+
+SMTP_HOST=smtp.your-provider.com
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USER=you@example.com
+SMTP_PASS=your_smtp_password
+```
+
+### 3. Install backend dependencies
+
+```bash
+npm install --prefix backend
+```
+
+### 4. Send a test email now
+
+```bash
+npm run ga:report --prefix backend
+```
+
+### 5. Run backend normally
+
+```bash
+npm run start --prefix backend
+```
+
+If enabled and configured, the server logs:
+
+- `[ga-report] Scheduler active: cron="0 4 * * *", timezone="America/New_York"`
+
+and then sends one report email each day at 4:00 AM in the configured timezone.

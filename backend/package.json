@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "nodemon src/server.js",
     "migrate": "node src/scripts/runMigrations.js",
+    "ga:report": "node src/scripts/sendDailyGaReport.js",
     "start": "node src/server.js",
     "test": "node --test"
   },
@@ -13,11 +14,14 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@google-analytics/data": "^5.2.1",
     "axios": "^1.14.0",
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
+    "node-cron": "^4.2.1",
     "node-cache": "^5.1.2",
+    "nodemailer": "^7.0.5",
     "pg": "^8.20.0"
   },
   "devDependencies": {
