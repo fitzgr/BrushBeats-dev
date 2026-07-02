@@ -1,5 +1,18 @@
 [
   {
+    "id": "commit-3ef5b1c24581ce6ad8ee62d4bdaa4c706fffbd25",
+    "kind": "commit",
+    "source": "git-history",
+    "sha": "3ef5b1c24581ce6ad8ee62d4bdaa4c706fffbd25",
+    "shortSha": "3ef5b1c",
+    "timestamp": "2026-07-02T16:21:44-04:00",
+    "date": "2026-07-02",
+    "author": "Grant Fitz",
+    "subject": "Swap countdown label area opposite active jaw",
+    "body": "",
+    "tags": []
+  },
+  {
     "id": "commit-09140763e12241301981c8154169a37008dddf8b",
     "kind": "commit",
     "source": "git-history",
@@ -2583,19 +2596,6 @@
     "date": "2026-04-16",
     "author": "Grant Fitz",
     "subject": "Start Phase 4 achievement engine",
-    "body": "",
-    "tags": []
-  },
-  {
-    "id": "commit-aeb6491231f2cf7dbd6560e3a695f812bde44f2f",
-    "kind": "commit",
-    "source": "git-history",
-    "sha": "aeb6491231f2cf7dbd6560e3a695f812bde44f2f",
-    "shortSha": "aeb6491",
-    "timestamp": "2026-04-16T14:46:05-04:00",
-    "date": "2026-04-16",
-    "author": "Grant Fitz",
-    "subject": "Complete Phase 3 household management flows",
     "body": "",
     "tags": []
   }

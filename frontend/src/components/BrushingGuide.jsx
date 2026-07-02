@@ -968,6 +968,13 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, isMobile, brushi
   const transitionToSide = activeEntry?.type === "transition" ? getLabelSide(activeEntry.toLabel) : null;
   const transitionFromJaw = activeEntry?.type === "transition" ? getLabelJaw(activeEntry.fromLabel) : null;
   const transitionToJaw = activeEntry?.type === "transition" ? getLabelJaw(activeEntry.toLabel) : null;
+  const transitionMotionClass = activeEntry?.type === "transition"
+    ? transitionFromSide && transitionToSide && transitionFromSide !== transitionToSide
+      ? "transition-side-swap"
+      : transitionFromJaw && transitionToJaw && transitionFromJaw !== transitionToJaw
+        ? "transition-jaw-swap"
+        : "transition-generic"
+    : "";
   const transitionDirection = transitionFromSide && transitionToSide && transitionFromSide !== transitionToSide
     ? `${t(`brushing.side.${transitionFromSide}`)} -> ${t(`brushing.side.${transitionToSide}`)}`
     : transitionFromJaw && transitionToJaw && transitionFromJaw !== transitionToJaw
@@ -1271,7 +1278,7 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, isMobile, brushi
           lowPerformanceMode={lowPerformanceCelebrationMode}
         />
         <div
-          className={`map-hand-orientation-layer ${mapBrushDirectionClass}${brushIndicatorJawClass ? ` ${brushIndicatorJawClass}` : ""}${!brushFacingDirection ? " neutral-orientation" : ""}${brushingPhase === "countdown" ? " countdown" : ""}${activeEntry?.type === "transition" ? " transition" : ""}${brushingPhase === "complete" ? " complete" : ""}`}
+          className={`map-hand-orientation-layer ${mapBrushDirectionClass}${brushIndicatorJawClass ? ` ${brushIndicatorJawClass}` : ""}${!brushFacingDirection ? " neutral-orientation" : ""}${brushingPhase === "countdown" ? " countdown" : ""}${activeEntry?.type === "transition" ? " transition" : ""}${transitionMotionClass ? ` ${transitionMotionClass}` : ""}${brushingPhase === "complete" ? " complete" : ""}`}
           aria-hidden="true"
         >
             <div className="brush-hand-orientation-visual" aria-hidden="true">
