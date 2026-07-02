@@ -1,5 +1,18 @@
 [
   {
+    "id": "commit-37ef8b2724eed7289b2cd02b3abeda12a8e3474d",
+    "kind": "commit",
+    "source": "git-history",
+    "sha": "37ef8b2724eed7289b2cd02b3abeda12a8e3474d",
+    "shortSha": "37ef8b2",
+    "timestamp": "2026-07-02T15:56:13-04:00",
+    "date": "2026-07-02",
+    "author": "Grant Fitz",
+    "subject": "Show front/inside start labels during brushing countdown",
+    "body": "",
+    "tags": []
+  },
+  {
     "id": "commit-abec0f6f04b5b29eb09f73984bc3796e2dd62c01",
     "kind": "commit",
     "source": "git-history",
@@ -2583,19 +2596,6 @@
     "date": "2026-04-16",
     "author": "Grant Fitz",
     "subject": "Start Phase 3 household overview slice",
-    "body": "",
-    "tags": []
-  },
-  {
-    "id": "commit-2a29d0ba7046b1544d79c2c7c2f540b3368049ee",
-    "kind": "commit",
-    "source": "git-history",
-    "sha": "2a29d0ba7046b1544d79c2c7c2f540b3368049ee",
-    "shortSha": "2a29d0b",
-    "timestamp": "2026-04-16T12:26:44-04:00",
-    "date": "2026-04-16",
-    "author": "Grant Fitz",
-    "subject": "Complete Phase 2 IndexedDB migration flow",
     "body": "",
     "tags": []
   }
