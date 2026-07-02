@@ -542,6 +542,8 @@
       "countdownCallout": "Get your brush in position. Brushing starts in {{seconds}}s.",
       "countdownPathStep": "Path {{step}}/{{total}}",
       "startOutsideTooth": "Start outside",
+      "startFrontTooth": "Front",
+      "startInsideTooth": "Inside",
       "handOrientation": "Hand Orientation",
       "leftView": "Left-handed view",
       "rightView": "Right-handed view",

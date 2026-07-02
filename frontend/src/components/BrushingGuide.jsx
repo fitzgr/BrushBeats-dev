@@ -1021,6 +1021,15 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, isMobile, brushi
       jaw: countdownPreviewTarget.jaw
     };
   }, [bottomPoints, countdownPreviewTarget, topPoints]);
+  const countdownStartSurfaceLabel = useMemo(() => {
+    if (!countdownPreviewTarget) {
+      return t("brushing.guide.startOutsideTooth");
+    }
+
+    return countdownPreviewTarget.surface === "front"
+      ? t("brushing.guide.startFrontTooth")
+      : t("brushing.guide.startInsideTooth");
+  }, [countdownPreviewTarget, t]);
   const fallbackTip = tips[tipIndex] || tips[0] || "";
   const centerTickerMessage = brushingPhase === "complete"
     ? completionMessage || t("brushing.guide.cleanShineLabel")
@@ -1327,7 +1336,7 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, isMobile, brushi
                 textAnchor="middle"
                 className="countdown-start-label"
               >
-                {t("brushing.guide.startOutsideTooth")}
+                {countdownStartSurfaceLabel}
               </text>
             </g>
           )}

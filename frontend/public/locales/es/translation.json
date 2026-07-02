@@ -540,6 +540,8 @@
       "countdownCallout": "Coloca el cepillo en posicion. El cepillado empieza en {{seconds}} s.",
       "countdownPathStep": "Ruta {{step}}/{{total}}",
       "startOutsideTooth": "Empieza afuera",
+      "startFrontTooth": "Frente",
+      "startInsideTooth": "Adentro",
       "handOrientation": "Orientacion de la mano",
       "leftView": "Vista para zurdos",
       "rightView": "Vista para diestros",

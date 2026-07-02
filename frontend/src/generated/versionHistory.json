@@ -1,5 +1,18 @@
 [
   {
+    "id": "commit-abec0f6f04b5b29eb09f73984bc3796e2dd62c01",
+    "kind": "commit",
+    "source": "git-history",
+    "sha": "abec0f6f04b5b29eb09f73984bc3796e2dd62c01",
+    "shortSha": "abec0f6",
+    "timestamp": "2026-07-02T14:15:15-04:00",
+    "date": "2026-07-02",
+    "author": "Grant Fitz",
+    "subject": "Remove temporary analytics consent test override",
+    "body": "",
+    "tags": []
+  },
+  {
     "id": "commit-ac021c5016b713427e3c6a73187e48c65bbcaa73",
     "kind": "commit",
     "source": "git-history",
@@ -2583,19 +2596,6 @@
     "date": "2026-04-16",
     "author": "Grant Fitz",
     "subject": "Complete Phase 2 IndexedDB migration flow",
-    "body": "",
-    "tags": []
-  },
-  {
-    "id": "commit-74e12549db234579da0783a653d3be96188759ca",
-    "kind": "commit",
-    "source": "git-history",
-    "sha": "74e12549db234579da0783a653d3be96188759ca",
-    "shortSha": "74e1254",
-    "timestamp": "2026-04-16T10:17:29-04:00",
-    "date": "2026-04-16",
-    "author": "Grant Fitz",
-    "subject": "Build Phase 2 legacy storage migration flow",
     "body": "",
     "tags": []
   }
