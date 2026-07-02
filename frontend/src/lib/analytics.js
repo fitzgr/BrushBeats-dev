@@ -1,5 +1,7 @@
 const MEASUREMENT_ID = import.meta.env.VITE_GA_MEASUREMENT_ID;
 const CONSENT_STORAGE_KEY = "brushbeats_analytics_consent";
+// Temporary testing switch: show analytics consent as unknown on every page load.
+const FORCE_CONSENT_PROMPT_EVERY_LOAD = true;
 const CONSENT_STATUS = {
   granted: "granted",
   denied: "denied",
@@ -7,6 +9,7 @@ const CONSENT_STATUS = {
 };
 
 let initialized = false;
+let sessionConsentStatus = CONSENT_STATUS.unknown;
 const pendingLanguageFallbackEvents = [];
 
 function canUseLocalStorage() {
@@ -65,6 +68,14 @@ export function analyticsEnabled() {
 }
 
 export function getAnalyticsConsentStatus() {
+  if (FORCE_CONSENT_PROMPT_EVERY_LOAD && sessionConsentStatus !== CONSENT_STATUS.unknown) {
+    return sessionConsentStatus;
+  }
+
+  if (FORCE_CONSENT_PROMPT_EVERY_LOAD) {
+    return CONSENT_STATUS.unknown;
+  }
+
   if (!canUseLocalStorage()) {
     return CONSENT_STATUS.unknown;
   }
@@ -83,6 +94,10 @@ export function hasAnalyticsConsent() {
 
 export function setAnalyticsConsent(granted) {
   const nextStatus = granted ? CONSENT_STATUS.granted : CONSENT_STATUS.denied;
+
+  if (FORCE_CONSENT_PROMPT_EVERY_LOAD) {
+    sessionConsentStatus = nextStatus;
+  }
 
   if (canUseLocalStorage()) {
     window.localStorage.setItem(CONSENT_STORAGE_KEY, nextStatus);
