@@ -2654,6 +2654,7 @@ function App() {
         : t("brushing.start", { duration: formatTime(Number(bpmData?.totalBrushingSeconds || brushDurationSeconds)) });
 
   const showTopConsentNotices = workflowStep === "teeth";
+  const showAnalyticsConsentBanner = analyticsAvailable && analyticsConsent === "unknown";
   const requiresHouseholdSetup =
     appView === "brush" &&
     storageConsent === "granted" &&
@@ -2738,6 +2739,25 @@ function App() {
           )}
         </div>
       </header>
+      )}
+
+      {showAnalyticsConsentBanner && (
+        <section className="consent-banner" role="region" aria-label="Privacy controls">
+          <p>
+            {t("privacy.analyticsMessage")}
+            <button type="button" className="privacy-link" onClick={openPrivacyModal}>
+              {t("common.buttons.privacyPolicy")}
+            </button>
+          </p>
+          <div className="consent-actions">
+            <button type="button" className="action-btn" onClick={handleAcceptAnalytics}>
+              {t("common.buttons.allowAnalytics")}
+            </button>
+            <button type="button" className="action-btn secondary" onClick={handleDeclineAnalytics}>
+              {t("common.buttons.decline")}
+            </button>
+          </div>
+        </section>
       )}
 
       {appView === "workshop" && !device.isMobile ? (
@@ -2880,25 +2900,6 @@ function App() {
               ))}
             </select>
           </label>
-        </section>
-      )}
-
-      {showTopConsentNotices && analyticsAvailable && analyticsConsent === "unknown" && (
-        <section className="consent-banner" role="region" aria-label="Privacy controls">
-          <p>
-            {t("privacy.analyticsMessage")}
-            <button type="button" className="privacy-link" onClick={openPrivacyModal}>
-              {t("common.buttons.privacyPolicy")}
-            </button>
-          </p>
-          <div className="consent-actions">
-            <button type="button" className="action-btn" onClick={handleAcceptAnalytics}>
-              {t("common.buttons.allowAnalytics")}
-            </button>
-            <button type="button" className="action-btn secondary" onClick={handleDeclineAnalytics}>
-              {t("common.buttons.decline")}
-            </button>
-          </div>
         </section>
       )}
 

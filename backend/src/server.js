@@ -14,7 +14,6 @@ const geoRoute = require("./routes/geo");
 const healthRoute = require("./routes/health");
 const householdsRoute = require("./routes/households");
 const { applySecurityHeaders, basicRateLimit } = require("./middleware/security");
-const { startDailyGaReportScheduler } = require("./services/gaDailyReportService");
 
 const app = express();
 const port = Number(process.env.PORT || 4000);
@@ -71,8 +70,6 @@ app.use((error, _req, res, _next) => {
 });
 
 if (require.main === module) {
-  startDailyGaReportScheduler();
-
   app.listen(port, () => {
     console.log(`BrushBeats API listening on http://localhost:${port}`);
   });
