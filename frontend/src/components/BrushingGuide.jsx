@@ -1010,8 +1010,8 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, isMobile, brushi
     }
 
     const labelY = countdownPreviewTarget.jaw === "top"
-      ? mapCenter.y - 82
-      : mapCenter.y + 88;
+      ? mapCenter.y + 88
+      : mapCenter.y - 82;
 
     return {
       x: point.x,
