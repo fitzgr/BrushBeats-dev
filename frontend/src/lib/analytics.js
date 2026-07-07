@@ -8,6 +8,7 @@ const CONSENT_STATUS = {
 
 let initialized = false;
 const pendingLanguageFallbackEvents = [];
+const pendingLanguageContextEvents = [];
 
 function canUseLocalStorage() {
   try {
@@ -57,6 +58,17 @@ function flushPendingLanguageFallbackEvents() {
   while (pendingLanguageFallbackEvents.length > 0) {
     const nextEvent = pendingLanguageFallbackEvents.shift();
     sendGtagEvent("language_fallback", nextEvent);
+  }
+}
+
+function flushPendingLanguageContextEvents() {
+  if (!initialized || !hasAnalyticsConsent()) {
+    return;
+  }
+
+  while (pendingLanguageContextEvents.length > 0) {
+    const nextEvent = pendingLanguageContextEvents.shift();
+    sendGtagEvent("language_context", nextEvent);
   }
 }
 
@@ -121,6 +133,7 @@ export function initializeAnalytics() {
 
   initialized = true;
   flushPendingLanguageFallbackEvents();
+  flushPendingLanguageContextEvents();
   return true;
 }
 
@@ -139,5 +152,15 @@ export function trackLanguageFallback(payload) {
 
   if (!hasAnalyticsConsent() || !initialized || !sendGtagEvent("language_fallback", payload)) {
     pendingLanguageFallbackEvents.push(payload);
+  }
+}
+
+export function trackLanguageContext(payload) {
+  if (!analyticsEnabled()) {
+    return;
+  }
+
+  if (!hasAnalyticsConsent() || !initialized || !sendGtagEvent("language_context", payload)) {
+    pendingLanguageContextEvents.push(payload);
   }
 }

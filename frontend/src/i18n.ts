@@ -3,7 +3,7 @@
 import i18n from "i18next";
 import type { Resource } from "i18next";
 import { initReactI18next } from "react-i18next";
-import { trackLanguageFallback } from "./lib/analytics";
+import { trackLanguageContext, trackLanguageFallback } from "./lib/analytics";
 
 export const SUPPORTED_LANGUAGES = ["en", "es", "tr"] as const;
 export const FALLBACK_LANGUAGE = "en";
@@ -114,6 +114,25 @@ function resolveRequestedLanguage(requestedLanguage: string) {
   return FALLBACK_LANGUAGE;
 }
 
+function buildLanguageMatchType(requestedLanguage: string, resolvedLanguage: string) {
+  if (!requestedLanguage) {
+    return "missing_request";
+  }
+
+  const normalizedRequestedLanguage = requestedLanguage.toLowerCase();
+  const normalizedResolvedLanguage = resolvedLanguage.toLowerCase();
+
+  if (normalizedRequestedLanguage === normalizedResolvedLanguage) {
+    return "exact_match";
+  }
+
+  if (normalizedRequestedLanguage.startsWith(`${normalizedResolvedLanguage}-`)) {
+    return "regional_match";
+  }
+
+  return normalizedResolvedLanguage === FALLBACK_LANGUAGE ? "fallback" : "override";
+}
+
 async function loadTranslation(language: string): Promise<Record<string, unknown>> {
   try {
     const translationPath = `${import.meta.env.BASE_URL}locales/${language}/translation.json`;
@@ -149,6 +168,7 @@ async function loadTranslations(): Promise<Resource> {
 function updateFallbackInfo(requestedLanguage: string, resolvedLanguage: string) {
   const needsSupportedLanguageChoice = Boolean(requestedLanguage) && !isSupportedLanguage(requestedLanguage);
   const didFallback = needsSupportedLanguageChoice && resolvedLanguage === FALLBACK_LANGUAGE;
+  const matchType = buildLanguageMatchType(requestedLanguage, resolvedLanguage);
 
   languageFallbackInfo = {
     didFallback,
@@ -165,6 +185,18 @@ function updateFallbackInfo(requestedLanguage: string, resolvedLanguage: string)
       supportedLanguages: SUPPORTED_LANGUAGES
     });
   }
+
+  trackLanguageContext({
+    requested_language: requestedLanguage || "unknown",
+    resolved_language: resolvedLanguage,
+    fallback_language: FALLBACK_LANGUAGE,
+    browser_language: navigator.language || "",
+    browser_languages: navigator.languages?.join(",") || navigator.language || "",
+    did_fallback: didFallback,
+    needs_supported_language_choice: needsSupportedLanguageChoice,
+    match_type: matchType,
+    page_path: `${window.location.pathname}${window.location.search}`
+  });
 
   if (!didFallback) {
     return;
