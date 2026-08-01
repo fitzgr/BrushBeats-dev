@@ -1,0 +1,254 @@
+:root {
+  --bg: #f6f4ef;
+  --card: #fffdf8;
+  --line: #dddbcf;
+  --ink: #192028;
+  --muted: #5e6670;
+  --accent: #0f8a75;
+  --active: #2f80ff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "Segoe UI", "Helvetica Neue", sans-serif;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at 15% 20%, #fffaf0 0%, transparent 45%),
+    radial-gradient(circle at 80% 10%, #e9f8f4 0%, transparent 40%),
+    var(--bg);
+}
+
+.app-shell {
+  max-width: 980px;
+  margin: 0 auto;
+  min-height: 100vh;
+  padding: 1rem;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 0.9rem;
+}
+
+.topbar,
+.controls,
+.pane {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: 0 5px 16px rgba(25, 32, 40, 0.06);
+}
+
+.topbar {
+  padding: 0.9rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+h1 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.subtitle {
+  margin: 0.2rem 0 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.step-chip {
+  padding: 0.55rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  color: var(--accent);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.layout {
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  gap: 0.9rem;
+  min-height: 0;
+}
+
+.pane {
+  padding: 0.8rem;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 0.6rem;
+  min-height: 0;
+}
+
+.pane-head h2 {
+  margin: 0;
+  font-size: 1.03rem;
+}
+
+.pane-head p {
+  margin: 0.1rem 0 0;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.view-card {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 0.7rem;
+  background: #fff;
+  min-height: 170px;
+  overflow: auto;
+}
+
+.map-layout {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.map-caption-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.segment-label {
+  font-size: 0.8rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.mouth-map-shell {
+  position: relative;
+  overflow: hidden;
+  border-radius: 24px;
+  width: min(100%, 420px);
+  margin: 0 auto;
+  background: linear-gradient(180deg, #0f3846 0%, #195565 48%, #0d2e39 100%);
+  box-shadow: inset 0 10px 26px rgba(255, 255, 255, 0.06);
+}
+
+.mouth-map-shell.detail-top,
+.mouth-map-shell.detail-bottom {
+  width: min(100%, 520px);
+}
+
+.mouth-map-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.mouth-map-svg.detail {
+  min-height: 210px;
+}
+
+.tooth-svg .tooth-face {
+  transition: fill 220ms ease, opacity 220ms ease;
+}
+
+.tooth-svg .front-face {
+  fill: #f8edd0;
+}
+
+.tooth-svg .back-face {
+  fill: #f5e6bd;
+}
+
+.tooth-svg .tooth-face.active-surface {
+  fill: var(--active);
+}
+
+.tooth-svg.active-tooth .tooth-face.active-surface {
+  animation: activeToothSurfacePulse 760ms ease-in-out infinite;
+}
+
+.tooth-svg .tooth-outline {
+  fill: none;
+  stroke: #3f3830;
+  stroke-width: 1.2;
+}
+
+.tooth-svg.active-tooth .tooth-outline {
+  stroke: #174dbb;
+  stroke-width: 1.8;
+  filter: drop-shadow(0 0 7px rgba(47, 128, 255, 0.62));
+}
+
+.tooth-svg.active-tooth .tooth-body-base {
+  filter: drop-shadow(0 0 7px rgba(147, 193, 255, 0.72));
+}
+
+.tooth-svg .tooth-groove {
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+@keyframes activeToothSurfacePulse {
+  0% {
+    fill: #2f80ff;
+  }
+
+  50% {
+    fill: #7fb4ff;
+  }
+
+  100% {
+    fill: #2f80ff;
+  }
+}
+
+.controls {
+  padding: 0.8rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.step-info {
+  font-weight: 600;
+}
+
+.button-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+button {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 0.48rem 0.75rem;
+  cursor: pointer;
+  background: #ffffff;
+  color: var(--ink);
+  font-weight: 600;
+}
+
+button:hover {
+  border-color: #bcc2c7;
+}
+
+@media (max-width: 760px) {
+  .layout {
+    grid-template-rows: auto auto;
+  }
+
+  .topbar,
+  .controls {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .step-chip {
+    align-self: flex-end;
+  }
+}
