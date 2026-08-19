@@ -1271,6 +1271,22 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, isMobile, brushi
     : effectiveOrientationJaw
       ? `jaw-${effectiveOrientationJaw}`
       : "";
+  const focusHintPositionClass = useMemo(() => {
+    if (!enableHygienistFocus) {
+      return "hint-top";
+    }
+
+    const activeJawForHint = activeToothEntry?.jaw || effectiveOrientationJaw || activeJaw;
+    if (activeJawForHint === "top") {
+      return "hint-bottom";
+    }
+
+    if (activeJawForHint === "bottom") {
+      return "hint-top";
+    }
+
+    return "hint-top";
+  }, [activeJaw, activeToothEntry?.jaw, effectiveOrientationJaw, enableHygienistFocus]);
 
   function clearResetHoldTimer() {
     if (resetHoldTimerRef.current) {
@@ -1524,7 +1540,7 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, isMobile, brushi
           </div>
         )}
         {enableHygienistFocus && brushingPhase !== "complete" && (
-          <div className="hygienist-contrast-hint" aria-live="polite">
+          <div className={`hygienist-contrast-hint ${focusHintPositionClass}`} aria-live="polite">
             Orange teeth = extra care timing (1.5x)
           </div>
         )}

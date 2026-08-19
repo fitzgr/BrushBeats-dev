@@ -5570,7 +5570,6 @@ select {
 
 .hygienist-contrast-hint {
   position: absolute;
-  top: 8px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 4;
@@ -5583,6 +5582,14 @@ select {
   font-weight: 900;
   letter-spacing: 0.02em;
   text-transform: uppercase;
+}
+
+.hygienist-contrast-hint.hint-top {
+  top: 8px;
+}
+
+.hygienist-contrast-hint.hint-bottom {
+  bottom: 8px;
 }
 
 @keyframes focusToothGlow {
