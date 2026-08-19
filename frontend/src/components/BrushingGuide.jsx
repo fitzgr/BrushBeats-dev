@@ -1425,7 +1425,7 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, isMobile, brushi
         />
         {showThemePanel && <AgeThemePanel profile={ageUiProfile} variant="guide" className="guide-age-overlay" chipLimit={2} />}
         <div
-          className={`mouth-map${brushingPhase === "complete" ? " completion-finished" : ""}${showCompletionFlash ? " completion-flash" : ""}`}
+          className={`mouth-map${enableHygienistFocus ? " hygienist-focus-mode" : ""}${brushingPhase === "complete" ? " completion-finished" : ""}${showCompletionFlash ? " completion-flash" : ""}`}
           role="img"
           aria-label={t("brushing.guide.mouthMapAria")}
           style={{ "--active-tooth-pulse-duration": `${activeToothPulseMs}ms` }}
@@ -1469,6 +1469,11 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, isMobile, brushi
           <div className="map-center-ticker bottom-slot" aria-live="polite">
             <strong>{centerTickerMessage}</strong>
             {centerTickerDetail ? <span>{centerTickerDetail}</span> : null}
+          </div>
+        )}
+        {enableHygienistFocus && brushingPhase !== "complete" && (
+          <div className="hygienist-contrast-hint" aria-live="polite">
+            Orange teeth = extra care timing (1.5x)
           </div>
         )}
         <svg viewBox="0 0 360 420" preserveAspectRatio="xMidYMid meet">

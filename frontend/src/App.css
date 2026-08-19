@@ -5430,6 +5430,62 @@ select {
   stroke-width: 1.45;
 }
 
+.mouth-map.hygienist-focus-mode .tooth-svg:not(.focus-tooth) .tooth-face {
+  opacity: 0.3;
+  filter: saturate(0.72);
+}
+
+.mouth-map.hygienist-focus-mode .tooth-svg:not(.focus-tooth) .tooth-body-base,
+.mouth-map.hygienist-focus-mode .tooth-svg:not(.focus-tooth) .tooth-groove {
+  opacity: 0.56;
+}
+
+.mouth-map.hygienist-focus-mode .tooth-svg.focus-tooth .tooth-focus-overlay {
+  opacity: 0.86;
+  animation: focusToothGlow 1250ms ease-in-out infinite;
+}
+
+.mouth-map.hygienist-focus-mode .tooth-svg.active-tooth.focus-tooth .tooth-focus-overlay.active-focus-overlay {
+  opacity: 0.94;
+}
+
+.mouth-map.hygienist-focus-mode .tooth-svg.focus-tooth .tooth-outline {
+  stroke: #e07b30;
+  stroke-width: 1.9;
+  filter: drop-shadow(0 0 7px rgba(244, 162, 97, 0.66));
+}
+
+.hygienist-contrast-hint {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 4;
+  padding: 0.3rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid rgba(244, 162, 97, 0.52);
+  background: rgba(16, 27, 48, 0.76);
+  color: #ffd3ab;
+  font-size: 0.71rem;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+@keyframes focusToothGlow {
+  0% {
+    opacity: 0.8;
+  }
+
+  50% {
+    opacity: 0.94;
+  }
+
+  100% {
+    opacity: 0.8;
+  }
+}
+
 .tooth-svg .tooth-face.countdown-preview-surface {
   animation: countdownPathPulse 620ms ease-in-out infinite;
   animation-delay: var(--countdown-path-delay, 0ms);
@@ -5787,7 +5843,8 @@ select {
   .map-score-label.beat-pulse,
   .mouth-map.completion-flash .tooth-svg .tooth-face,
   .tooth-celebration-ripple,
-  .extra-care-badge {
+  .extra-care-badge,
+  .mouth-map.hygienist-focus-mode .tooth-svg.focus-tooth .tooth-focus-overlay {
     animation: none;
   }
 
