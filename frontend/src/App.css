@@ -5417,6 +5417,14 @@ select {
   opacity: 0.58;
 }
 
+.tooth-svg.focus-tooth .tooth-face:not(.active-surface) {
+  opacity: 0.72;
+}
+
+.tooth-svg.focus-tooth .tooth-face.active-surface {
+  opacity: 1;
+}
+
 .tooth-svg .tooth-face.countdown-preview-surface {
   animation: countdownPathPulse 620ms ease-in-out infinite;
   animation-delay: var(--countdown-path-delay, 0ms);

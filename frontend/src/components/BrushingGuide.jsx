@@ -412,7 +412,7 @@ function buildHygienistFocusToothSet(topChart, bottomChart) {
     { jaw: "bottom", chart: bottomChart }
   ].forEach(({ jaw, chart }) => {
     chart.forEach((tooth, mapIndex) => {
-      if (tooth?.nameKey === "centralIncisor") {
+      if (tooth?.nameKey === "centralIncisor" || tooth?.nameKey === "lateralIncisor") {
         focusSet.add(buildFocusToothKey(jaw, mapIndex));
       }
     });
