@@ -15,6 +15,7 @@ import TranslationWorkshop from "./components/TranslationWorkshop";
 import VersionHistory from "./components/VersionHistory";
 import MyStoryPage from "./components/MyStoryPage";
 import ArtistPromoPage from "./components/ArtistPromoPage";
+import HygienistFocusInstructions from "./components/HygienistFocusInstructions";
 import { clearPersistedPhase2Data, loadPersistedAppState } from "./db/appStateService";
 import { loadHouseholdOverview, switchActiveHouseholdUser } from "./db/householdOverviewService";
 import { awardAchievementsForUser } from "./db/achievementEngineService";
@@ -3255,18 +3256,12 @@ function App() {
 
       {enableHygienistFocusExperience && workflowStep === "focus" && (
         <section className={`layout-grid ${device.isMobile ? "mobile-mode" : "desktop-mode desktop-step-layout"}`}>
-          <section className={`card hygienist-focus-tab ${ageUiProfile.themeClassName}`}>
-            <h2>Hygienist Focus Instructions</h2>
-            <p>This deployment applies a 1.5x dwell weighting on highlighted focus teeth while keeping total session duration fixed and transition delays unchanged.</p>
-            <article className="hygienist-focus-card">
-              <h3>Patient Prompt</h3>
-              <p>{HYGIENIST_FOCUS_PATIENT_PROMPT}</p>
-            </article>
-            <article className="hygienist-focus-card">
-              <h3>Clinical Prompt</h3>
-              <p>{HYGIENIST_FOCUS_CLINICAL_PROMPT}</p>
-            </article>
-          </section>
+          <HygienistFocusInstructions
+            topTeeth={Number(values?.top || 16)}
+            bottomTeeth={Number(values?.bottom || 16)}
+            patientPrompt={HYGIENIST_FOCUS_PATIENT_PROMPT}
+            clinicalPrompt={HYGIENIST_FOCUS_CLINICAL_PROMPT}
+          />
         </section>
       )}
         </>

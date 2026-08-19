@@ -1032,6 +1032,119 @@
   gap: 0.35rem;
 }
 
+.hygienist-focus-map-shell {
+  border-radius: 22px;
+  background: radial-gradient(circle at 50% 32%, rgba(24, 73, 105, 0.28), transparent 46%), linear-gradient(180deg, #0a2a4e 0%, #08213e 100%);
+  border: 1px solid rgba(169, 197, 230, 0.24);
+  padding: 0.65rem;
+}
+
+.hygienist-focus-map {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.focus-tooth {
+  cursor: pointer;
+  outline: none;
+}
+
+.focus-tooth:focus-visible .focus-tooth-outline {
+  stroke: #6ec0ff;
+  stroke-width: 2.1;
+  filter: drop-shadow(0 0 8px rgba(111, 196, 255, 0.75));
+}
+
+.focus-tooth-base {
+  fill: #f6f4ef;
+}
+
+.focus-tooth-front,
+.focus-tooth-back {
+  fill: transparent;
+}
+
+.focus-tooth-outline {
+  fill: none;
+  stroke: #cfd8e4;
+  stroke-width: 1.2;
+}
+
+.focus-tooth-groove {
+  fill: none;
+  stroke: rgba(140, 156, 170, 0.65);
+  stroke-width: 1.2;
+  stroke-linecap: round;
+}
+
+.focus-tooth.none .focus-tooth-base {
+  fill: #8d9fb1;
+}
+
+.focus-tooth.none .focus-tooth-outline,
+.focus-tooth.none .focus-tooth-groove {
+  stroke: rgba(210, 221, 233, 0.6);
+}
+
+.focus-tooth.front .focus-tooth-front,
+.focus-tooth.back .focus-tooth-back,
+.focus-tooth.both .focus-tooth-front,
+.focus-tooth.both .focus-tooth-back {
+  fill: #f4a261;
+}
+
+.focus-tooth.front .focus-tooth-outline,
+.focus-tooth.back .focus-tooth-outline,
+.focus-tooth.both .focus-tooth-outline {
+  stroke: #f7be8a;
+}
+
+.focus-tooth.both .focus-tooth-base {
+  fill: #f4a261;
+}
+
+.hygienist-focus-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  align-items: center;
+}
+
+.legend-chip {
+  border-radius: 999px;
+  padding: 0.35rem 0.6rem;
+  font-size: 0.78rem;
+  font-weight: 800;
+  border: 1px solid rgba(16, 33, 37, 0.14);
+  background: #f2f6fb;
+  color: #2a4256;
+}
+
+.legend-chip.none {
+  background: rgba(141, 159, 177, 0.22);
+}
+
+.legend-chip.front,
+.legend-chip.back,
+.legend-chip.both {
+  background: rgba(244, 162, 97, 0.2);
+  border-color: rgba(224, 123, 48, 0.35);
+  color: #8b4a13;
+}
+
+.hygienist-focus-reset {
+  margin-left: auto;
+  border: 1px solid rgba(16, 33, 37, 0.18);
+  background: #fffdf8;
+  color: #264056;
+  border-radius: 10px;
+  padding: 0.4rem 0.62rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
 .hygienist-instruction-banner {
   margin-top: 0.6rem;
   padding: 0.8rem 0.95rem;
