@@ -5409,20 +5409,25 @@ select {
 }
 
 .tooth-svg .tooth-focus-overlay {
-  opacity: 0.46;
+  opacity: 0.7;
   pointer-events: none;
 }
 
 .tooth-svg.active-tooth .tooth-focus-overlay.active-focus-overlay {
-  opacity: 0.58;
+  opacity: 0.82;
 }
 
 .tooth-svg.focus-tooth .tooth-face:not(.active-surface) {
-  opacity: 0.72;
+  opacity: 0.42;
 }
 
 .tooth-svg.focus-tooth .tooth-face.active-surface {
   opacity: 1;
+}
+
+.tooth-svg.focus-tooth .tooth-outline {
+  stroke: #c96f2a;
+  stroke-width: 1.45;
 }
 
 .tooth-svg .tooth-face.countdown-preview-surface {

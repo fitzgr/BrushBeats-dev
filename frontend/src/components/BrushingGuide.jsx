@@ -411,6 +411,21 @@ function buildHygienistFocusToothSet(topChart, bottomChart) {
     { jaw: "top", chart: topChart },
     { jaw: "bottom", chart: bottomChart }
   ].forEach(({ jaw, chart }) => {
+    const centerIndex = (Math.max(0, chart.length - 1)) / 2;
+    const incisorCandidates = chart
+      .map((tooth, mapIndex) => ({ tooth, mapIndex }))
+      .filter(({ tooth }) => tooth?.type === "incisor")
+      .sort((left, right) => {
+        const leftDistance = Math.abs(left.mapIndex - centerIndex);
+        const rightDistance = Math.abs(right.mapIndex - centerIndex);
+        return leftDistance - rightDistance;
+      })
+      .slice(0, 4);
+
+    incisorCandidates.forEach(({ mapIndex }) => {
+      focusSet.add(buildFocusToothKey(jaw, mapIndex));
+    });
+
     chart.forEach((tooth, mapIndex) => {
       if (tooth?.nameKey === "centralIncisor" || tooth?.nameKey === "lateralIncisor") {
         focusSet.add(buildFocusToothKey(jaw, mapIndex));
