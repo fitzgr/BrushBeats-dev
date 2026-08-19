@@ -373,6 +373,7 @@ const ROW_CELEBRATION_DURATION_MS = 3800;
 const TOTAL_BRUSH_ROWS = 4;
 const HYGIENIST_FOCUS_WEIGHT = 1.5;
 const HYGIENIST_FOCUS_COLOR = "#F4A261";
+const HYGIENIST_SURFACE_MODES = ["none", "front", "back", "both"];
 const DEFAULT_HYGIENIST_FOCUS_PROMPTS = {
   patient: "Today's focus, spend a little extra time on the front four teeth, inside and outside, and the back two molars on the top and bottom on both sides. Brush all highlighted orange teeth a bit longer.",
   clinical: "Provide additional brushing attention to the facial buccal and lingual surfaces of the four anterior incisors and to the facial buccal and lingual surfaces of the two most posterior molars in each quadrant."
@@ -380,6 +381,37 @@ const DEFAULT_HYGIENIST_FOCUS_PROMPTS = {
 
 function buildFocusToothKey(jaw, mapIndex) {
   return `${jaw}:${mapIndex}`;
+}
+
+function normalizeHygienistSurfaceMode(mode) {
+  return HYGIENIST_SURFACE_MODES.includes(mode) ? mode : "none";
+}
+
+function doesModeCoverSurface(mode, surface) {
+  const normalizedMode = normalizeHygienistSurfaceMode(mode);
+  return normalizedMode === "both" || normalizedMode === surface;
+}
+
+function buildFocusSurfaceModeMapFromSelector(rawModes = {}) {
+  const entries = Object.entries(rawModes || {});
+  const focusMap = new Map();
+
+  entries.forEach(([selectorKey, rawMode]) => {
+    const match = String(selectorKey).match(/^(top|bottom)-(\d+)$/);
+    if (!match) {
+      return;
+    }
+
+    const mode = normalizeHygienistSurfaceMode(rawMode);
+    if (mode === "none") {
+      return;
+    }
+
+    const focusKey = buildFocusToothKey(match[1], Number(match[2]));
+    focusMap.set(focusKey, mode);
+  });
+
+  return focusMap;
 }
 
 function getToothSideFromMapIndex(mapIndex, toothCount) {
@@ -644,7 +676,7 @@ function RowCelebrationCascade({ celebration, reducedMotion, lowPerformanceMode 
   return <canvas className={`row-celebration-cascade${celebration ? " active" : ""}`} ref={canvasRef} aria-hidden="true" />;
 }
 
-function BrushingGuide({ timer, brushingPhase, values, bpmData, isMobile, brushingMusicElapsedSeconds, startCountdownTotalMs = 5000, startCountdownRemainingMs = 0, sessionStartSegmentKey = null, brushingHand, brushType = "manual", hideIntro = false, onCueChange, completionMessage = "", brushControlCue, primaryBrushActionLabel, onPrimaryBrushAction, onRestartBrushing, rotatingStartEnabled = false, onRotatingStartEnabledChange, ageUiProfile, embedded = false, showThemePanel = true, enableHygienistFocus = false, hygienistFocusPrompts = null }) {
+function BrushingGuide({ timer, brushingPhase, values, bpmData, isMobile, brushingMusicElapsedSeconds, startCountdownTotalMs = 5000, startCountdownRemainingMs = 0, sessionStartSegmentKey = null, brushingHand, brushType = "manual", hideIntro = false, onCueChange, completionMessage = "", brushControlCue, primaryBrushActionLabel, onPrimaryBrushAction, onRestartBrushing, rotatingStartEnabled = false, onRotatingStartEnabledChange, ageUiProfile, embedded = false, showThemePanel = true, enableHygienistFocus = false, hygienistFocusPrompts = null, hygienistFocusModes = null }) {
   const resetHoldTimerRef = useRef(null);
   const resetHoldTriggeredRef = useRef(false);
   const RESET_HOLD_MS = 700;
@@ -675,10 +707,27 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, isMobile, brushi
     () => buildSegments(topTeeth, bottomTeeth, sessionStartSegmentKey),
     [bottomTeeth, sessionStartSegmentKey, topTeeth]
   );
-  const focusToothSet = useMemo(
-    () => (enableHygienistFocus ? buildHygienistFocusToothSet(topToothChart, bottomToothChart) : new Set()),
-    [enableHygienistFocus, topToothChart, bottomToothChart]
+  const explicitFocusSurfaceModes = useMemo(
+    () => buildFocusSurfaceModeMapFromSelector(hygienistFocusModes),
+    [hygienistFocusModes]
   );
+  const focusSurfaceModes = useMemo(() => {
+    if (!enableHygienistFocus) {
+      return new Map();
+    }
+
+    if (explicitFocusSurfaceModes.size > 0 || Object.keys(hygienistFocusModes || {}).length > 0) {
+      return explicitFocusSurfaceModes;
+    }
+
+    const fallbackClinicalFocus = buildHygienistFocusToothSet(topToothChart, bottomToothChart);
+    const fallbackMap = new Map();
+    fallbackClinicalFocus.forEach((focusKey) => {
+      fallbackMap.set(focusKey, "both");
+    });
+    return fallbackMap;
+  }, [bottomToothChart, enableHygienistFocus, explicitFocusSurfaceModes, hygienistFocusModes, topToothChart]);
+  const focusToothSet = useMemo(() => new Set(focusSurfaceModes.keys()), [focusSurfaceModes]);
   const transitionTotalSeconds = useMemo(
     () => getTotalTransitionSeconds(segments.length, transitionBufferSeconds),
     [segments.length, transitionBufferSeconds]
@@ -690,15 +739,16 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, isMobile, brushi
   const timeline = useMemo(
     () => buildTimeline(segments, toothDurationSeconds, transitionBufferSeconds, {
       toothDurationBudgetSeconds,
-      toothWeightResolver: ({ jaw, mapIndex }) => {
+      toothWeightResolver: ({ jaw, mapIndex, surface }) => {
         if (!enableHygienistFocus) {
           return 1;
         }
 
-        return focusToothSet.has(buildFocusToothKey(jaw, mapIndex)) ? HYGIENIST_FOCUS_WEIGHT : 1;
+        const surfaceMode = focusSurfaceModes.get(buildFocusToothKey(jaw, mapIndex));
+        return doesModeCoverSurface(surfaceMode, surface) ? HYGIENIST_FOCUS_WEIGHT : 1;
       }
     }),
-    [enableHygienistFocus, focusToothSet, segments, toothDurationBudgetSeconds, toothDurationSeconds, transitionBufferSeconds]
+    [enableHygienistFocus, focusSurfaceModes, segments, toothDurationBudgetSeconds, toothDurationSeconds, transitionBufferSeconds]
   );
   const toothEntries = timeline.filter((entry) => entry.type === "tooth");
   const isPaused = brushingPhase === "paused";
@@ -1034,13 +1084,14 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, isMobile, brushi
       return null;
     }
 
-    if (!focusToothSet.has(buildFocusToothKey(activeToothEntry.jaw, activeToothEntry.mapIndex))) {
+    const surfaceMode = focusSurfaceModes.get(buildFocusToothKey(activeToothEntry.jaw, activeToothEntry.mapIndex));
+    if (!doesModeCoverSurface(surfaceMode, activeToothEntry.surface)) {
       return null;
     }
 
     const pointSet = activeToothEntry.jaw === "top" ? topPoints : bottomPoints;
     return pointSet[activeToothEntry.mapIndex] || null;
-  }, [activeToothEntry, enableHygienistFocus, focusToothSet, topPoints, bottomPoints]);
+  }, [activeToothEntry, enableHygienistFocus, focusSurfaceModes, topPoints, bottomPoints]);
 
   function renderExtraCareBadge(point) {
     if (!point) {
@@ -1280,7 +1331,8 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, isMobile, brushi
     const toothShape = TOOTH_SHAPES[meta?.type || "molar"];
     const toothLabel = getToothLabel(t, meta);
     const isActiveTooth = activeToothEntry?.jaw === jaw && activeToothEntry.mapIndex === mapIndex;
-    const isFocusTooth = enableHygienistFocus && focusToothSet.has(buildFocusToothKey(jaw, mapIndex));
+    const focusSurfaceMode = focusSurfaceModes.get(buildFocusToothKey(jaw, mapIndex));
+    const isFocusTooth = enableHygienistFocus && focusSurfaceMode && focusSurfaceMode !== "none";
     const rippleDelayMs = rowCelebration ? getRowRippleDelayMs(point.x, rowCelebration.direction) : 0;
     const celebrateFrontSurface = Boolean(rowCelebration && celebrationSurfaceTarget?.jaw === jaw && celebrationSurfaceTarget?.surface === "front");
     const celebrateBackSurface = Boolean(rowCelebration && celebrationSurfaceTarget?.jaw === jaw && celebrationSurfaceTarget?.surface === "back");
@@ -1425,7 +1477,7 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, isMobile, brushi
         />
         {showThemePanel && <AgeThemePanel profile={ageUiProfile} variant="guide" className="guide-age-overlay" chipLimit={2} />}
         <div
-          className={`mouth-map${enableHygienistFocus ? " hygienist-focus-mode" : ""}${brushingPhase === "complete" ? " completion-finished" : ""}${showCompletionFlash ? " completion-flash" : ""}`}
+          className={`mouth-map${enableHygienistFocus && focusToothSet.size > 0 ? " hygienist-focus-mode" : ""}${brushingPhase === "complete" ? " completion-finished" : ""}${showCompletionFlash ? " completion-flash" : ""}`}
           role="img"
           aria-label={t("brushing.guide.mouthMapAria")}
           style={{ "--active-tooth-pulse-duration": `${activeToothPulseMs}ms` }}

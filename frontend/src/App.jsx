@@ -78,6 +78,27 @@ const DEFAULT_AGE_SIMULATION = { active: false, mode: "exact", phase: "primary",
 const YOUTUBE_VIDEO_ID_REGEX = /^[a-zA-Z0-9_-]{11}$/;
 const HYGIENIST_FOCUS_PATIENT_PROMPT = "Today's focus, spend a little extra time on the front four teeth, inside and outside, and the back two molars on the top and bottom on both sides. Brush all highlighted orange teeth a bit longer.";
 const HYGIENIST_FOCUS_CLINICAL_PROMPT = "Provide additional brushing attention to the facial buccal and lingual surfaces of the four anterior incisors and to the facial buccal and lingual surfaces of the two most posterior molars in each quadrant.";
+const HYGIENIST_FOCUS_MODES = ["none", "front", "back", "both"];
+
+function buildHygienistFocusModeMap(topTeeth, bottomTeeth, existingModes = {}) {
+  const nextModes = {};
+  const safeTop = Math.max(0, Math.floor(Number(topTeeth || 0)));
+  const safeBottom = Math.max(0, Math.floor(Number(bottomTeeth || 0)));
+
+  for (let index = 0; index < safeTop; index += 1) {
+    const key = `top-${index}`;
+    const mode = existingModes[key];
+    nextModes[key] = HYGIENIST_FOCUS_MODES.includes(mode) ? mode : "none";
+  }
+
+  for (let index = 0; index < safeBottom; index += 1) {
+    const key = `bottom-${index}`;
+    const mode = existingModes[key];
+    nextModes[key] = HYGIENIST_FOCUS_MODES.includes(mode) ? mode : "none";
+  }
+
+  return nextModes;
+}
 
 function isBrushBeatsDevGithubPages() {
   if (typeof window === "undefined") {
@@ -528,6 +549,7 @@ function App() {
   const [rotatingStartEnabled, setRotatingStartEnabled] = useState(false);
   const [rotatingStartIndex, setRotatingStartIndex] = useState(0);
   const [rotatingStartPersistStatus, setRotatingStartPersistStatus] = useState("idle");
+  const [hygienistFocusModes, setHygienistFocusModes] = useState(() => buildHygienistFocusModeMap(DEFAULT_VALUES.top, DEFAULT_VALUES.bottom));
   const [sessionStartSegmentKey, setSessionStartSegmentKey] = useState(null);
   const [brushControlCue, setBrushControlCue] = useState(null);
   const [queuedSongPreview, setQueuedSongPreview] = useState(null);
@@ -693,6 +715,10 @@ function App() {
       setWorkflowStep("teeth");
     }
   }, [enableHygienistFocusExperience, workflowStep]);
+
+  useEffect(() => {
+    setHygienistFocusModes((currentModes) => buildHygienistFocusModeMap(values.top, values.bottom, currentModes));
+  }, [values.bottom, values.top]);
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -3231,6 +3257,7 @@ function App() {
                 embedded
                 showThemePanel={false}
                 enableHygienistFocus={enableHygienistFocusExperience}
+                hygienistFocusModes={hygienistFocusModes}
                 hygienistFocusPrompts={{
                   patient: HYGIENIST_FOCUS_PATIENT_PROMPT,
                   clinical: HYGIENIST_FOCUS_CLINICAL_PROMPT
@@ -3261,6 +3288,8 @@ function App() {
             bottomTeeth={Number(values?.bottom || 16)}
             patientPrompt={HYGIENIST_FOCUS_PATIENT_PROMPT}
             clinicalPrompt={HYGIENIST_FOCUS_CLINICAL_PROMPT}
+            toothModes={hygienistFocusModes}
+            onToothModesChange={setHygienistFocusModes}
           />
         </section>
       )}

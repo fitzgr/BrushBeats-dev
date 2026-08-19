@@ -153,28 +153,36 @@ function Tooth({ jaw, index, point, mode, onCycle }) {
   );
 }
 
-export default function HygienistFocusInstructions({ topTeeth = 16, bottomTeeth = 16, patientPrompt, clinicalPrompt }) {
-  const [toothModes, setToothModes] = useState(() => buildInitialToothModes(topTeeth, bottomTeeth));
+export default function HygienistFocusInstructions({ topTeeth = 16, bottomTeeth = 16, patientPrompt, clinicalPrompt, toothModes = null, onToothModesChange = null }) {
+  const [localToothModes, setLocalToothModes] = useState(() => buildInitialToothModes(topTeeth, bottomTeeth));
+  const controlledToothModes = toothModes || localToothModes;
 
   const mapLayout = useMemo(() => buildToothLayout(topTeeth, bottomTeeth), [topTeeth, bottomTeeth]);
   const normalizedToothModes = useMemo(
-    () => mergeToothModes(toothModes, topTeeth, bottomTeeth),
-    [toothModes, topTeeth, bottomTeeth]
+    () => mergeToothModes(controlledToothModes, topTeeth, bottomTeeth),
+    [controlledToothModes, topTeeth, bottomTeeth]
   );
   const modeCounts = useMemo(() => getModeCounts(normalizedToothModes), [normalizedToothModes]);
 
+  function applyToothModes(nextModes) {
+    if (onToothModesChange) {
+      onToothModesChange(nextModes);
+      return;
+    }
+
+    setLocalToothModes(nextModes);
+  }
+
   function cycleTooth(toothId) {
-    setToothModes((previousModes) => {
-      const syncedModes = mergeToothModes(previousModes, topTeeth, bottomTeeth);
-      return {
-        ...syncedModes,
-        [toothId]: getNextMode(syncedModes[toothId])
-      };
+    const syncedModes = mergeToothModes(normalizedToothModes, topTeeth, bottomTeeth);
+    applyToothModes({
+      ...syncedModes,
+      [toothId]: getNextMode(syncedModes[toothId])
     });
   }
 
   function resetAll() {
-    setToothModes(buildInitialToothModes(topTeeth, bottomTeeth));
+    applyToothModes(buildInitialToothModes(topTeeth, bottomTeeth));
   }
 
   return (
