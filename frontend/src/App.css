@@ -1011,6 +1011,43 @@
   color: #6f3206;
 }
 
+.hygienist-focus-tab {
+  grid-column: 2 / span 10;
+  display: grid;
+  gap: 0.9rem;
+}
+
+.hygienist-focus-tab h2,
+.hygienist-focus-tab h3,
+.hygienist-focus-tab p {
+  margin: 0;
+}
+
+.hygienist-focus-card {
+  padding: 0.9rem 1rem;
+  border-radius: 14px;
+  border: 1px solid rgba(16, 33, 37, 0.12);
+  background: linear-gradient(145deg, rgba(255, 252, 246, 0.95), rgba(245, 250, 253, 0.92));
+  display: grid;
+  gap: 0.35rem;
+}
+
+.hygienist-instruction-banner {
+  margin-top: 0.6rem;
+  padding: 0.8rem 0.95rem;
+  border-radius: 12px;
+  border: 1px solid rgba(184, 111, 44, 0.38);
+  background: linear-gradient(135deg, rgba(244, 162, 97, 0.2), rgba(255, 245, 228, 0.85));
+  color: #7a4613;
+  display: grid;
+  gap: 0.3rem;
+}
+
+.hygienist-instruction-banner strong,
+.hygienist-instruction-banner p {
+  margin: 0;
+}
+
 .desktop-step-layout {
   grid-template-columns: repeat(12, 1fr);
   align-items: start;
@@ -5371,6 +5408,15 @@ select {
   fill: #2f80ff;
 }
 
+.tooth-svg .tooth-focus-overlay {
+  opacity: 0.46;
+  pointer-events: none;
+}
+
+.tooth-svg.active-tooth .tooth-focus-overlay.active-focus-overlay {
+  opacity: 0.58;
+}
+
 .tooth-svg .tooth-face.countdown-preview-surface {
   animation: countdownPathPulse 620ms ease-in-out infinite;
   animation-delay: var(--countdown-path-delay, 0ms);
@@ -5527,6 +5573,42 @@ select {
   stroke-width: 1.1px;
   letter-spacing: 0.04em;
   text-transform: uppercase;
+}
+
+.extra-care-badge {
+  transform-origin: center;
+  animation: extraCarePulse 1200ms ease-in-out infinite;
+}
+
+.extra-care-badge rect {
+  fill: rgba(244, 162, 97, 0.92);
+  stroke: rgba(124, 66, 18, 0.38);
+  stroke-width: 1;
+}
+
+.extra-care-badge text {
+  fill: #ffffff;
+  font-size: 8.8px;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+@keyframes extraCarePulse {
+  0% {
+    opacity: 0.82;
+    transform: scale(0.97);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.04);
+  }
+
+  100% {
+    opacity: 0.82;
+    transform: scale(0.97);
+  }
 }
 
 .map-electric-cue.pulse-once {
@@ -5691,7 +5773,8 @@ select {
   .tooth-svg.active-tooth .tooth-face.active-surface,
   .map-score-label.beat-pulse,
   .mouth-map.completion-flash .tooth-svg .tooth-face,
-  .tooth-celebration-ripple {
+  .tooth-celebration-ripple,
+  .extra-care-badge {
     animation: none;
   }
 

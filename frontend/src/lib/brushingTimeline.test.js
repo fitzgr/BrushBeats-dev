@@ -63,3 +63,40 @@ test("buildSegments omits empty arches and keeps deterministic order", () => {
   assert.equal(entryAtZero?.type, "tooth");
   assert.equal(entryAtZero?.key, "front-top-left-0");
 });
+
+test("weighted focus teeth redistribute tooth time while preserving total duration and transitions", () => {
+  const segments = [
+    {
+      key: "front-top-left",
+      label: "Front Top Left",
+      jaw: "top",
+      surface: "front",
+      mapIndices: [0, 1]
+    },
+    {
+      key: "front-top-right",
+      label: "Front Top Right",
+      jaw: "top",
+      surface: "front",
+      mapIndices: [2, 3]
+    }
+  ];
+  const timeline = buildTimeline(segments, 1, 1, {
+    toothDurationBudgetSeconds: 4,
+    toothWeightResolver: ({ mapIndex }) => (mapIndex === 1 ? 1.5 : 1)
+  });
+  const teeth = timeline.filter((entry) => entry.type === "tooth");
+  const transitions = timeline.filter((entry) => entry.type === "transition");
+  const totalToothSeconds = teeth.reduce((sum, entry) => sum + (entry.endsAt - entry.startsAt), 0);
+  const totalTransitionSeconds = transitions.reduce((sum, entry) => sum + (entry.endsAt - entry.startsAt), 0);
+
+  assert.ok(Math.abs(totalToothSeconds - 4) < 1e-9);
+  assert.equal(totalTransitionSeconds, 1);
+
+  const focusTooth = teeth.find((entry) => entry.mapIndex === 1);
+  const normalTooth = teeth.find((entry) => entry.mapIndex === 0);
+  assert.ok(focusTooth);
+  assert.ok(normalTooth);
+  assert.ok(focusTooth.durationSeconds > normalTooth.durationSeconds);
+  assert.ok(Math.abs((focusTooth.durationSeconds / normalTooth.durationSeconds) - 1.5) < 1e-9);
+});

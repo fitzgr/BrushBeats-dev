@@ -75,6 +75,18 @@ const ROTATING_START_SEGMENT_SEQUENCE = [
 ];
 const DEFAULT_AGE_SIMULATION = { active: false, mode: "exact", phase: "primary", value: 2, unit: "years" };
 const YOUTUBE_VIDEO_ID_REGEX = /^[a-zA-Z0-9_-]{11}$/;
+const HYGIENIST_FOCUS_PATIENT_PROMPT = "Today's focus, spend a little extra time on the front four teeth, inside and outside, and the back two molars on the top and bottom on both sides. Brush all highlighted orange teeth a bit longer.";
+const HYGIENIST_FOCUS_CLINICAL_PROMPT = "Provide additional brushing attention to the facial buccal and lingual surfaces of the four anterior incisors and to the facial buccal and lingual surfaces of the two most posterior molars in each quadrant.";
+
+function isBrushBeatsDevGithubPages() {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  const host = String(window.location.host || "").toLowerCase();
+  const path = String(window.location.pathname || "");
+  return host === "fitzgr.github.io" && path.startsWith("/BrushBeats-dev");
+}
 
 function normalizeYoutubeVideoId(value) {
   const candidate = String(value || "").trim();
@@ -584,6 +596,7 @@ function App() {
   const appliedSharedVideoRef = useRef("");
   const lastRotatingPersistedRef = useRef({ enabled: false, index: 0 });
   const analyticsAvailable = useMemo(() => analyticsEnabled(), []);
+  const enableHygienistFocusExperience = useMemo(() => isBrushBeatsDevGithubPages(), []);
   const device = useDeviceContext();
   const totalTeeth = values.top + values.bottom;
   const toothAgeEstimate = bpmData?.ageEstimate || estimateAgeFromTeethFull(totalTeeth);
@@ -673,6 +686,12 @@ function App() {
     () => buildCompletionCelebrationMessage(t, completionMessage || t("app.success", { duration: formatTime(Number(bpmData?.totalBrushingSeconds || brushDurationSeconds)) }), recentUnlockedAchievements, progressDashboard),
     [bpmData?.totalBrushingSeconds, brushDurationSeconds, completionMessage, progressDashboard, recentUnlockedAchievements, t]
   );
+
+  useEffect(() => {
+    if (!enableHygienistFocusExperience && workflowStep === "focus") {
+      setWorkflowStep("teeth");
+    }
+  }, [enableHygienistFocusExperience, workflowStep]);
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -2804,6 +2823,15 @@ function App() {
           >
             {t("app.workflow.brush")}
           </button>
+          {enableHygienistFocusExperience && (
+            <button
+              type="button"
+              className={`workflow-tab${workflowStep === "focus" ? " active" : ""}`}
+              onClick={() => setWorkflowStep("focus")}
+            >
+              4. Focus
+            </button>
+          )}
       </nav>
 
       <section className={`care-routine-strip ${ageUiProfile.themeClassName}${showCompactRoutine ? " compact" : ""}`} aria-label={t("app.routine.ariaLabel")}>
@@ -3201,6 +3229,11 @@ function App() {
                 ageUiProfile={ageUiProfile}
                 embedded
                 showThemePanel={false}
+                enableHygienistFocus={enableHygienistFocusExperience}
+                hygienistFocusPrompts={{
+                  patient: HYGIENIST_FOCUS_PATIENT_PROMPT,
+                  clinical: HYGIENIST_FOCUS_CLINICAL_PROMPT
+                }}
               />
               {device.isMobile && brushingPhase === "complete" && (
                 <section className="success-banner brush-success-banner" aria-live="polite">
@@ -3217,6 +3250,23 @@ function App() {
               )}
             </>
           </Player>
+        </section>
+      )}
+
+      {enableHygienistFocusExperience && workflowStep === "focus" && (
+        <section className={`layout-grid ${device.isMobile ? "mobile-mode" : "desktop-mode desktop-step-layout"}`}>
+          <section className={`card hygienist-focus-tab ${ageUiProfile.themeClassName}`}>
+            <h2>Hygienist Focus Instructions</h2>
+            <p>This deployment applies a 1.5x dwell weighting on highlighted focus teeth while keeping total session duration fixed and transition delays unchanged.</p>
+            <article className="hygienist-focus-card">
+              <h3>Patient Prompt</h3>
+              <p>{HYGIENIST_FOCUS_PATIENT_PROMPT}</p>
+            </article>
+            <article className="hygienist-focus-card">
+              <h3>Clinical Prompt</h3>
+              <p>{HYGIENIST_FOCUS_CLINICAL_PROMPT}</p>
+            </article>
+          </section>
         </section>
       )}
         </>
