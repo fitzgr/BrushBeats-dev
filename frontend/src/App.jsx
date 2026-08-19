@@ -100,6 +100,10 @@ function buildHygienistFocusModeMap(topTeeth, bottomTeeth, existingModes = {}) {
   return nextModes;
 }
 
+function normalizeHygienistFocusModesForValues(rawModes, values) {
+  return buildHygienistFocusModeMap(values?.top, values?.bottom, rawModes || {});
+}
+
 function isBrushBeatsDevGithubPages() {
   if (typeof window === "undefined") {
     return false;
@@ -867,6 +871,7 @@ function App() {
     const nextFilters = session.filters && Number.isFinite(Number(session.filters.tolerance))
       ? session.filters
       : createInitialSongPreferences(nextValues.top + nextValues.bottom);
+    const nextFocusModes = normalizeHygienistFocusModesForValues(session.hygienistFocusModes, nextValues);
 
     setValues(nextValues);
     setSongFilters(nextFilters);
@@ -881,6 +886,7 @@ function App() {
     lastRotatingPersistedRef.current = { enabled: nextRotatingStartEnabled, index: nextRotatingStartIndex };
     setOverlayThemeChoice(session.overlayTheme || OVERLAY_THEME_AUTO);
     setBrushDurationSeconds(session.brushDurationSeconds || DEFAULT_BRUSH_DURATION_SECONDS);
+    setHygienistFocusModes(nextFocusModes);
   }
 
   function handleRotatingStartEnabledChange(nextEnabled) {
@@ -1226,6 +1232,7 @@ function App() {
       rotatingStartEnabled,
       rotatingStartIndex,
       overlayTheme: overlayThemeChoice,
+      hygienistFocusModes,
       brushDurationSeconds,
       savedAt: Date.now()
     });
@@ -1238,7 +1245,7 @@ function App() {
         setRotatingStartPersistStatus("error");
       }
     }
-  }, [brushDurationSeconds, brushingHand, brushType, keyword, overlayThemeChoice, rotatingStartEnabled, rotatingStartIndex, songFilters, storageConsent, values]);
+  }, [brushDurationSeconds, brushingHand, brushType, hygienistFocusModes, keyword, overlayThemeChoice, rotatingStartEnabled, rotatingStartIndex, songFilters, storageConsent, values]);
 
   useEffect(() => {
     if (storageConsent !== "granted" || !dbStatus.ready || !activeHouseholdUser?.userId || !preferencesHydratedRef.current) {
@@ -1254,10 +1261,11 @@ function App() {
       rotatingStartEnabled,
       rotatingStartIndex,
       overlayTheme: overlayThemeChoice,
+      hygienistFocusModes,
       brushDurationSeconds,
       savedAt: Date.now()
     });
-  }, [activeHouseholdUser?.userId, brushDurationSeconds, brushingHand, brushType, dbStatus.ready, keyword, overlayThemeChoice, rotatingStartEnabled, rotatingStartIndex, songFilters, storageConsent, values]);
+  }, [activeHouseholdUser?.userId, brushDurationSeconds, brushingHand, brushType, dbStatus.ready, hygienistFocusModes, keyword, overlayThemeChoice, rotatingStartEnabled, rotatingStartIndex, songFilters, storageConsent, values]);
 
   useEffect(() => {
     if (storageConsent !== "granted" || !dbStatus.ready || !activeHouseholdUser?.userId || !preferencesHydratedRef.current) {
@@ -1520,6 +1528,7 @@ function App() {
             brushType,
             rotatingStartEnabled,
             rotatingStartIndex,
+            hygienistFocusModes,
             brushDurationSeconds
           },
           migrationState: persistedMigrationState
@@ -1655,7 +1664,7 @@ function App() {
         loadHouseholdOverview(householdProfile.householdId),
         management.household.activeUserId
           ? getUserScopedState(management.household.activeUserId, {
-              defaults: { values, filters: songFilters, keyword, brushingHand, brushType, rotatingStartEnabled, rotatingStartIndex, overlayTheme: overlayThemeChoice, brushDurationSeconds },
+              defaults: { values, filters: songFilters, keyword, brushingHand, brushType, rotatingStartEnabled, rotatingStartIndex, overlayTheme: overlayThemeChoice, hygienistFocusModes, brushDurationSeconds },
               lastSession,
               favoriteSongs
             })
@@ -1717,7 +1726,7 @@ function App() {
         loadHouseholdOverview(householdProfile.householdId),
         management?.household?.activeUserId
           ? getUserScopedState(management.household.activeUserId, {
-              defaults: { values, filters: songFilters, keyword, brushingHand, brushType, rotatingStartEnabled, rotatingStartIndex, overlayTheme: overlayThemeChoice, brushDurationSeconds },
+              defaults: { values, filters: songFilters, keyword, brushingHand, brushType, rotatingStartEnabled, rotatingStartIndex, overlayTheme: overlayThemeChoice, hygienistFocusModes, brushDurationSeconds },
               lastSession,
               favoriteSongs
             })
@@ -1816,6 +1825,7 @@ function App() {
             brushType,
             rotatingStartEnabled,
             rotatingStartIndex,
+            hygienistFocusModes,
             brushDurationSeconds
           },
           lastSession,
@@ -2532,6 +2542,7 @@ function App() {
         brushType,
         rotatingStartEnabled,
         rotatingStartIndex,
+        hygienistFocusModes,
         brushDurationSeconds,
         savedAt: Date.now()
       };
@@ -2545,6 +2556,7 @@ function App() {
         rotatingStartEnabled,
         rotatingStartIndex,
         overlayTheme: overlayThemeChoice,
+        hygienistFocusModes,
         brushDurationSeconds,
         savedAt: sessionToSave.savedAt
       });

@@ -30,6 +30,7 @@ const CONSENT_STATUS = {
   denied: "denied",
   unknown: "unknown"
 };
+const HYGIENIST_FOCUS_MODES = ["none", "front", "back", "both"];
 
 function canUseStorage() {
   try {
@@ -130,6 +131,27 @@ function clampInteger(value, min, max, fallback) {
   return Math.min(max, Math.max(min, Math.round(numericValue)));
 }
 
+function normalizeHygienistFocusModes(rawModes, values) {
+  const safeTop = clampInteger(values?.top, 0, 16, 16);
+  const safeBottom = clampInteger(values?.bottom, 0, 16, 16);
+  const source = rawModes && typeof rawModes === "object" ? rawModes : {};
+  const normalized = {};
+
+  for (let index = 0; index < safeTop; index += 1) {
+    const key = `top-${index}`;
+    const mode = source[key];
+    normalized[key] = HYGIENIST_FOCUS_MODES.includes(mode) ? mode : "none";
+  }
+
+  for (let index = 0; index < safeBottom; index += 1) {
+    const key = `bottom-${index}`;
+    const mode = source[key];
+    normalized[key] = HYGIENIST_FOCUS_MODES.includes(mode) ? mode : "none";
+  }
+
+  return normalized;
+}
+
 function normalizeAgeEstimate(ageEstimate) {
   if (!ageEstimate || typeof ageEstimate !== "object") {
     return null;
@@ -206,6 +228,7 @@ function normalizeLastSession(parsed) {
     brushType: parsed.brushType === "electric" ? "electric" : "manual",
     rotatingStartEnabled: Boolean(parsed.rotatingStartEnabled),
     rotatingStartIndex: clampInteger(parsed.rotatingStartIndex, 0, 7, 0),
+    hygienistFocusModes: normalizeHygienistFocusModes(parsed.hygienistFocusModes, normalizedValues),
     brushDurationSeconds: normalizedBrushDurationSeconds,
     savedAt: Number.isFinite(Number(parsed.savedAt)) ? Number(parsed.savedAt) : undefined
   };
@@ -277,6 +300,7 @@ function normalizePreferences(parsed) {
     rotatingStartEnabled: Boolean(parsed.rotatingStartEnabled),
     rotatingStartIndex: clampInteger(parsed.rotatingStartIndex, 0, 7, 0),
     overlayTheme: typeof parsed.overlayTheme === "string" ? parsed.overlayTheme : "auto",
+    hygienistFocusModes: normalizeHygienistFocusModes(parsed.hygienistFocusModes, values),
     brushDurationSeconds: clampInteger(parsed.brushDurationSeconds, 90, 180, 120),
     savedAt: Number.isFinite(Number(parsed.savedAt)) ? Number(parsed.savedAt) : undefined
   };
