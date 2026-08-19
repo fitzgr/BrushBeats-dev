@@ -5558,6 +5558,15 @@ select {
   animation: focusToothGlow 1250ms ease-in-out infinite;
 }
 
+.mouth-map.hygienist-focus-mode .tooth-svg.focus-mode-front .tooth-focus-overlay-front,
+.mouth-map.hygienist-focus-mode .tooth-svg.focus-mode-back .tooth-focus-overlay-back {
+  opacity: 0.92;
+}
+
+.mouth-map.hygienist-focus-mode .tooth-svg.focus-mode-both .tooth-focus-overlay-both {
+  opacity: 0.9;
+}
+
 .mouth-map.hygienist-focus-mode .tooth-svg.active-tooth.focus-tooth .tooth-focus-overlay.active-focus-overlay {
   opacity: 0.94;
 }
