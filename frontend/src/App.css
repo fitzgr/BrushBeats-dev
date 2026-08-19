@@ -1078,6 +1078,18 @@
   stroke-linecap: round;
 }
 
+.focus-tooth-mode-badge {
+  fill: #eaf3ff;
+  font-size: 7px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  paint-order: stroke fill;
+  stroke: rgba(8, 24, 46, 0.78);
+  stroke-width: 1px;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
 .focus-tooth.none .focus-tooth-base {
   fill: #8d9fb1;
 }
@@ -1102,6 +1114,27 @@
 
 .focus-tooth.both .focus-tooth-base {
   fill: #f4a261;
+}
+
+.focus-tooth.none .focus-tooth-mode-badge {
+  fill: #e6edf7;
+}
+
+.focus-tooth.front .focus-tooth-mode-badge,
+.focus-tooth.back .focus-tooth-mode-badge,
+.focus-tooth.both .focus-tooth-mode-badge {
+  fill: #ffe2c7;
+}
+
+.hygienist-focus-selection-indicator {
+  border-radius: 10px;
+  border: 1px solid rgba(174, 207, 235, 0.34);
+  background: rgba(8, 33, 61, 0.66);
+  color: #e7f5ff;
+  padding: 0.45rem 0.62rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
 }
 
 .hygienist-focus-legend {
@@ -1131,6 +1164,12 @@
   background: rgba(244, 162, 97, 0.2);
   border-color: rgba(224, 123, 48, 0.35);
   color: #8b4a13;
+}
+
+.legend-chip.mode-key {
+  background: rgba(15, 45, 78, 0.12);
+  border-color: rgba(61, 116, 168, 0.3);
+  color: #204b74;
 }
 
 .hygienist-focus-reset {

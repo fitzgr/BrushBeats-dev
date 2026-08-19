@@ -1,6 +1,12 @@
 import { useMemo, useState } from "react";
 
 const TOOTH_STATES = ["none", "front", "back", "both"];
+const TOOTH_MODE_META = {
+  none: { short: "N", label: "None" },
+  front: { short: "O", label: "Outside" },
+  back: { short: "I", label: "Inside" },
+  both: { short: "B", label: "Both" }
+};
 
 function toRadians(degrees) {
   return (degrees * Math.PI) / 180;
@@ -111,8 +117,13 @@ function mergeToothModes(previousModes, topTeeth, bottomTeeth) {
   return merged;
 }
 
+function getToothModeMeta(mode) {
+  return TOOTH_MODE_META[mode] || TOOTH_MODE_META.none;
+}
+
 function Tooth({ jaw, index, point, mode, onCycle }) {
   const toothId = `${jaw}-${index}`;
+  const modeMeta = getToothModeMeta(mode);
 
   function handleKeyDown(event) {
     if (event.key !== "Enter" && event.key !== " ") {
@@ -149,12 +160,16 @@ function Tooth({ jaw, index, point, mode, onCycle }) {
       <path className="focus-tooth-back" d="M0 -18 C10 -18 14 -10 14 0 C14 10 8 18 0 20 C-8 18 -14 10 -14 0 C-14 -10 -10 -18 0 -18 Z" clipPath={`url(#${toothId}-back)`} />
       <path className="focus-tooth-outline" d="M0 -18 C10 -18 14 -10 14 0 C14 10 8 18 0 20 C-8 18 -14 10 -14 0 C-14 -10 -10 -18 0 -18 Z" />
       <path className="focus-tooth-groove" d="M-6 -7 C-2 -10 2 -10 6 -7" />
+      <text className="focus-tooth-mode-badge" x="0" y="28" textAnchor="middle" transform={`rotate(${-point.rotationDeg})`}>
+        {modeMeta.short}
+      </text>
     </g>
   );
 }
 
 export default function HygienistFocusInstructions({ topTeeth = 16, bottomTeeth = 16, patientPrompt, clinicalPrompt, toothModes = null, onToothModesChange = null }) {
   const [localToothModes, setLocalToothModes] = useState(() => buildInitialToothModes(topTeeth, bottomTeeth));
+  const [lastChangedToothId, setLastChangedToothId] = useState(null);
   const controlledToothModes = toothModes || localToothModes;
 
   const mapLayout = useMemo(() => buildToothLayout(topTeeth, bottomTeeth), [topTeeth, bottomTeeth]);
@@ -175,20 +190,27 @@ export default function HygienistFocusInstructions({ topTeeth = 16, bottomTeeth 
 
   function cycleTooth(toothId) {
     const syncedModes = mergeToothModes(normalizedToothModes, topTeeth, bottomTeeth);
+    const nextMode = getNextMode(syncedModes[toothId]);
     applyToothModes({
       ...syncedModes,
-      [toothId]: getNextMode(syncedModes[toothId])
+      [toothId]: nextMode
     });
+    setLastChangedToothId(toothId);
   }
 
   function resetAll() {
     applyToothModes(buildInitialToothModes(topTeeth, bottomTeeth));
+    setLastChangedToothId(null);
   }
+
+  const activeSelectionMeta = lastChangedToothId
+    ? getToothModeMeta(normalizedToothModes[lastChangedToothId])
+    : null;
 
   return (
     <section className="card hygienist-focus-tab">
       <h2>Hygienist Focus Instructions</h2>
-      <p>Tap any tooth to cycle focus mode: none {">"} front {">"} back {">"} both.</p>
+      <p>Tap any tooth to cycle focus mode: none {">"} outside {">"} inside {">"} both.</p>
 
       <div className="hygienist-focus-map-shell">
         <svg className="hygienist-focus-map" viewBox="0 0 360 420" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Interactive hygienist focus tooth map">
@@ -221,11 +243,18 @@ export default function HygienistFocusInstructions({ topTeeth = 16, bottomTeeth 
         </svg>
       </div>
 
+      <div className="hygienist-focus-selection-indicator" aria-live="polite">
+        {activeSelectionMeta
+          ? `Selected ${lastChangedToothId}: ${activeSelectionMeta.label}`
+          : "Select a tooth to set focus mode (Outside / Inside / Both / None)."}
+      </div>
+
       <div className="hygienist-focus-legend" aria-label="Focus mode legend">
         <span className="legend-chip none">None ({modeCounts.none})</span>
-        <span className="legend-chip front">Front ({modeCounts.front})</span>
-        <span className="legend-chip back">Back ({modeCounts.back})</span>
+        <span className="legend-chip front">Outside ({modeCounts.front})</span>
+        <span className="legend-chip back">Inside ({modeCounts.back})</span>
         <span className="legend-chip both">Both ({modeCounts.both})</span>
+        <span className="legend-chip mode-key">O = Outside, I = Inside, B = Both, N = None</span>
         <button type="button" className="hygienist-focus-reset" onClick={resetAll}>Reset all to none</button>
       </div>
 
