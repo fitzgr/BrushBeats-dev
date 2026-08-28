@@ -5640,6 +5640,23 @@ select {
   bottom: 8px;
 }
 
+.hygienist-contrast-hint-mobile {
+  display: block;
+  margin: 0.35rem auto 0;
+  width: fit-content;
+  max-width: min(100%, 320px);
+  padding: 0.32rem 0.56rem;
+  border-radius: 999px;
+  border: 1px solid rgba(244, 162, 97, 0.52);
+  background: rgba(16, 27, 48, 0.76);
+  color: #ffd3ab;
+  font-size: 0.69rem;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  text-align: center;
+}
+
 @keyframes focusToothGlow {
   0% {
     opacity: 0.8;

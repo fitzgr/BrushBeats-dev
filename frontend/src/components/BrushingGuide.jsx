@@ -756,6 +756,7 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, isMobile, brushi
   const timeline = useMemo(
     () => buildTimeline(segments, toothDurationSeconds, transitionBufferSeconds, {
       toothDurationBudgetSeconds,
+      beatsPerMinute: bpmData?.searchBpm || bpmData?.musicBpm || bpmData?.baseBpm || bpmData?.rawBpm,
       toothWeightResolver: ({ jaw, mapIndex, surface }) => {
         if (!enableHygienistFocus) {
           return 1;
@@ -1318,6 +1319,7 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, isMobile, brushi
 
     return "hint-top";
   }, [activeJaw, activeToothEntry?.jaw, effectiveOrientationJaw, enableHygienistFocus]);
+  const showHygienistFocusHint = enableHygienistFocus && brushingPhase !== "complete";
 
   function clearResetHoldTimer() {
     if (resetHoldTimerRef.current) {
@@ -1586,7 +1588,7 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, isMobile, brushi
             {centerTickerDetail ? <span>{centerTickerDetail}</span> : null}
           </div>
         )}
-        {enableHygienistFocus && brushingPhase !== "complete" && (
+        {showHygienistFocusHint && !isMobile && (
           <div className={`hygienist-contrast-hint ${focusHintPositionClass}`} aria-live="polite">
             Orange teeth = extra care timing (1.5x)
           </div>
@@ -1665,6 +1667,11 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, isMobile, brushi
           )}
         </svg>
         </div>
+        {showHygienistFocusHint && isMobile && (
+          <div className="hygienist-contrast-hint-mobile" aria-live="polite">
+            Orange teeth = extra care timing (1.5x)
+          </div>
+        )}
       </div>
       {showTimingDebug && (
         <p className="guide-debug-timing" aria-live="off">

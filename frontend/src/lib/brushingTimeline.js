@@ -129,10 +129,11 @@ function toSafeWeight(value) {
 function getTimelineToothEntries(segments) {
   const entries = [];
 
-  segments.forEach((segment) => {
+  segments.forEach((segment, segmentIndex) => {
     segment.mapIndices.forEach((mapIndex, toothIndex) => {
       entries.push({
         segment,
+        segmentIndex,
         mapIndex,
         segmentPosition: toothIndex + 1,
         segmentSize: segment.mapIndices.length
@@ -141,6 +142,10 @@ function getTimelineToothEntries(segments) {
   });
 
   return entries;
+}
+
+function getQuadrantIndex(segmentIndex) {
+  return Math.floor(Number(segmentIndex || 0) / 2);
 }
 
 function resolveToothDurations(segments, secondsPerTooth, options = {}) {
@@ -172,18 +177,35 @@ function resolveToothDurations(segments, secondsPerTooth, options = {}) {
     };
   });
 
-  const totalWeight = weightedEntries.reduce((sum, entry) => sum + entry.weight, 0);
-  if (totalWeight <= 0 || toothDurationBudgetSeconds <= 0 || weightedEntries.length === 0) {
-    return weightedEntries.map((entry) => ({
-      ...entry,
-      durationSeconds: 0
-    }));
-  }
+  const quadrantCount = Math.max(1, Math.ceil(segments.length / 2));
+  const quadrantBudgetSeconds = toothDurationBudgetSeconds / quadrantCount;
+  const groupedEntries = new Map();
 
-  return weightedEntries.map((entry) => ({
-    ...entry,
-    durationSeconds: (toothDurationBudgetSeconds * entry.weight) / totalWeight
-  }));
+  weightedEntries.forEach((entry) => {
+    const quadrantIndex = getQuadrantIndex(entry.segmentIndex);
+    const group = groupedEntries.get(quadrantIndex) || [];
+    group.push({ ...entry, quadrantIndex });
+    groupedEntries.set(quadrantIndex, group);
+  });
+
+  const resolvedEntries = [];
+  Array.from(groupedEntries.keys()).sort((left, right) => left - right).forEach((quadrantIndex) => {
+    const quadrantEntries = groupedEntries.get(quadrantIndex) || [];
+    const totalWeight = quadrantEntries.reduce((sum, entry) => sum + entry.weight, 0);
+
+    quadrantEntries.forEach((entry) => {
+      const durationSeconds = totalWeight > 0 && quadrantBudgetSeconds > 0
+        ? (quadrantBudgetSeconds * entry.weight) / totalWeight
+        : 0;
+
+      resolvedEntries.push({
+        ...entry,
+        durationSeconds
+      });
+    });
+  });
+
+  return resolvedEntries;
 }
 
 export function buildTimeline(segments, secondsPerTooth, transitionBufferSeconds, options = {}) {
@@ -191,6 +213,8 @@ export function buildTimeline(segments, secondsPerTooth, transitionBufferSeconds
   let cursor = 0;
   const transitionCount = Math.max(0, segments.length - 1);
   const toothDurations = resolveToothDurations(segments, secondsPerTooth, options);
+  const beatsPerMinute = Number(options.beatsPerMinute || options.bpm || 0);
+  const hasBeatRate = Number.isFinite(beatsPerMinute) && beatsPerMinute > 0;
   let toothCursor = 0;
 
   segments.forEach((segment, segmentIndex) => {
@@ -201,15 +225,18 @@ export function buildTimeline(segments, secondsPerTooth, transitionBufferSeconds
       timeline.push({
         type: "tooth",
         key: `${segment.key}-${mapIndex}`,
+        segmentKey: segment.key,
         label: segment.label,
         jaw: segment.jaw,
         surface: segment.surface,
         mapIndex,
         segmentPosition: toothIndex + 1,
         segmentSize: segment.mapIndices.length,
+        quadrantIndex: toothTiming.quadrantIndex,
         startsAt: cursor,
         endsAt: cursor + durationSeconds,
         durationSeconds,
+        durationBeats: hasBeatRate ? (durationSeconds * beatsPerMinute) / 60 : null,
         weight: toothTiming.weight || 1
       });
       cursor += durationSeconds;
