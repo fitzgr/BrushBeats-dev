@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { buildSegments, buildTimeline, getActiveTimelineEntry, getActiveToothEntry } from "./brushingTimeline.js";
+import { getActiveToothPulseMs } from "./brushingPulse.js";
 
 test("active tooth switches exactly on secondsPerTooth boundaries", () => {
   const segments = [
@@ -146,4 +147,10 @@ test("tooth timeline entries include beat duration metadata when BPM is provided
 
   assert.ok(tooth);
   assert.ok(Math.abs(tooth.durationBeats - 4) < 1e-9);
+});
+
+test("active tooth pulse tracks the selected user BPM", () => {
+  assert.equal(getActiveToothPulseMs(120), 500);
+  assert.equal(getActiveToothPulseMs(60), 1000);
+  assert.equal(getActiveToothPulseMs(0), 760);
 });

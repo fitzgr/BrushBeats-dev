@@ -4,6 +4,7 @@ import AgeThemePanel from "./AgeThemePanel";
 import AgeOverlay from "./AgeOverlay";
 import { getBrushTechniqueTips } from "../lib/reinforcementMessages";
 import { buildSegments, buildTimeline, getActiveTimelineEntry } from "../lib/brushingTimeline";
+import { getActiveToothPulseMs } from "../lib/brushingPulse";
 
 function toRadians(degrees) {
   return (degrees * Math.PI) / 180;
@@ -358,15 +359,6 @@ function splitMessageIntoLines(message, maxLineLength = 24, maxLines = 3) {
 
 function formatTenths(seconds) {
   return Math.max(0, seconds).toFixed(1);
-}
-
-function getActiveToothPulseMs(bpm) {
-  const safeBpm = Number(bpm);
-  if (!Number.isFinite(safeBpm) || safeBpm <= 0) {
-    return 760;
-  }
-
-  return clampNumber(Math.round((60 / safeBpm) * 1000), 375, 1200);
 }
 
 const ROW_CELEBRATION_DURATION_MS = 3800;
