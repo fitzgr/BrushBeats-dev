@@ -1,5 +1,18 @@
 [
   {
+    "id": "commit-3339aa921bf2a2daae082ffe057a8f4dbd7673ef",
+    "kind": "commit",
+    "source": "git-history",
+    "sha": "3339aa921bf2a2daae082ffe057a8f4dbd7673ef",
+    "shortSha": "3339aa9",
+    "timestamp": "2026-09-11T11:48:39-04:00",
+    "date": "2026-09-11",
+    "author": "Grant Fitz",
+    "subject": "fix: apply selected BPM to brushing guide",
+    "body": "",
+    "tags": []
+  },
+  {
     "id": "commit-4501e655165dd3758d9bc5cafc0371d76a762356",
     "kind": "commit",
     "source": "git-history",
@@ -2583,19 +2596,6 @@
     "date": "2026-04-22",
     "author": "Grant Fitz",
     "subject": "Add electric lift cue and soften default tooth tones",
-    "body": "",
-    "tags": []
-  },
-  {
-    "id": "commit-6140aa0f93a9e1d21b565a94d33d00ba40872b81",
-    "kind": "commit",
-    "source": "git-history",
-    "sha": "6140aa0f93a9e1d21b565a94d33d00ba40872b81",
-    "shortSha": "6140aa0",
-    "timestamp": "2026-04-22T05:30:32-04:00",
-    "date": "2026-04-22",
-    "author": "Grant Fitz",
-    "subject": "Polish realistic tooth map spacing and anatomy",
     "body": "",
     "tags": []
   }

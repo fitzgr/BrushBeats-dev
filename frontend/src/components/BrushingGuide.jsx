@@ -775,6 +775,7 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
   const completedToothEntries = toothEntries.filter((entry) => entry.endsAt <= elapsedSeconds).length;
   const activeEntry = hasActiveBrushTimeline ? getActiveTimelineEntry(timeline, elapsedSeconds) : null;
   const activeToothEntry = activeEntry?.type === "tooth" ? activeEntry : null;
+  const activeToothPulseMs = getActiveToothPulseMs(guideBpm) * (activeToothEntry?.weight || 1);
   const activeToothProgress = activeToothEntry
     ? clampNumber((elapsedSeconds - activeToothEntry.startsAt) / Math.max(0.001, activeToothEntry.endsAt - activeToothEntry.startsAt), 0, 1)
     : 0;
@@ -798,7 +799,6 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
   const tips = useMemo(() => getBrushTechniqueTips(brushType, ageUiProfile?.phase || agePhase), [agePhase, ageUiProfile?.phase, brushType]);
   const tipIndex = Math.floor(Math.max(0, elapsedSeconds) / 18) % Math.max(1, tips.length);
   const activeTip = brushingPhase === "running" ? (tips[tipIndex] || "") : "";
-  const activeToothPulseMs = getActiveToothPulseMs(guideBpm);
   const lowPerformanceCelebrationMode = useMemo(() => detectLowPerformanceCelebrationMode(), []);
   const celebrationSurfaceTarget = useMemo(() => getRowSurfaceTarget(rowCelebration?.rowNumber), [rowCelebration?.rowNumber]);
   const resolvedHygienistPrompts = useMemo(() => ({
