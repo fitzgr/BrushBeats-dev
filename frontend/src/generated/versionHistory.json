@@ -1,5 +1,18 @@
 [
   {
+    "id": "commit-4501e655165dd3758d9bc5cafc0371d76a762356",
+    "kind": "commit",
+    "source": "git-history",
+    "sha": "4501e655165dd3758d9bc5cafc0371d76a762356",
+    "shortSha": "4501e65",
+    "timestamp": "2026-09-11T10:24:26-04:00",
+    "date": "2026-09-11",
+    "author": "Grant Fitz",
+    "subject": "feat: add brush map focus editor",
+    "body": "",
+    "tags": []
+  },
+  {
     "id": "commit-3ad542b61386ced729d7a4dbf2bf5922edbddf7b",
     "kind": "commit",
     "source": "git-history",
@@ -2583,19 +2596,6 @@
     "date": "2026-04-22",
     "author": "Grant Fitz",
     "subject": "Polish realistic tooth map spacing and anatomy",
-    "body": "",
-    "tags": []
-  },
-  {
-    "id": "commit-fcee8041fdb0f4fb37015c75519df2232aa352a6",
-    "kind": "commit",
-    "source": "git-history",
-    "sha": "fcee8041fdb0f4fb37015c75519df2232aa352a6",
-    "shortSha": "fcee804",
-    "timestamp": "2026-04-21T17:51:09-04:00",
-    "date": "2026-04-21",
-    "author": "Grant Fitz",
-    "subject": "Refine convex arch tooth selection",
     "body": "",
     "tags": []
   }

@@ -685,7 +685,7 @@ function RowCelebrationCascade({ celebration, reducedMotion, lowPerformanceMode 
   return <canvas className={`row-celebration-cascade${celebration ? " active" : ""}`} ref={canvasRef} aria-hidden="true" />;
 }
 
-function BrushingGuide({ timer, brushingPhase, values, bpmData, isMobile, brushingMusicElapsedSeconds, startCountdownTotalMs = 5000, startCountdownRemainingMs = 0, sessionStartSegmentKey = null, brushingHand, brushType = "manual", hideIntro = false, onCueChange, completionMessage = "", brushControlCue, primaryBrushActionLabel, onPrimaryBrushAction, onRestartBrushing, rotatingStartEnabled = false, onRotatingStartEnabledChange, ageUiProfile, embedded = false, showThemePanel = true, enableHygienistFocus = false, hygienistFocusPrompts = null, hygienistFocusModes = null, onHygienistFocusModesChange = null }) {
+function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isMobile, brushingMusicElapsedSeconds, startCountdownTotalMs = 5000, startCountdownRemainingMs = 0, sessionStartSegmentKey = null, brushingHand, brushType = "manual", hideIntro = false, onCueChange, completionMessage = "", brushControlCue, primaryBrushActionLabel, onPrimaryBrushAction, onRestartBrushing, rotatingStartEnabled = false, onRotatingStartEnabledChange, ageUiProfile, embedded = false, showThemePanel = true, enableHygienistFocus = false, hygienistFocusPrompts = null, hygienistFocusModes = null, onHygienistFocusModesChange = null }) {
   const resetHoldTimerRef = useRef(null);
   const resetHoldTriggeredRef = useRef(false);
   const RESET_HOLD_MS = 700;
@@ -703,6 +703,8 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, isMobile, brushi
   const fallbackSecondsPerTooth = totalSeconds / Math.max(1, expectedToothActions);
   const toothDurationSeconds = hasAlignedBpmSnapshot ? Number(bpmData.secondsPerTooth) : fallbackSecondsPerTooth;
   const timingSourceLabel = hasAlignedBpmSnapshot ? "snapshot" : "live-fallback";
+  const fallbackBpm = bpmData?.searchBpm || bpmData?.musicBpm || bpmData?.baseBpm || bpmData?.rawBpm;
+  const guideBpm = Number(selectedBpm) > 0 ? Number(selectedBpm) : Number(fallbackBpm);
   const showTimingDebug = import.meta.env.DEV;
   const [showCompletionFlash, setShowCompletionFlash] = useState(false);
   const [rowCelebration, setRowCelebration] = useState(null);
@@ -750,7 +752,7 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, isMobile, brushi
   const timeline = useMemo(
     () => buildTimeline(segments, toothDurationSeconds, transitionBufferSeconds, {
       toothDurationBudgetSeconds,
-      beatsPerMinute: bpmData?.searchBpm || bpmData?.musicBpm || bpmData?.baseBpm || bpmData?.rawBpm,
+      beatsPerMinute: guideBpm,
       toothWeightResolver: ({ jaw, mapIndex, surface }) => {
         if (!enableHygienistFocus) {
           return 1;
@@ -760,7 +762,7 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, isMobile, brushi
         return doesModeCoverSurface(surfaceMode, surface) ? HYGIENIST_FOCUS_WEIGHT : 1;
       }
     }),
-    [enableHygienistFocus, focusSurfaceModes, segments, toothDurationBudgetSeconds, toothDurationSeconds, transitionBufferSeconds]
+    [enableHygienistFocus, focusSurfaceModes, guideBpm, segments, toothDurationBudgetSeconds, toothDurationSeconds, transitionBufferSeconds]
   );
   const toothEntries = timeline.filter((entry) => entry.type === "tooth");
   const isPaused = brushingPhase === "paused";
@@ -796,7 +798,7 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, isMobile, brushi
   const tips = useMemo(() => getBrushTechniqueTips(brushType, ageUiProfile?.phase || agePhase), [agePhase, ageUiProfile?.phase, brushType]);
   const tipIndex = Math.floor(Math.max(0, elapsedSeconds) / 18) % Math.max(1, tips.length);
   const activeTip = brushingPhase === "running" ? (tips[tipIndex] || "") : "";
-  const activeToothPulseMs = getActiveToothPulseMs(bpmData?.searchBpm || bpmData?.musicBpm || bpmData?.baseBpm || bpmData?.rawBpm);
+  const activeToothPulseMs = getActiveToothPulseMs(guideBpm);
   const lowPerformanceCelebrationMode = useMemo(() => detectLowPerformanceCelebrationMode(), []);
   const celebrationSurfaceTarget = useMemo(() => getRowSurfaceTarget(rowCelebration?.rowNumber), [rowCelebration?.rowNumber]);
   const resolvedHygienistPrompts = useMemo(() => ({
