@@ -3270,6 +3270,7 @@ function App() {
                 showThemePanel={false}
                 enableHygienistFocus={enableHygienistFocusExperience}
                 hygienistFocusModes={hygienistFocusModes}
+                onHygienistFocusModesChange={setHygienistFocusModes}
                 hygienistFocusPrompts={{
                   patient: HYGIENIST_FOCUS_PATIENT_PROMPT,
                   clinical: HYGIENIST_FOCUS_CLINICAL_PROMPT

@@ -4415,6 +4415,121 @@ select {
   z-index: 1;
 }
 
+.tooth-svg[role="button"] {
+  cursor: pointer;
+  outline: none;
+}
+
+.tooth-svg[role="button"]:focus-visible .tooth-outline {
+  stroke: #1492ff;
+  stroke-width: 2.4;
+  filter: drop-shadow(0 0 7px rgba(20, 146, 255, 0.7));
+}
+
+.brush-focus-editor-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(5, 22, 39, 0.62);
+}
+
+.brush-focus-editor {
+  width: min(100%, 350px);
+  padding: 1.05rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 18px;
+  background: linear-gradient(145deg, #fffdf8, #eef7fb);
+  box-shadow: 0 18px 42px rgba(4, 20, 35, 0.38);
+  color: #163142;
+}
+
+.brush-focus-editor-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.brush-focus-editor-eyebrow {
+  display: block;
+  margin-bottom: 0.2rem;
+  color: #b65a1c;
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.brush-focus-editor h3,
+.brush-focus-editor p {
+  margin: 0;
+}
+
+.brush-focus-editor h3 {
+  font-size: 1.1rem;
+}
+
+.brush-focus-editor p {
+  margin-top: 0.65rem;
+  color: #536873;
+  font-size: 0.86rem;
+}
+
+.brush-focus-editor-badge {
+  flex: 0 0 auto;
+  border-radius: 999px;
+  padding: 0.3rem 0.5rem;
+  background: rgba(244, 162, 97, 0.2);
+  color: #8b4a13;
+  font-size: 0.68rem;
+  font-weight: 900;
+}
+
+.brush-focus-mode-options {
+  display: grid;
+  gap: 0.45rem;
+  margin: 0.85rem 0;
+}
+
+.brush-focus-mode-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  border: 1px solid rgba(22, 49, 66, 0.16);
+  border-radius: 10px;
+  padding: 0.58rem 0.7rem;
+  background: rgba(255, 255, 255, 0.72);
+  color: #163142;
+  cursor: pointer;
+  text-align: left;
+}
+
+.brush-focus-mode-option span {
+  color: #61737b;
+  font-size: 0.75rem;
+}
+
+.brush-focus-mode-option.selected {
+  border-color: #e07b30;
+  background: rgba(244, 162, 97, 0.2);
+  box-shadow: 0 0 0 2px rgba(224, 123, 48, 0.14);
+}
+
+.brush-focus-editor-return {
+  width: 100%;
+  border: 0;
+  border-radius: 10px;
+  padding: 0.68rem 0.8rem;
+  background: #163142;
+  color: #fffdf8;
+  font-weight: 900;
+  cursor: pointer;
+}
+
 .map-hand-orientation-layer {
   position: absolute;
   left: 50%;

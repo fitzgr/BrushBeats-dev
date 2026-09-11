@@ -685,7 +685,7 @@ function RowCelebrationCascade({ celebration, reducedMotion, lowPerformanceMode 
   return <canvas className={`row-celebration-cascade${celebration ? " active" : ""}`} ref={canvasRef} aria-hidden="true" />;
 }
 
-function BrushingGuide({ timer, brushingPhase, values, bpmData, isMobile, brushingMusicElapsedSeconds, startCountdownTotalMs = 5000, startCountdownRemainingMs = 0, sessionStartSegmentKey = null, brushingHand, brushType = "manual", hideIntro = false, onCueChange, completionMessage = "", brushControlCue, primaryBrushActionLabel, onPrimaryBrushAction, onRestartBrushing, rotatingStartEnabled = false, onRotatingStartEnabledChange, ageUiProfile, embedded = false, showThemePanel = true, enableHygienistFocus = false, hygienistFocusPrompts = null, hygienistFocusModes = null }) {
+function BrushingGuide({ timer, brushingPhase, values, bpmData, isMobile, brushingMusicElapsedSeconds, startCountdownTotalMs = 5000, startCountdownRemainingMs = 0, sessionStartSegmentKey = null, brushingHand, brushType = "manual", hideIntro = false, onCueChange, completionMessage = "", brushControlCue, primaryBrushActionLabel, onPrimaryBrushAction, onRestartBrushing, rotatingStartEnabled = false, onRotatingStartEnabledChange, ageUiProfile, embedded = false, showThemePanel = true, enableHygienistFocus = false, hygienistFocusPrompts = null, hygienistFocusModes = null, onHygienistFocusModesChange = null }) {
   const resetHoldTimerRef = useRef(null);
   const resetHoldTriggeredRef = useRef(false);
   const RESET_HOLD_MS = 700;
@@ -707,6 +707,8 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, isMobile, brushi
   const [showCompletionFlash, setShowCompletionFlash] = useState(false);
   const [rowCelebration, setRowCelebration] = useState(null);
   const [reducedMotion, setReducedMotion] = useState(false);
+  const [focusEditorTooth, setFocusEditorTooth] = useState(null);
+  const [pendingFocusMode, setPendingFocusMode] = useState("none");
   const completionTonePlayedRef = useRef(false);
   const audioContextRef = useRef(null);
   const celebrationTimerRef = useRef(0);
@@ -1388,15 +1390,34 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, isMobile, brushi
       : -1;
     const isCountdownPathTooth = isCountdownPreviewTooth && Number.isFinite(countdownStep) && countdownStep >= 0;
     const isCountdownStartTooth = Boolean(isCountdownPreviewTooth && countdownPreviewTarget?.jaw === jaw && mapIndex === countdownPreviewTarget.startMapIndex);
+    const canEditFocus = enableHygienistFocus && Boolean(onHygienistFocusModesChange);
     const countdownSurfaceStyle = isCountdownPathTooth
       ? { "--countdown-path-delay": `${Math.round(countdownStep * 85)}ms` }
       : undefined;
+
+    function handleToothKeyDown(event) {
+      if (event.key !== "Enter" && event.key !== " ") {
+        return;
+      }
+
+      event.preventDefault();
+      setFocusEditorTooth({ jaw, mapIndex, label: toothLabel });
+      setPendingFocusMode(focusSurfaceMode);
+    }
 
     return (
       <g
         key={toothId}
         transform={`translate(${point.x} ${point.y}) rotate(${point.rotationDeg ?? point.angleDeg - 90}) scale(${toothShape.scale * (point.layoutScale || 1)})`}
         className={`tooth-svg ${meta?.type || "molar"}${isActiveTooth ? " active-tooth" : ""}${isFocusTooth ? " focus-tooth focus-mode-" + focusSurfaceMode : ""}${isCountdownPreviewTooth ? " countdown-preview-tooth" : ""}${isCountdownStartTooth ? " countdown-start-tooth" : ""}`}
+        role={canEditFocus ? "button" : undefined}
+        tabIndex={canEditFocus ? 0 : undefined}
+        aria-label={canEditFocus ? `${toothLabel}, focus ${getHygienistModeLabel(focusSurfaceMode) || "none"}` : undefined}
+        onClick={canEditFocus ? () => {
+          setFocusEditorTooth({ jaw, mapIndex, label: toothLabel });
+          setPendingFocusMode(focusSurfaceMode);
+        } : undefined}
+        onKeyDown={canEditFocus ? handleToothKeyDown : undefined}
       >
         <title>{toothLabel}</title>
         <defs>
@@ -1658,6 +1679,47 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, isMobile, brushi
             </text>
           )}
         </svg>
+        {focusEditorTooth && (
+          <div className="brush-focus-editor-backdrop" role="presentation">
+            <section className="brush-focus-editor" role="dialog" aria-modal="true" aria-labelledby="brush-focus-editor-title">
+              <div className="brush-focus-editor-heading">
+                <div>
+                  <span className="brush-focus-editor-eyebrow">Adjust brushing time</span>
+                  <h3 id="brush-focus-editor-title">{focusEditorTooth.label}</h3>
+                </div>
+                <span className="brush-focus-editor-badge">1.5x focus</span>
+              </div>
+              <p>Choose which surfaces should receive extra brushing time.</p>
+              <div className="brush-focus-mode-options" role="radiogroup" aria-label="Brushing focus surface">
+                {HYGIENIST_SURFACE_MODES.map((mode) => (
+                  <button
+                    key={mode}
+                    type="button"
+                    className={`brush-focus-mode-option${pendingFocusMode === mode ? " selected" : ""}`}
+                    aria-pressed={pendingFocusMode === mode}
+                    onClick={() => setPendingFocusMode(mode)}
+                  >
+                    <strong>{getHygienistModeLabel(mode) || "None"}</strong>
+                    <span>{mode === "none" ? "Use standard time" : "Add extra time"}</span>
+                  </button>
+                ))}
+              </div>
+              <button
+                type="button"
+                className="brush-focus-editor-return"
+                onClick={() => {
+                  onHygienistFocusModesChange({
+                    ...(hygienistFocusModes || {}),
+                    [buildFocusToothKey(focusEditorTooth.jaw, focusEditorTooth.mapIndex)]: pendingFocusMode
+                  });
+                  setFocusEditorTooth(null);
+                }}
+              >
+                Return to brushing
+              </button>
+            </section>
+          </div>
+        )}
         </div>
         {showHygienistFocusHint && isMobile && (
           <div className="hygienist-contrast-hint-mobile" aria-live="polite">

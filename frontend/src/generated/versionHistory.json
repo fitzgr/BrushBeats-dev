@@ -1,5 +1,31 @@
 [
   {
+    "id": "commit-3ad542b61386ced729d7a4dbf2bf5922edbddf7b",
+    "kind": "commit",
+    "source": "git-history",
+    "sha": "3ad542b61386ced729d7a4dbf2bf5922edbddf7b",
+    "shortSha": "3ad542b",
+    "timestamp": "2026-09-07T11:12:50-04:00",
+    "date": "2026-09-07",
+    "author": "Grant Fitz",
+    "subject": "fix: sync active brush flash to user BPM",
+    "body": "",
+    "tags": []
+  },
+  {
+    "id": "commit-eb16f6ee723bd17c140b079420c299fb17542c64",
+    "kind": "commit",
+    "source": "git-history",
+    "sha": "eb16f6ee723bd17c140b079420c299fb17542c64",
+    "shortSha": "eb16f6e",
+    "timestamp": "2026-08-28T06:33:46-04:00",
+    "date": "2026-08-28",
+    "author": "Grant Fitz",
+    "subject": "fix: keep focus timing quadrant-local",
+    "body": "",
+    "tags": []
+  },
+  {
     "id": "commit-1d026a46c752cec62c1682f21bc00c6496b0b883",
     "kind": "commit",
     "source": "git-history",
@@ -2570,32 +2596,6 @@
     "date": "2026-04-21",
     "author": "Grant Fitz",
     "subject": "Refine convex arch tooth selection",
-    "body": "",
-    "tags": []
-  },
-  {
-    "id": "commit-50b947cd6af31ae397d5fa528d6c1eb10eb41f74",
-    "kind": "commit",
-    "source": "git-history",
-    "sha": "50b947cd6af31ae397d5fa528d6c1eb10eb41f74",
-    "shortSha": "50b947c",
-    "timestamp": "2026-04-21T17:40:28-04:00",
-    "date": "2026-04-21",
-    "author": "Grant Fitz",
-    "subject": "Separate top and bottom arch projection",
-    "body": "",
-    "tags": []
-  },
-  {
-    "id": "commit-d3744b2587c49b15ea5077d7aaeb1e7884e38645",
-    "kind": "commit",
-    "source": "git-history",
-    "sha": "d3744b2587c49b15ea5077d7aaeb1e7884e38645",
-    "shortSha": "d3744b2",
-    "timestamp": "2026-04-21T17:36:37-04:00",
-    "date": "2026-04-21",
-    "author": "Grant Fitz",
-    "subject": "Restore distinct top and bottom brush arches",
     "body": "",
     "tags": []
   }
