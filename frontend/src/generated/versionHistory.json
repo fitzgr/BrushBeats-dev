@@ -1,5 +1,18 @@
 [
   {
+    "id": "commit-b44883b2724c88c101d46d0d3a302926cdfa7255",
+    "kind": "commit",
+    "source": "git-history",
+    "sha": "b44883b2724c88c101d46d0d3a302926cdfa7255",
+    "shortSha": "b44883b",
+    "timestamp": "2026-09-11T12:06:05-04:00",
+    "date": "2026-09-11",
+    "author": "Grant Fitz",
+    "subject": "fix: render focus context in dialog scope",
+    "body": "",
+    "tags": []
+  },
+  {
     "id": "commit-9edfb43eccdf620971ef947ff9140f71d6675c20",
     "kind": "commit",
     "source": "git-history",
@@ -2583,19 +2596,6 @@
     "date": "2026-04-23",
     "author": "Grant Fitz",
     "subject": "security: harden user input handling and add backend tests",
-    "body": "",
-    "tags": []
-  },
-  {
-    "id": "commit-b02a212d364fac2d979056575923e51670ef35b3",
-    "kind": "commit",
-    "source": "git-history",
-    "sha": "b02a212d364fac2d979056575923e51670ef35b3",
-    "shortSha": "b02a212",
-    "timestamp": "2026-04-23T07:00:20-04:00",
-    "date": "2026-04-23",
-    "author": "Grant Fitz",
-    "subject": "feat: add age-curated overlay theme system",
     "body": "",
     "tags": []
   }
