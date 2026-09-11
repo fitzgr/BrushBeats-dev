@@ -1,5 +1,18 @@
 [
   {
+    "id": "commit-9edfb43eccdf620971ef947ff9140f71d6675c20",
+    "kind": "commit",
+    "source": "git-history",
+    "sha": "9edfb43eccdf620971ef947ff9140f71d6675c20",
+    "shortSha": "9edfb43",
+    "timestamp": "2026-09-11T12:03:32-04:00",
+    "date": "2026-09-11",
+    "author": "Grant Fitz",
+    "subject": "feat: show selected tooth context in focus dialog",
+    "body": "",
+    "tags": []
+  },
+  {
     "id": "commit-e8bbfa28b65d3adc058a2d4defecb8493740c58b",
     "kind": "commit",
     "source": "git-history",
@@ -2583,19 +2596,6 @@
     "date": "2026-04-23",
     "author": "Grant Fitz",
     "subject": "feat: add age-curated overlay theme system",
-    "body": "",
-    "tags": []
-  },
-  {
-    "id": "commit-76ed13e660c4449f86a757858b0132958d3d3ed3",
-    "kind": "commit",
-    "source": "git-history",
-    "sha": "76ed13e660c4449f86a757858b0132958d3d3ed3",
-    "shortSha": "76ed13e",
-    "timestamp": "2026-04-22T06:21:44-04:00",
-    "date": "2026-04-22",
-    "author": "Grant Fitz",
-    "subject": "Soften brush map tooth tint",
     "body": "",
     "tags": []
   }

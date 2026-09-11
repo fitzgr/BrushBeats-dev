@@ -1369,45 +1369,7 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
         ? "start"
         : "idle";
 
-  function renderTooth(point, jaw, meta, mapIndex) {
-    const state = getToothState(jaw, mapIndex);
-    const activeSurface = state.activeSurface;
-    const toothId = `${jaw}-${mapIndex + 1}`;
-    const toothShape = TOOTH_SHAPES[meta?.type || "molar"];
-    const toothLabel = getToothLabel(t, meta);
-    const isActiveTooth = activeToothEntry?.jaw === jaw && activeToothEntry.mapIndex === mapIndex;
-    const focusSurfaceMode = normalizeHygienistSurfaceMode(focusSurfaceModes.get(buildFocusToothKey(jaw, mapIndex)));
-    const isFocusTooth = enableHygienistFocus && focusSurfaceMode !== "none";
-    const rippleDelayMs = rowCelebration ? getRowRippleDelayMs(point.x, rowCelebration.direction) : 0;
-    const celebrateFrontSurface = Boolean(rowCelebration && celebrationSurfaceTarget?.jaw === jaw && celebrationSurfaceTarget?.surface === "front");
-    const celebrateBackSurface = Boolean(rowCelebration && celebrationSurfaceTarget?.jaw === jaw && celebrationSurfaceTarget?.surface === "back");
-    const countdownSurface = countdownPreviewSegment?.jaw === jaw && countdownPreviewSegment.mapIndices.includes(mapIndex)
-      ? countdownPreviewSegment.surface
-      : null;
-    const isCountdownPreviewTooth = Boolean(countdownSurface);
-    const countdownStep = countdownPreviewTarget?.jaw === jaw
-      ? countdownPreviewTarget.side === "left"
-        ? countdownPreviewTarget.split - 1 - mapIndex
-        : mapIndex - countdownPreviewTarget.split
-      : -1;
-    const isCountdownPathTooth = isCountdownPreviewTooth && Number.isFinite(countdownStep) && countdownStep >= 0;
-    const isCountdownStartTooth = Boolean(isCountdownPreviewTooth && countdownPreviewTarget?.jaw === jaw && mapIndex === countdownPreviewTarget.startMapIndex);
-    const canEditFocus = enableHygienistFocus && Boolean(onHygienistFocusModesChange);
-    const countdownSurfaceStyle = isCountdownPathTooth
-      ? { "--countdown-path-delay": `${Math.round(countdownStep * 85)}ms` }
-      : undefined;
-
-    function handleToothKeyDown(event) {
-      if (event.key !== "Enter" && event.key !== " ") {
-        return;
-      }
-
-      event.preventDefault();
-      setFocusEditorTooth({ jaw, mapIndex, label: toothLabel });
-      setPendingFocusMode(focusSurfaceMode);
-    }
-
-    function renderFocusEditorContext() {
+  function renderFocusEditorContext() {
       const jaw = focusEditorTooth?.jaw === "bottom" ? "bottom" : "top";
       const chart = jaw === "top" ? topToothChart : bottomToothChart;
       const selectedIndex = Number(focusEditorTooth?.mapIndex);
@@ -1442,6 +1404,44 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
         </div>
       );
     }
+
+    function renderTooth(point, jaw, meta, mapIndex) {
+      const state = getToothState(jaw, mapIndex);
+      const activeSurface = state.activeSurface;
+      const toothId = `${jaw}-${mapIndex + 1}`;
+      const toothShape = TOOTH_SHAPES[meta?.type || "molar"];
+      const toothLabel = getToothLabel(t, meta);
+      const isActiveTooth = activeToothEntry?.jaw === jaw && activeToothEntry.mapIndex === mapIndex;
+      const focusSurfaceMode = normalizeHygienistSurfaceMode(focusSurfaceModes.get(buildFocusToothKey(jaw, mapIndex)));
+      const isFocusTooth = enableHygienistFocus && focusSurfaceMode !== "none";
+      const rippleDelayMs = rowCelebration ? getRowRippleDelayMs(point.x, rowCelebration.direction) : 0;
+      const celebrateFrontSurface = Boolean(rowCelebration && celebrationSurfaceTarget?.jaw === jaw && celebrationSurfaceTarget?.surface === "front");
+      const celebrateBackSurface = Boolean(rowCelebration && celebrationSurfaceTarget?.jaw === jaw && celebrationSurfaceTarget?.surface === "back");
+      const countdownSurface = countdownPreviewSegment?.jaw === jaw && countdownPreviewSegment.mapIndices.includes(mapIndex)
+        ? countdownPreviewSegment.surface
+        : null;
+      const isCountdownPreviewTooth = Boolean(countdownSurface);
+      const countdownStep = countdownPreviewTarget?.jaw === jaw
+        ? countdownPreviewTarget.side === "left"
+          ? countdownPreviewTarget.split - 1 - mapIndex
+          : mapIndex - countdownPreviewTarget.split
+        : -1;
+      const isCountdownPathTooth = isCountdownPreviewTooth && Number.isFinite(countdownStep) && countdownStep >= 0;
+      const isCountdownStartTooth = Boolean(isCountdownPreviewTooth && countdownPreviewTarget?.jaw === jaw && mapIndex === countdownPreviewTarget.startMapIndex);
+      const canEditFocus = enableHygienistFocus && Boolean(onHygienistFocusModesChange);
+      const countdownSurfaceStyle = isCountdownPathTooth
+        ? { "--countdown-path-delay": `${Math.round(countdownStep * 85)}ms` }
+        : undefined;
+
+      function handleToothKeyDown(event) {
+        if (event.key !== "Enter" && event.key !== " ") {
+          return;
+        }
+
+        event.preventDefault();
+        setFocusEditorTooth({ jaw, mapIndex, label: toothLabel });
+        setPendingFocusMode(focusSurfaceMode);
+      }
 
     return (
       <g
