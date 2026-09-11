@@ -406,7 +406,7 @@ function buildFocusSurfaceModeMapFromSelector(rawModes = {}) {
   const focusMap = new Map();
 
   entries.forEach(([selectorKey, rawMode]) => {
-    const match = String(selectorKey).match(/^(top|bottom)-(\d+)$/);
+    const match = String(selectorKey).match(/^(top|bottom)[-:](\d+)$/);
     if (!match) {
       return;
     }

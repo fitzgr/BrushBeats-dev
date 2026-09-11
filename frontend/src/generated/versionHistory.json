@@ -1,5 +1,18 @@
 [
   {
+    "id": "commit-cbaaeb10a1a86ab7e4fd2887b0db7f2a7224253a",
+    "kind": "commit",
+    "source": "git-history",
+    "sha": "cbaaeb10a1a86ab7e4fd2887b0db7f2a7224253a",
+    "shortSha": "cbaaeb1",
+    "timestamp": "2026-09-11T11:52:50-04:00",
+    "date": "2026-09-11",
+    "author": "Grant Fitz",
+    "subject": "fix: reflect focus timing on active tooth",
+    "body": "",
+    "tags": []
+  },
+  {
     "id": "commit-3339aa921bf2a2daae082ffe057a8f4dbd7673ef",
     "kind": "commit",
     "source": "git-history",
@@ -2583,19 +2596,6 @@
     "date": "2026-04-22",
     "author": "Grant Fitz",
     "subject": "Pulse electric lift cue at transitions",
-    "body": "",
-    "tags": []
-  },
-  {
-    "id": "commit-d342df0756e2b3f843b3971bbe788fe16f2b8008",
-    "kind": "commit",
-    "source": "git-history",
-    "sha": "d342df0756e2b3f843b3971bbe788fe16f2b8008",
-    "shortSha": "d342df0",
-    "timestamp": "2026-04-22T06:15:32-04:00",
-    "date": "2026-04-22",
-    "author": "Grant Fitz",
-    "subject": "Add electric lift cue and soften default tooth tones",
     "body": "",
     "tags": []
   }
