@@ -1,5 +1,18 @@
 [
   {
+    "id": "commit-e8bbfa28b65d3adc058a2d4defecb8493740c58b",
+    "kind": "commit",
+    "source": "git-history",
+    "sha": "e8bbfa28b65d3adc058a2d4defecb8493740c58b",
+    "shortSha": "e8bbfa2",
+    "timestamp": "2026-09-11T11:57:45-04:00",
+    "date": "2026-09-11",
+    "author": "Grant Fitz",
+    "subject": "fix: preserve popup focus selection",
+    "body": "",
+    "tags": []
+  },
+  {
     "id": "commit-cbaaeb10a1a86ab7e4fd2887b0db7f2a7224253a",
     "kind": "commit",
     "source": "git-history",
@@ -2583,19 +2596,6 @@
     "date": "2026-04-22",
     "author": "Grant Fitz",
     "subject": "Soften brush map tooth tint",
-    "body": "",
-    "tags": []
-  },
-  {
-    "id": "commit-f88d1a498ae6a670fbf517daa392d166b60a3b5b",
-    "kind": "commit",
-    "source": "git-history",
-    "sha": "f88d1a498ae6a670fbf517daa392d166b60a3b5b",
-    "shortSha": "f88d1a4",
-    "timestamp": "2026-04-22T06:18:54-04:00",
-    "date": "2026-04-22",
-    "author": "Grant Fitz",
-    "subject": "Pulse electric lift cue at transitions",
     "body": "",
     "tags": []
   }

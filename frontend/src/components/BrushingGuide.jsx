@@ -1407,6 +1407,42 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
       setPendingFocusMode(focusSurfaceMode);
     }
 
+    function renderFocusEditorContext() {
+      const jaw = focusEditorTooth?.jaw === "bottom" ? "bottom" : "top";
+      const chart = jaw === "top" ? topToothChart : bottomToothChart;
+      const selectedIndex = Number(focusEditorTooth?.mapIndex);
+      const width = 300;
+      const centerX = width / 2;
+      const spacing = chart.length > 1 ? 238 / (chart.length - 1) : 0;
+
+      return (
+        <div className="brush-focus-context" aria-label={`${jaw === "top" ? "Top" : "Bottom"} jaw context, tooth ${selectedIndex + 1} selected`}>
+          <div className="brush-focus-context-label">
+            <span>{jaw === "top" ? "Top jaw" : "Bottom jaw"}</span>
+            <strong>Tooth {selectedIndex + 1} of {chart.length}</strong>
+          </div>
+          <svg viewBox="0 0 300 76" role="img" aria-hidden="true">
+            <path
+              className="brush-focus-context-arch"
+              d={jaw === "top" ? "M31 48 Q150 2 269 48" : "M31 28 Q150 74 269 28"}
+            />
+            {chart.map((_, index) => {
+              const x = 31 + index * spacing;
+              const y = jaw === "top" ? 42 - Math.sin((index / Math.max(1, chart.length - 1)) * Math.PI) * 16 : 34 + Math.sin((index / Math.max(1, chart.length - 1)) * Math.PI) * 16;
+              const selected = index === selectedIndex;
+
+              return (
+                <g key={`${jaw}-context-${index}`} transform={`translate(${x} ${y})`}>
+                  {selected && <circle className="brush-focus-context-marker" r="10" />}
+                  <rect className={`brush-focus-context-tooth${selected ? " selected" : ""}`} x="-5" y="-7" width="10" height="14" rx="4" />
+                </g>
+              );
+            })}
+          </svg>
+        </div>
+      );
+    }
+
     return (
       <g
         key={toothId}
@@ -1692,6 +1728,7 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
                 <span className="brush-focus-editor-badge">1.5x focus</span>
               </div>
               <p>Choose which surfaces should receive extra brushing time.</p>
+              {renderFocusEditorContext()}
               <div className="brush-focus-mode-options" role="radiogroup" aria-label="Brushing focus surface">
                 {HYGIENIST_SURFACE_MODES.map((mode) => (
                   <button
