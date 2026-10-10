@@ -5453,7 +5453,18 @@ select {
 }
 
 .tooth-svg .tooth-face.clean {
-  fill: #fffdf8;
+  fill: #eafff7;
+  opacity: 1;
+  filter: drop-shadow(0 0 3px rgba(115, 214, 181, 0.28));
+}
+
+/* Completed Extra Care surfaces keep their orange focus identity, but brighten to show they were brushed. */
+.tooth-svg.focus-mode-front .front-face.clean,
+.tooth-svg.focus-mode-back .back-face.clean,
+.tooth-svg.focus-mode-both .tooth-face.clean {
+  fill: #fff8ed;
+  opacity: 0.9;
+  filter: brightness(1.12) drop-shadow(0 0 4px rgba(244, 162, 97, 0.42));
 }
 
 .tooth-celebration-ripple {
@@ -5556,7 +5567,7 @@ select {
   opacity: 0.82;
 }
 
-.tooth-svg.focus-tooth .tooth-face:not(.active-surface) {
+.tooth-svg.focus-tooth .tooth-face:not(.active-surface):not(.clean) {
   opacity: 0.42;
 }
 
