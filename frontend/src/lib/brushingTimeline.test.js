@@ -142,8 +142,8 @@ test("manual brushing still switches at center; shifted electric segments includ
           const expectedBoundary = count < 3
             ? Math.ceil(count / 2)
             : Math.max(1, Math.min(count - 1, Math.ceil(count / 2) + (brushHand === "left" ? -1 : 1)));
-          assert.equal(leftSegment?.mapIndices.length, expectedBoundary);
-          assert.equal(rightSegment?.mapIndices.length, count - expectedBoundary);
+          assert.equal(leftSegment?.mapIndices.length ?? 0, expectedBoundary);
+          assert.equal(rightSegment?.mapIndices.length ?? 0, count - expectedBoundary);
           const indices = segments
             .filter((segment) => segment.jaw === jaw && segment.surface === surface)
             .flatMap((segment) => segment.mapIndices)
