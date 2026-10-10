@@ -26,17 +26,27 @@ function parseStartSegmentKey(startSegmentKey) {
   };
 }
 
-function buildHalfIndices(totalTeeth, side, direction) {
+function buildHalfIndices(totalTeeth, side, direction, surface, brushingHand, brushType) {
   const split = splitArch(totalTeeth);
+  let boundary = split.left;
+
+  // With an electric brush, keep the outside-facing brush orientation for one
+  // extra tooth past the midline. Inside surfaces still switch at the midline.
+  // Preserve at least one tooth per side on very small arches.
+  if (surface === "front" && brushType === "electric" && totalTeeth >= 3) {
+    const offset = brushingHand === "left" ? -1 : 1;
+    boundary = Math.max(1, Math.min(totalTeeth - 1, boundary + offset));
+  }
+
   const base = side === "left"
-    ? Array.from({ length: split.left }, (_, index) => index)
-    : Array.from({ length: split.right }, (_, index) => split.left + index);
+    ? Array.from({ length: boundary }, (_, index) => index)
+    : Array.from({ length: totalTeeth - boundary }, (_, index) => boundary + index);
 
   return direction === "ltr" ? base : [...base].reverse();
 }
 
-function buildSegment({ surface, jaw, side, totalTeeth, direction }) {
-  const mapIndices = buildHalfIndices(totalTeeth, side, direction);
+function buildSegment({ surface, jaw, side, totalTeeth, direction, brushingHand, brushType }) {
+  const mapIndices = buildHalfIndices(totalTeeth, side, direction, surface, brushingHand, brushType);
   if (!mapIndices.length) {
     return null;
   }
@@ -54,14 +64,16 @@ function buildSegment({ surface, jaw, side, totalTeeth, direction }) {
   };
 }
 
-function buildRowSegments({ jaw, surface, direction, totalTeeth }) {
+function buildRowSegments({ jaw, surface, direction, totalTeeth, brushingHand, brushType }) {
   const sideOrder = direction === "ltr" ? ["left", "right"] : ["right", "left"];
   return sideOrder
-    .map((side) => buildSegment({ surface, jaw, side, totalTeeth, direction }))
+    .map((side) => buildSegment({ surface, jaw, side, totalTeeth, direction, brushingHand, brushType }))
     .filter(Boolean);
 }
 
-export function buildSegments(topTeeth, bottomTeeth, startSegmentKey = null) {
+export function buildSegments(topTeeth, bottomTeeth, startSegmentKey = null, options = {}) {
+  const brushingHand = options.brushingHand === "left" ? "left" : "right";
+  const brushType = options.brushType === "electric" ? "electric" : "manual";
   const parsedStart = parseStartSegmentKey(startSegmentKey) || {
     surface: "front",
     jaw: "top",
@@ -80,7 +92,9 @@ export function buildSegments(topTeeth, bottomTeeth, startSegmentKey = null) {
         jaw,
         surface: parsedStart.surface,
         direction: preferredDirection,
-        totalTeeth
+        totalTeeth,
+        brushingHand,
+        brushType
       })
     );
     orderedSegments.push(
@@ -88,7 +102,9 @@ export function buildSegments(topTeeth, bottomTeeth, startSegmentKey = null) {
         jaw,
         surface: oppositeSurface(parsedStart.surface),
         direction: mirroredDirection,
-        totalTeeth
+        totalTeeth,
+        brushingHand,
+        brushType
       })
     );
   });
