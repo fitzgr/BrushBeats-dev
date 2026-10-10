@@ -30,11 +30,13 @@ function buildHalfIndices(totalTeeth, side, direction, surface, brushingHand, br
   const split = splitArch(totalTeeth);
   let boundary = split.left;
 
-  // With an electric brush, keep the outside-facing brush orientation for one
-  // extra tooth past the midline. Inside surfaces still switch at the midline.
-  // Preserve at least one tooth per side on very small arches.
-  if (surface === "front" && brushType === "electric" && totalTeeth >= 3) {
-    const offset = brushingHand === "left" ? -1 : 1;
+  // For electric brushing, maintain the current brush orientation for one
+  // extra tooth past the center on BOTH surfaces. The inside pass travels
+  // in the opposite direction, so its offset is the mirror of the outside.
+  // Keep at least one tooth in each side on very small arches.
+  if (brushType === "electric" && totalTeeth >= 3) {
+    const outsideOffset = brushingHand === "left" ? -1 : 1;
+    const offset = surface === "back" ? -outsideOffset : outsideOffset;
     boundary = Math.max(1, Math.min(totalTeeth - 1, boundary + offset));
   }
 
