@@ -26,17 +26,16 @@ function parseStartSegmentKey(startSegmentKey) {
   };
 }
 
-function buildHalfIndices(totalTeeth, side, direction, surface, brushingHand, brushType) {
+function buildHalfIndices(totalTeeth, side, direction, brushingHand, brushType) {
   const split = splitArch(totalTeeth);
   let boundary = split.left;
 
-  // For electric brushing, maintain the current brush orientation for one
-  // extra tooth past the center on BOTH surfaces. The inside pass travels
-  // in the opposite direction, so its offset is the mirror of the outside.
-  // Keep at least one tooth in each side on very small arches.
+  // The electric-brush orientation changes at the SAME one-tooth-offset
+  // midline on the inner and outer surfaces, for either direction of travel.
+  // Right-handed shifts right; left-handed shifts left. Preserve a tooth
+  // per side when the selected arch has very few teeth.
   if (brushType === "electric" && totalTeeth >= 3) {
-    const outsideOffset = brushingHand === "left" ? -1 : 1;
-    const offset = surface === "back" ? -outsideOffset : outsideOffset;
+    const offset = brushingHand === "left" ? -1 : 1;
     boundary = Math.max(1, Math.min(totalTeeth - 1, boundary + offset));
   }
 
@@ -48,7 +47,7 @@ function buildHalfIndices(totalTeeth, side, direction, surface, brushingHand, br
 }
 
 function buildSegment({ surface, jaw, side, totalTeeth, direction, brushingHand, brushType }) {
-  const mapIndices = buildHalfIndices(totalTeeth, side, direction, surface, brushingHand, brushType);
+  const mapIndices = buildHalfIndices(totalTeeth, side, direction, brushingHand, brushType);
   if (!mapIndices.length) {
     return null;
   }
