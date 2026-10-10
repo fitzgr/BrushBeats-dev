@@ -15,7 +15,6 @@ import TranslationWorkshop from "./components/TranslationWorkshop";
 import VersionHistory from "./components/VersionHistory";
 import MyStoryPage from "./components/MyStoryPage";
 import ArtistPromoPage from "./components/ArtistPromoPage";
-import HygienistFocusInstructions from "./components/HygienistFocusInstructions";
 import { clearPersistedPhase2Data, loadPersistedAppState } from "./db/appStateService";
 import { loadHouseholdOverview, switchActiveHouseholdUser } from "./db/householdOverviewService";
 import { awardAchievementsForUser } from "./db/achievementEngineService";
@@ -77,8 +76,6 @@ const ROTATING_START_SEGMENT_SEQUENCE = [
 ];
 const DEFAULT_AGE_SIMULATION = { active: false, mode: "exact", phase: "primary", value: 2, unit: "years" };
 const YOUTUBE_VIDEO_ID_REGEX = /^[a-zA-Z0-9_-]{11}$/;
-const HYGIENIST_FOCUS_PATIENT_PROMPT = "Today's focus, spend a little extra time on the front four teeth, inside and outside, and the back two molars on the top and bottom on both sides. Brush all highlighted orange teeth a bit longer.";
-const HYGIENIST_FOCUS_CLINICAL_PROMPT = "Provide additional brushing attention to the facial buccal and lingual surfaces of the four anterior incisors and to the facial buccal and lingual surfaces of the two most posterior molars in each quadrant.";
 const HYGIENIST_FOCUS_MODES = ["none", "front", "back", "both"];
 
 function buildHygienistFocusModeMap(topTeeth, bottomTeeth, existingModes = {}) {
@@ -709,12 +706,6 @@ function App() {
     () => buildCompletionCelebrationMessage(t, completionMessage || t("app.success", { duration: formatTime(Number(bpmData?.totalBrushingSeconds || brushDurationSeconds)) }), recentUnlockedAchievements, progressDashboard),
     [bpmData?.totalBrushingSeconds, brushDurationSeconds, completionMessage, progressDashboard, recentUnlockedAchievements, t]
   );
-
-  useEffect(() => {
-    if (!enableHygienistFocusExperience && workflowStep === "focus") {
-      setWorkflowStep("teeth");
-    }
-  }, [enableHygienistFocusExperience, workflowStep]);
 
   useEffect(() => {
     setHygienistFocusModes((currentModes) => buildHygienistFocusModeMap(values.top, values.bottom, currentModes));
@@ -2886,15 +2877,6 @@ function App() {
           >
             {t("app.workflow.brush")}
           </button>
-          {enableHygienistFocusExperience && (
-            <button
-              type="button"
-              className={`workflow-tab${workflowStep === "focus" ? " active" : ""}`}
-              onClick={() => setWorkflowStep("focus")}
-            >
-              4. Focus
-            </button>
-          )}
       </nav>
 
       <section className={`care-routine-strip ${ageUiProfile.themeClassName}${showCompactRoutine ? " compact" : ""}`} aria-label={t("app.routine.ariaLabel")}>
@@ -3295,10 +3277,6 @@ function App() {
                 enableHygienistFocus={enableHygienistFocusExperience}
                 hygienistFocusModes={hygienistFocusModes}
                 onHygienistFocusModesChange={handleHygienistFocusModesChange}
-                hygienistFocusPrompts={{
-                  patient: HYGIENIST_FOCUS_PATIENT_PROMPT,
-                  clinical: HYGIENIST_FOCUS_CLINICAL_PROMPT
-                }}
               />
               {device.isMobile && brushingPhase === "complete" && (
                 <section className="success-banner brush-success-banner" aria-live="polite">
@@ -3318,18 +3296,6 @@ function App() {
         </section>
       )}
 
-      {enableHygienistFocusExperience && workflowStep === "focus" && (
-        <section className={`layout-grid ${device.isMobile ? "mobile-mode" : "desktop-mode desktop-step-layout"}`}>
-          <HygienistFocusInstructions
-            topTeeth={Number(values?.top || 16)}
-            bottomTeeth={Number(values?.bottom || 16)}
-            patientPrompt={HYGIENIST_FOCUS_PATIENT_PROMPT}
-            clinicalPrompt={HYGIENIST_FOCUS_CLINICAL_PROMPT}
-            toothModes={hygienistFocusModes}
-            onToothModesChange={handleHygienistFocusModesChange}
-          />
-        </section>
-      )}
         </>
       )}
 
