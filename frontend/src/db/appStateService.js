@@ -1,6 +1,7 @@
 import { getDB, STORE_NAMES, waitForTransaction } from "./indexedDbService";
 import { tryHydrateHouseholdFromCloud } from "./householdSyncService";
 import { getHousehold, getAppSetting, setAppSetting, getUserById, getUsersByHousehold } from "./storeHelpers";
+import { preferLatestPreferences } from "../lib/preferenceFreshness";
 
 /**
  * Writes a founder/early-adopter record the very first time a user opens the app.
@@ -81,7 +82,7 @@ export async function loadPersistedAppState(fallbackState = {}) {
   return {
     storageConsent: storageConsent?.value || fallbackState.storageConsent || "unknown",
     storageBannerDismissed: storageBannerDismissed?.value ?? fallbackState.storageBannerDismissed ?? false,
-    preferences: legacyPreferences?.value || fallbackState.preferences || null,
+    preferences: preferLatestPreferences(legacyPreferences?.value, fallbackState.preferences),
     lastSession: legacyLastSession?.value || fallbackState.lastSession || null,
     favoriteSongs: Array.isArray(legacyFavoriteSongs?.value)
       ? legacyFavoriteSongs.value
