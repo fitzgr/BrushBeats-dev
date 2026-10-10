@@ -300,6 +300,7 @@ function normalizePreferences(parsed) {
     rotatingStartEnabled: Boolean(parsed.rotatingStartEnabled),
     rotatingStartIndex: clampInteger(parsed.rotatingStartIndex, 0, 7, 0),
     overlayTheme: typeof parsed.overlayTheme === "string" ? parsed.overlayTheme : "auto",
+    userId: typeof parsed.userId === "string" ? parsed.userId : null,
     hygienistFocusModes: normalizeHygienistFocusModes(parsed.hygienistFocusModes, values),
     brushDurationSeconds: clampInteger(parsed.brushDurationSeconds, 90, 180, 120),
     savedAt: Number.isFinite(Number(parsed.savedAt)) ? Number(parsed.savedAt) : undefined
