@@ -1,4 +1,5 @@
 import { getAppSetting, setAppSetting } from "./storeHelpers";
+import { preferUserScopedPreferences } from "../lib/preferenceFreshness";
 
 function buildScopedKey(userId, suffix) {
   return `userState.${userId}.${suffix}`;
@@ -20,7 +21,7 @@ export async function getUserScopedState(userId, fallbackState = {}) {
   ]);
 
   return {
-    defaults: defaults?.value || fallbackState.defaults || null,
+    defaults: preferUserScopedPreferences(userId, defaults?.value, fallbackState.defaults),
     lastSession: lastSession?.value || fallbackState.lastSession || null,
     favoriteSongs: Array.isArray(favoriteSongs?.value)
       ? favoriteSongs.value
