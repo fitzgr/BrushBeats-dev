@@ -130,6 +130,7 @@ async function syncUserDefaults(payload) {
     keyword: payload.keyword,
     filters: payload.filters || null,
     values: payload.values || null,
+    hygienistFocusModes: payload.hygienistFocusModes || null,
     savedAt: payload.savedAt || null
   });
 }
