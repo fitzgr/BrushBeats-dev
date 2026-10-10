@@ -717,8 +717,8 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
   const lastCelebratedTransitionRef = useRef("");
   const transitionBufferSeconds = Number(bpmData?.transitionBufferSeconds || 1);
   const segments = useMemo(
-    () => buildSegments(topTeeth, bottomTeeth, sessionStartSegmentKey),
-    [bottomTeeth, sessionStartSegmentKey, topTeeth]
+    () => buildSegments(topTeeth, bottomTeeth, sessionStartSegmentKey, { brushingHand, brushType }),
+    [bottomTeeth, brushType, brushingHand, sessionStartSegmentKey, topTeeth]
   );
   const explicitFocusSurfaceModes = useMemo(
     () => buildFocusSurfaceModeMapFromSelector(hygienistFocusModes),
