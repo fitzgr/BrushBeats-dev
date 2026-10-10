@@ -5,6 +5,7 @@ import AgeOverlay from "./AgeOverlay";
 import { getBrushTechniqueTips } from "../lib/reinforcementMessages";
 import { buildSegments, buildTimeline, getActiveTimelineEntry } from "../lib/brushingTimeline";
 import { getActiveToothPulseMs } from "../lib/brushingPulse";
+import { buildFocusSurfaceModeMapFromSelector } from "../lib/focusModes";
 
 function toRadians(degrees) {
   return (degrees * Math.PI) / 180;
@@ -394,28 +395,6 @@ function getHygienistModeLabel(mode) {
   }
 
   return "";
-}
-
-function buildFocusSurfaceModeMapFromSelector(rawModes = {}) {
-  const entries = Object.entries(rawModes || {});
-  const focusMap = new Map();
-
-  entries.forEach(([selectorKey, rawMode]) => {
-    const match = String(selectorKey).match(/^(top|bottom)[-:](\d+)$/);
-    if (!match) {
-      return;
-    }
-
-    const mode = normalizeHygienistSurfaceMode(rawMode);
-    if (mode === "none") {
-      return;
-    }
-
-    const focusKey = buildFocusToothKey(match[1], Number(match[2]));
-    focusMap.set(focusKey, mode);
-  });
-
-  return focusMap;
 }
 
 function getTotalTransitionSeconds(segmentCount, transitionBufferSeconds) {
