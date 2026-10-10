@@ -5580,9 +5580,16 @@ select {
   stroke-width: 1.45;
 }
 
-.mouth-map.hygienist-focus-mode .tooth-svg:not(.focus-tooth) .tooth-face {
+.mouth-map.hygienist-focus-mode .tooth-svg:not(.focus-tooth) .tooth-face:not(.clean) {
   opacity: 0.3;
   filter: saturate(0.72);
+}
+
+/* Brushed standard surfaces stay visibly clean even while Extra Care contrast mode is active. */
+.mouth-map.hygienist-focus-mode .tooth-svg:not(.focus-tooth) .tooth-face.clean {
+  fill: #dffcf1;
+  opacity: 1;
+  filter: saturate(1) drop-shadow(0 0 4px rgba(93, 201, 164, 0.42));
 }
 
 .mouth-map.hygienist-focus-mode .tooth-svg:not(.focus-tooth) .tooth-body-base,
