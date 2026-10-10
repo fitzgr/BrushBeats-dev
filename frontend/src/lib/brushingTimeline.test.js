@@ -65,6 +65,73 @@ test("buildSegments omits empty arches and keeps deterministic order", () => {
   assert.equal(entryAtZero?.key, "front-top-left-0");
 });
 
+test("electric brushing switches orientation one tooth right of center on outside surfaces for a right-handed brusher", () => {
+  const segments = buildSegments(14, 14, null, { brushingHand: "right", brushType: "electric" });
+
+  for (const jaw of ["top", "bottom"]) {
+    const outsideLeft = segments.find((segment) => segment.key === `front-${jaw}-left`);
+    const outsideRight = segments.find((segment) => segment.key === `front-${jaw}-right`);
+    const insideLeft = segments.find((segment) => segment.key === `back-${jaw}-left`);
+    const insideRight = segments.find((segment) => segment.key === `back-${jaw}-right`);
+
+    assert.deepEqual(outsideLeft.mapIndices, [0, 1, 2, 3, 4, 5, 6, 7]);
+    assert.deepEqual(outsideRight.mapIndices, [8, 9, 10, 11, 12, 13]);
+    assert.deepEqual(insideRight.mapIndices, [13, 12, 11, 10, 9, 8, 7]);
+    assert.deepEqual(insideLeft.mapIndices, [6, 5, 4, 3, 2, 1, 0]);
+  }
+
+  const timeline = buildTimeline(segments, 1, 1);
+  const outsideSwitch = timeline.find((entry) => entry.key === "transition-front-top-left");
+  const precedingTooth = timeline[timeline.indexOf(outsideSwitch) - 1];
+  const followingTooth = timeline[timeline.indexOf(outsideSwitch) + 1];
+
+  assert.equal(precedingTooth.mapIndex, 7);
+  assert.equal(followingTooth.mapIndex, 8);
+  assert.equal(outsideSwitch.transitionCue, "switchHand");
+});
+
+test("left-handed electric outside brushing switches one tooth left of center, even when starting on the right", () => {
+  const segments = buildSegments(14, 14, "front-top-right", { brushingHand: "left", brushType: "electric" });
+
+  for (const jaw of ["top", "bottom"]) {
+    const outsideLeft = segments.find((segment) => segment.key === `front-${jaw}-left`);
+    const outsideRight = segments.find((segment) => segment.key === `front-${jaw}-right`);
+    const insideLeft = segments.find((segment) => segment.key === `back-${jaw}-left`);
+    const insideRight = segments.find((segment) => segment.key === `back-${jaw}-right`);
+
+    assert.deepEqual(outsideRight.mapIndices, [13, 12, 11, 10, 9, 8, 7, 6]);
+    assert.deepEqual(outsideLeft.mapIndices, [5, 4, 3, 2, 1, 0]);
+    assert.deepEqual(insideLeft.mapIndices, [0, 1, 2, 3, 4, 5, 6]);
+    assert.deepEqual(insideRight.mapIndices, [7, 8, 9, 10, 11, 12, 13]);
+  }
+
+  const timeline = buildTimeline(segments, 1, 1);
+  const outsideSwitch = timeline.find((entry) => entry.key === "transition-front-top-right");
+  assert.equal(timeline[timeline.indexOf(outsideSwitch) - 1].mapIndex, 6);
+  assert.equal(timeline[timeline.indexOf(outsideSwitch) + 1].mapIndex, 5);
+});
+
+test("manual brushing still switches at center; shifted electric segments include each tooth once", () => {
+  const manual = buildSegments(14, 14, null, { brushingHand: "right", brushType: "manual" });
+  assert.deepEqual(manual.find((segment) => segment.key === "front-top-left").mapIndices, [0, 1, 2, 3, 4, 5, 6]);
+  assert.deepEqual(manual.find((segment) => segment.key === "front-top-right").mapIndices, [7, 8, 9, 10, 11, 12, 13]);
+
+  for (const brushHand of ["right", "left"]) {
+    for (const count of [1, 2, 3, 5, 10, 14, 16]) {
+      const segments = buildSegments(count, count, null, { brushingHand: brushHand, brushType: "electric" });
+      for (const jaw of ["top", "bottom"]) {
+        for (const surface of ["front", "back"]) {
+          const indices = segments
+            .filter((segment) => segment.jaw === jaw && segment.surface === surface)
+            .flatMap((segment) => segment.mapIndices)
+            .sort((a, b) => a - b);
+          assert.deepEqual(indices, Array.from({ length: count }, (_, index) => index));
+        }
+      }
+    }
+  }
+});
+
 test("weighted focus teeth redistribute tooth time while preserving total duration and transitions", () => {
   const segments = [
     {
