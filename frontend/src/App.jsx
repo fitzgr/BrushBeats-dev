@@ -57,6 +57,7 @@ import { buildAgeEstimateFromActualAge, buildAgeEstimateFromPhase, estimateAgeFr
 import { buildAgeUiProfile } from "./lib/ageUiProfile";
 import { useDeviceContext } from "./lib/deviceContext";
 import { getOverlayThemeOptions, OVERLAY_THEME_AUTO } from "./lib/overlayThemes";
+import { mergePreferenceDefaults } from "./lib/preferenceFreshness";
 import { buildUserMusicContext } from "./lib/userMusicContext";
 import "./App.css";
 
@@ -316,27 +317,22 @@ function daysAgoIso(daysAgo) {
 }
 
 function mergeStoredDefaults(userDefaults, legacyPreferences) {
-  if (!userDefaults && !legacyPreferences) {
+  const merged = mergePreferenceDefaults(userDefaults, legacyPreferences);
+  if (!merged) {
     return null;
   }
 
-  const merged = {
-    ...(legacyPreferences || {}),
-    ...(userDefaults || {})
+  // Preserve rotation settings from whichever snapshot is newest, without
+  // letting an older user defaults mirror hide newer hygienist selections.
+  return {
+    ...merged,
+    rotatingStartEnabled: Boolean(merged.rotatingStartEnabled),
+    rotatingStartIndex: clampValue(
+      Math.floor(Number(merged.rotatingStartIndex ?? 0) || 0),
+      0,
+      ROTATING_START_SEGMENT_SEQUENCE.length - 1
+    )
   };
-
-  merged.values = userDefaults?.values || legacyPreferences?.values || merged.values;
-  merged.filters = userDefaults?.filters || legacyPreferences?.filters || merged.filters;
-  merged.rotatingStartEnabled = Boolean(
-    userDefaults?.rotatingStartEnabled ?? legacyPreferences?.rotatingStartEnabled ?? false
-  );
-  merged.rotatingStartIndex = clampValue(
-    Math.floor(Number(userDefaults?.rotatingStartIndex ?? legacyPreferences?.rotatingStartIndex ?? 0) || 0),
-    0,
-    ROTATING_START_SEGMENT_SEQUENCE.length - 1
-  );
-
-  return merged;
 }
 
 function buildMockProgressDashboard(phase = "adult") {
@@ -889,6 +885,31 @@ function App() {
     setHygienistFocusModes(nextFocusModes);
   }
 
+  function handleHygienistFocusModesChange(nextModes) {
+    const normalizedModes = normalizeHygienistFocusModesForValues(nextModes, values);
+    setHygienistFocusModes(normalizedModes);
+
+    // Persist during the user interaction, not just in a later React effect.
+    // A quick page refresh must not lose freshly selected extra-care teeth.
+    if (storageConsent === "granted") {
+      saveStoredPreferences({
+        ...(loadStoredPreferences() || {}),
+        values,
+        filters: songFilters,
+        keyword,
+        brushingHand,
+        brushType,
+        rotatingStartEnabled,
+        rotatingStartIndex,
+        overlayTheme: overlayThemeChoice,
+        hygienistFocusModes: normalizedModes,
+        brushDurationSeconds,
+        userId: activeHouseholdUser?.userId || null,
+        savedAt: Date.now()
+      });
+    }
+  }
+
   function handleRotatingStartEnabledChange(nextEnabled) {
     setRotatingStartEnabled(Boolean(nextEnabled));
 
@@ -1234,6 +1255,7 @@ function App() {
       overlayTheme: overlayThemeChoice,
       hygienistFocusModes,
       brushDurationSeconds,
+      userId: activeHouseholdUser?.userId || null,
       savedAt: Date.now()
     });
 
@@ -1289,7 +1311,9 @@ function App() {
     }
 
     repeatSessionBootstrapRef.current = true;
-    applySavedSession(lastSession);
+    // Preferences are already hydrated (from defaults, or the last session
+    // when no defaults exist). Resuming music must not replace fresh overlays
+    // with stale tooth modes from a previously saved brushing session.
     setWorkflowStep("brush");
     setAutoRestoredBrushView(true);
     setSelectedSong(lastSession.song);
@@ -3270,7 +3294,7 @@ function App() {
                 showThemePanel={false}
                 enableHygienistFocus={enableHygienistFocusExperience}
                 hygienistFocusModes={hygienistFocusModes}
-                onHygienistFocusModesChange={setHygienistFocusModes}
+                onHygienistFocusModesChange={handleHygienistFocusModesChange}
                 hygienistFocusPrompts={{
                   patient: HYGIENIST_FOCUS_PATIENT_PROMPT,
                   clinical: HYGIENIST_FOCUS_CLINICAL_PROMPT
@@ -3302,7 +3326,7 @@ function App() {
             patientPrompt={HYGIENIST_FOCUS_PATIENT_PROMPT}
             clinicalPrompt={HYGIENIST_FOCUS_CLINICAL_PROMPT}
             toothModes={hygienistFocusModes}
-            onToothModesChange={setHygienistFocusModes}
+            onToothModesChange={handleHygienistFocusModesChange}
           />
         </section>
       )}
