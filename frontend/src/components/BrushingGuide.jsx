@@ -1641,7 +1641,7 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
                 onClick={() => {
                   onHygienistFocusModesChange({
                     ...(hygienistFocusModes || {}),
-                    [buildFocusToothKey(focusEditorTooth.jaw, focusEditorTooth.mapIndex)]: pendingFocusMode
+                    [`${focusEditorTooth.jaw}-${focusEditorTooth.mapIndex}`]: pendingFocusMode
                   });
                   setFocusEditorTooth(null);
                 }}
