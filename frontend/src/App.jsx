@@ -83,16 +83,19 @@ function buildHygienistFocusModeMap(topTeeth, bottomTeeth, existingModes = {}) {
   const safeTop = Math.max(0, Math.floor(Number(topTeeth || 0)));
   const safeBottom = Math.max(0, Math.floor(Number(bottomTeeth || 0)));
 
+  function getPersistedMode(jaw, index) {
+    const canonicalKey = `${jaw}-${index}`;
+    const legacyColonKey = `${jaw}:${index}`;
+    const mode = existingModes?.[canonicalKey] ?? existingModes?.[legacyColonKey];
+    return HYGIENIST_FOCUS_MODES.includes(mode) ? mode : "none";
+  }
+
   for (let index = 0; index < safeTop; index += 1) {
-    const key = `top-${index}`;
-    const mode = existingModes[key];
-    nextModes[key] = HYGIENIST_FOCUS_MODES.includes(mode) ? mode : "none";
+    nextModes[`top-${index}`] = getPersistedMode("top", index);
   }
 
   for (let index = 0; index < safeBottom; index += 1) {
-    const key = `bottom-${index}`;
-    const mode = existingModes[key];
-    nextModes[key] = HYGIENIST_FOCUS_MODES.includes(mode) ? mode : "none";
+    nextModes[`bottom-${index}`] = getPersistedMode("bottom", index);
   }
 
   return nextModes;
