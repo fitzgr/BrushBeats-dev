@@ -6989,3 +6989,19 @@ select {
   line-height: 1;
   cursor: pointer;
 }
+
+
+/* Keep the two optional brushing challenges on a single compact row. */
+.mobile-rotate-start-row {
+  flex-wrap: nowrap;
+}
+
+.mobile-rotate-start-row .guide-rotate-start-copy,
+.mobile-rotate-start-row .brain-challenge-copy,
+.mobile-rotate-start-row .brain-challenge-info-link {
+  white-space: nowrap;
+}
+
+.mobile-rotate-start-row .brain-challenge-copy {
+  flex-shrink: 0;
+}
