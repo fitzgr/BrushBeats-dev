@@ -7005,3 +7005,42 @@ select {
 .mobile-rotate-start-row .brain-challenge-copy {
   flex-shrink: 0;
 }
+
+
+/* Alternate-hands start cue: visible only during the pre-brush countdown. */
+.countdown-hand-cue {
+  position: absolute;
+  z-index: 8;
+  top: 12px;
+  right: 12px;
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.94);
+  border: 2px solid rgba(53, 122, 112, 0.38);
+  box-shadow: 0 4px 14px rgba(31, 70, 65, 0.16);
+  pointer-events: none;
+}
+.countdown-hand-cue.left .countdown-hand-icon {
+  transform: scaleX(-1);
+}
+.countdown-hand-icon {
+  font-size: 34px;
+  line-height: 1;
+}
+.countdown-hand-cue strong {
+  position: absolute;
+  right: 3px;
+  bottom: 1px;
+  min-width: 20px;
+  height: 20px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  line-height: 1;
+  background: #fff;
+  border: 1px solid rgba(53, 122, 112, 0.35);
+}
