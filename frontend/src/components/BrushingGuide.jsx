@@ -1171,14 +1171,13 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
     return [match[1], `(${match[2]})`];
   }, [countdownStartSurfaceLabel]);
   const fallbackTip = tips[tipIndex] || tips[0] || "";
+  const isPreStartBrushPhase = brushingPhase === "idle" || brushingPhase === "awaitingPlayback";
   const centerTickerMessage = brushingPhase === "complete"
     ? completionMessage || t("brushing.guide.cleanShineLabel")
-    : activeTip || fallbackTip || primaryBrushActionLabel;
-  const centerTickerDetail = brushingPhase === "complete"
-    ? ""
-    : brushingPhase === "idle" || brushingPhase === "awaitingPlayback"
-      ? "Tap brush to start/pause. Hold to reset."
-      : "";
+    : isPreStartBrushPhase
+      ? "Tap brush to start/stop. Hold to reset."
+      : activeTip || fallbackTip || primaryBrushActionLabel;
+  const centerTickerDetail = "";
   const showCenterTicker = brushingPhase === "running" || brushingPhase === "paused";
   const showBottomTicker = brushingPhase === "idle" || brushingPhase === "awaitingPlayback" || brushingPhase === "complete";
   const mapBrushDirectionClass = brushFacingDirection
@@ -1526,7 +1525,7 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
           </div>
         )}
         {showBottomTicker && (centerTickerMessage || centerTickerDetail) && (
-          <div className="map-center-ticker bottom-slot" aria-live="polite">
+          <div className={`map-center-ticker bottom-slot${isPreStartBrushPhase ? " brush-control-instruction" : ""}`} aria-live="polite">
             <strong>{centerTickerMessage}</strong>
             {centerTickerDetail ? <span>{centerTickerDetail}</span> : null}
           </div>
