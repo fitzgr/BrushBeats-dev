@@ -30,13 +30,16 @@ function buildHalfIndices(totalTeeth, side, direction, brushingHand, brushType) 
   const split = splitArch(totalTeeth);
   let boundary = split.left;
 
-  // The electric-brush orientation changes at the SAME one-tooth-offset
-  // midline on the inner and outer surfaces, for either direction of travel.
-  // Right-handed shifts right; left-handed shifts left. Preserve a tooth
-  // per side when the selected arch has very few teeth.
+  // On the first pass across an arch, keep the one-tooth-past-center
+  // electric-brush orientation change in the handed direction. On the
+  // return pass, switch at the true center because the hand is approaching
+  // the midline from the opposite direction.
   if (brushType === "electric" && totalTeeth >= 3) {
-    const offset = brushingHand === "left" ? -1 : 1;
-    boundary = Math.max(1, Math.min(totalTeeth - 1, boundary + offset));
+    const handedDirection = brushingHand === "left" ? "rtl" : "ltr";
+    if (direction === handedDirection) {
+      const offset = brushingHand === "left" ? -1 : 1;
+      boundary = Math.max(1, Math.min(totalTeeth - 1, boundary + offset));
+    }
   }
 
   const base = side === "left"
