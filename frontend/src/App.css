@@ -6905,3 +6905,20 @@ select {
     align-items: flex-start;
   }
 }
+
+
+/* Keep the pre-start brush control deliberately quiet and compact. */
+.map-center-ticker.bottom-slot.brush-control-instruction {
+  width: auto;
+  max-width: 82%;
+  padding: 0.16rem 0.34rem;
+  border: 0;
+  box-shadow: none;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.map-center-ticker.bottom-slot.brush-control-instruction strong {
+  font-size: 0.58rem;
+  font-weight: 600;
+  line-height: 1.15;
+}
