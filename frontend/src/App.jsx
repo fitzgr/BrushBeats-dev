@@ -549,6 +549,10 @@ function App() {
   const [rotatingStartEnabled, setRotatingStartEnabled] = useState(false);
   const [rotatingStartIndex, setRotatingStartIndex] = useState(0);
   const [rotatingStartPersistStatus, setRotatingStartPersistStatus] = useState("idle");
+  const [brainChallengeEnabled, setBrainChallengeEnabled] = useState(false);
+  const [brainChallengeNextHand, setBrainChallengeNextHand] = useState("right");
+  const [brainChallengeInfoOpen, setBrainChallengeInfoOpen] = useState(false);
+  const [sessionBrushingHand, setSessionBrushingHand] = useState(null);
   const [hygienistFocusModes, setHygienistFocusModes] = useState(() => buildHygienistFocusModeMap(DEFAULT_VALUES.top, DEFAULT_VALUES.bottom));
   const [sessionStartSegmentKey, setSessionStartSegmentKey] = useState(null);
   const [brushControlCue, setBrushControlCue] = useState(null);
@@ -873,6 +877,9 @@ function App() {
     const nextRotatingStartIndex = clampValue(Math.floor(Number(session.rotatingStartIndex) || 0), 0, ROTATING_START_SEGMENT_SEQUENCE.length - 1);
     setRotatingStartEnabled(nextRotatingStartEnabled);
     setRotatingStartIndex(nextRotatingStartIndex);
+    setBrainChallengeEnabled(Boolean(session.brainChallengeEnabled));
+    setBrainChallengeNextHand(session.brainChallengeNextHand === "left" ? "left" : "right");
+    setSessionBrushingHand(null);
     lastRotatingPersistedRef.current = { enabled: nextRotatingStartEnabled, index: nextRotatingStartIndex };
     setOverlayThemeChoice(session.overlayTheme || OVERLAY_THEME_AUTO);
     setBrushDurationSeconds(session.brushDurationSeconds || DEFAULT_BRUSH_DURATION_SECONDS);
@@ -895,6 +902,8 @@ function App() {
         brushType,
         rotatingStartEnabled,
         rotatingStartIndex,
+        brainChallengeEnabled,
+        brainChallengeNextHand,
         overlayTheme: overlayThemeChoice,
         hygienistFocusModes: normalizedModes,
         brushDurationSeconds,
@@ -1246,6 +1255,8 @@ function App() {
       brushType,
       rotatingStartEnabled,
       rotatingStartIndex,
+      brainChallengeEnabled,
+      brainChallengeNextHand,
       overlayTheme: overlayThemeChoice,
       hygienistFocusModes,
       brushDurationSeconds,
@@ -1261,7 +1272,7 @@ function App() {
         setRotatingStartPersistStatus("error");
       }
     }
-  }, [brushDurationSeconds, brushingHand, brushType, hygienistFocusModes, keyword, overlayThemeChoice, rotatingStartEnabled, rotatingStartIndex, songFilters, storageConsent, values]);
+  }, [brainChallengeEnabled, brainChallengeNextHand, brushDurationSeconds, brushingHand, brushType, hygienistFocusModes, keyword, overlayThemeChoice, rotatingStartEnabled, rotatingStartIndex, songFilters, storageConsent, values]);
 
   useEffect(() => {
     if (storageConsent !== "granted" || !dbStatus.ready || !activeHouseholdUser?.userId || !preferencesHydratedRef.current) {
@@ -1276,12 +1287,14 @@ function App() {
       brushType,
       rotatingStartEnabled,
       rotatingStartIndex,
+      brainChallengeEnabled,
+      brainChallengeNextHand,
       overlayTheme: overlayThemeChoice,
       hygienistFocusModes,
       brushDurationSeconds,
       savedAt: Date.now()
     });
-  }, [activeHouseholdUser?.userId, brushDurationSeconds, brushingHand, brushType, dbStatus.ready, hygienistFocusModes, keyword, overlayThemeChoice, rotatingStartEnabled, rotatingStartIndex, songFilters, storageConsent, values]);
+  }, [activeHouseholdUser?.userId, brainChallengeEnabled, brainChallengeNextHand, brushDurationSeconds, brushingHand, brushType, dbStatus.ready, hygienistFocusModes, keyword, overlayThemeChoice, rotatingStartEnabled, rotatingStartIndex, songFilters, storageConsent, values]);
 
   useEffect(() => {
     if (storageConsent !== "granted" || !dbStatus.ready || !activeHouseholdUser?.userId || !preferencesHydratedRef.current) {
@@ -2505,6 +2518,13 @@ function App() {
       }
     } else {
       prepareNextSessionStartSegment();
+      if (brainChallengeEnabled) {
+        const challengeHand = brainChallengeNextHand === "left" ? "left" : "right";
+        setSessionBrushingHand(challengeHand);
+        setBrainChallengeNextHand(challengeHand === "right" ? "left" : "right");
+      } else {
+        setSessionBrushingHand(null);
+      }
       setBrushingMusicElapsedSeconds(0);
       setPlaybackSeconds(shouldRestartVideo ? 0 : playbackSeconds);
       lastPlaybackTickRef.current = shouldRestartVideo ? 0 : playbackSeconds;
@@ -2560,6 +2580,8 @@ function App() {
         brushType,
         rotatingStartEnabled,
         rotatingStartIndex,
+        brainChallengeEnabled,
+        brainChallengeNextHand,
         hygienistFocusModes,
         brushDurationSeconds,
         savedAt: Date.now()
@@ -2573,6 +2595,8 @@ function App() {
         brushType,
         rotatingStartEnabled,
         rotatingStartIndex,
+        brainChallengeEnabled,
+        brainChallengeNextHand,
         overlayTheme: overlayThemeChoice,
         hygienistFocusModes,
         brushDurationSeconds,
@@ -3059,6 +3083,17 @@ function App() {
         />
       )}
 
+      {brainChallengeInfoOpen && (
+        <div className="brain-challenge-backdrop" role="presentation" onClick={() => setBrainChallengeInfoOpen(false)}>
+          <section className="brain-challenge-modal" role="dialog" aria-modal="true" aria-labelledby="brain-challenge-title" onClick={(event) => event.stopPropagation()}>
+            <button type="button" className="brain-challenge-close" aria-label="Close" onClick={() => setBrainChallengeInfoOpen(false)}>×</button>
+            <h3 id="brain-challenge-title">Left brain / right brain challenge</h3>
+            <p>Break up your usual brushing pattern by alternating which hand you start with each session. Using your non-dominant hand can make a familiar task feel novel and challenge coordination and attention.</p>
+            <p>This is a coordination challenge, not a claim that one hand literally exercises one “side” of the brain. The simple left-brain/right-brain personality idea is an oversimplification of how the brain works.</p>
+          </section>
+        </div>
+      )}
+
       {workflowStep === "teeth" && (
         <section className={`layout-grid ${device.isMobile ? "mobile-mode" : "desktop-mode desktop-step-layout"}`}>
           <BPMCalculator
@@ -3248,6 +3283,16 @@ function App() {
                     />
                     <span>rotate starting tooth</span>
                   </label>
+                  <label className="brush-start-rotation-toggle-row brain-challenge-copy">
+                    <input
+                      type="checkbox"
+                      checked={Boolean(brainChallengeEnabled)}
+                      onChange={(event) => setBrainChallengeEnabled(event.target.checked)}
+                    />
+                    <button type="button" className="brain-challenge-info-link" onClick={(event) => { event.preventDefault(); setBrainChallengeInfoOpen(true); }}>
+                      Left brain / right brain challenge
+                    </button>
+                  </label>
                 </div>
               )}
               <BrushingGuide
@@ -3263,7 +3308,7 @@ function App() {
                 startCountdownTotalMs={START_DELAY_SECONDS * 1000}
                 startCountdownRemainingMs={countdownRemainingMs}
                 sessionStartSegmentKey={sessionStartSegmentKey}
-                brushingHand={brushingHand}
+                brushingHand={sessionBrushingHand || brushingHand}
                 brushType={brushType}
                 hideIntro
                 onCueChange={setBrushControlCue}
