@@ -3321,6 +3321,7 @@ function App() {
                 startCountdownRemainingMs={countdownRemainingMs}
                 sessionStartSegmentKey={sessionStartSegmentKey}
                 brushingHand={sessionBrushingHand || brushingHand}
+                showStartingHandCue={brainChallengeEnabled}
                 brushType={brushType}
                 hideIntro
                 onCueChange={setBrushControlCue}
