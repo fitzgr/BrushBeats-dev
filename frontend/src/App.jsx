@@ -3290,7 +3290,7 @@ function App() {
                       onChange={(event) => setBrainChallengeEnabled(event.target.checked)}
                     />
                     <button type="button" className="brain-challenge-info-link" onClick={(event) => { event.preventDefault(); setBrainChallengeInfoOpen(true); }}>
-                      Left brain / right brain challenge
+                      Alternate hands
                     </button>
                   </label>
                 </div>
