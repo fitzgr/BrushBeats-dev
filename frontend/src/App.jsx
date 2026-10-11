@@ -552,6 +552,7 @@ function App() {
   const [brainChallengeEnabled, setBrainChallengeEnabled] = useState(false);
   const [brainChallengeNextHand, setBrainChallengeNextHand] = useState("right");
   const [brainChallengeInfoOpen, setBrainChallengeInfoOpen] = useState(false);
+  const [rotatingStartInfoOpen, setRotatingStartInfoOpen] = useState(false);
   const [sessionBrushingHand, setSessionBrushingHand] = useState(null);
   const [hygienistFocusModes, setHygienistFocusModes] = useState(() => buildHygienistFocusModeMap(DEFAULT_VALUES.top, DEFAULT_VALUES.bottom));
   const [sessionStartSegmentKey, setSessionStartSegmentKey] = useState(null);
@@ -3083,6 +3084,17 @@ function App() {
         />
       )}
 
+      {rotatingStartInfoOpen && (
+        <div className="brain-challenge-backdrop" role="presentation" onClick={() => setRotatingStartInfoOpen(false)}>
+          <section className="brain-challenge-modal" role="dialog" aria-modal="true" aria-labelledby="rotating-start-title" onClick={(event) => event.stopPropagation()}>
+            <button type="button" className="brain-challenge-close" aria-label="Close" onClick={() => setRotatingStartInfoOpen(false)}>×</button>
+            <h3 id="rotating-start-title">Rotate starting tooth</h3>
+            <p>Balanced brushing means not always beginning in the same place. Starting in one familiar spot every time can make that area consistently first while other areas are always reached later.</p>
+            <p>When enabled, Brush Beats rotates through eight starting positions: top or bottom, left or right, and outside or inside. Across sessions, every part of the mouth gets a turn as the starting area.</p>
+          </section>
+        </div>
+      )}
+
       {brainChallengeInfoOpen && (
         <div className="brain-challenge-backdrop" role="presentation" onClick={() => setBrainChallengeInfoOpen(false)}>
           <section className="brain-challenge-modal" role="dialog" aria-modal="true" aria-labelledby="brain-challenge-title" onClick={(event) => event.stopPropagation()}>
@@ -3281,7 +3293,7 @@ function App() {
                       checked={Boolean(rotatingStartEnabled)}
                       onChange={(event) => handleRotatingStartEnabledChange(event.target.checked)}
                     />
-                    <span>rotate starting tooth</span>
+                    <button type="button" className="brain-challenge-info-link" onClick={(event) => { event.preventDefault(); setRotatingStartInfoOpen(true); }}>Rotate starting tooth</button>
                   </label>
                   <label className="brush-start-rotation-toggle-row brain-challenge-copy">
                     <input
