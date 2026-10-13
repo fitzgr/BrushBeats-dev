@@ -1400,6 +1400,20 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
           clipPath={`url(#${toothId}-front-surface)`}
           style={countdownSurface === "front" ? countdownSurfaceStyle : undefined}
         />
+        {isFocusTooth && state.backDone && doesModeCoverSurface(focusSurfaceMode, "back") && (
+          <path
+            className="tooth-focus-complete-marker back-focus-marker"
+            d={toothShape.path}
+            clipPath={`url(#${toothId}-back-surface)`}
+          />
+        )}
+        {isFocusTooth && state.frontDone && doesModeCoverSurface(focusSurfaceMode, "front") && (
+          <path
+            className="tooth-focus-complete-marker front-focus-marker"
+            d={toothShape.path}
+            clipPath={`url(#${toothId}-front-surface)`}
+          />
+        )}
         {celebrateBackSurface && (
           <path
             className="tooth-celebration-ripple back-ripple"
