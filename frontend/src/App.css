@@ -7044,3 +7044,15 @@ select {
   background: #fff;
   border: 1px solid rgba(53, 122, 112, 0.35);
 }
+
+
+/* Keep hygienist Extra Care surfaces identifiable after they have been brushed. */
+.tooth-focus-complete-marker {
+  fill: none;
+  stroke: #F4A261;
+  stroke-width: 2.8;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  pointer-events: none;
+}
