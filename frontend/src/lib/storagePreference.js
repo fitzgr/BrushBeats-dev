@@ -228,6 +228,11 @@ function normalizeLastSession(parsed) {
     brushType: parsed.brushType === "electric" ? "electric" : "manual",
     rotatingStartEnabled: Boolean(parsed.rotatingStartEnabled),
     rotatingStartIndex: clampInteger(parsed.rotatingStartIndex, 0, 7, 0),
+    // A missing preference predates the opt-out setting: Extend defaults on.
+    extendEnabled: parsed.extendEnabled !== false,
+    extendPreferenceVersion: parsed.extendPreferenceVersion === 2 ? 2 : null,
+    brainChallengeEnabled: Boolean(parsed.brainChallengeEnabled),
+    brainChallengeNextHand: parsed.brainChallengeNextHand === "left" ? "left" : "right",
     hygienistFocusModes: normalizeHygienistFocusModes(parsed.hygienistFocusModes, normalizedValues),
     brushDurationSeconds: normalizedBrushDurationSeconds,
     savedAt: Number.isFinite(Number(parsed.savedAt)) ? Number(parsed.savedAt) : undefined
@@ -299,6 +304,11 @@ function normalizePreferences(parsed) {
     brushType: parsed.brushType === "electric" ? "electric" : "manual",
     rotatingStartEnabled: Boolean(parsed.rotatingStartEnabled),
     rotatingStartIndex: clampInteger(parsed.rotatingStartIndex, 0, 7, 0),
+    // A missing preference predates the opt-out setting: Extend defaults on.
+    extendEnabled: parsed.extendEnabled !== false,
+    extendPreferenceVersion: parsed.extendPreferenceVersion === 2 ? 2 : null,
+    brainChallengeEnabled: Boolean(parsed.brainChallengeEnabled),
+    brainChallengeNextHand: parsed.brainChallengeNextHand === "left" ? "left" : "right",
     overlayTheme: typeof parsed.overlayTheme === "string" ? parsed.overlayTheme : "auto",
     userId: typeof parsed.userId === "string" ? parsed.userId : null,
     hygienistFocusModes: normalizeHygienistFocusModes(parsed.hygienistFocusModes, values),
