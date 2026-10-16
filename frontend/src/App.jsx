@@ -2605,7 +2605,6 @@ function App() {
           : undefined,
         bpmSnapshot: bpmData,
         values,
-        extendEnabled,
         filters: songFilters,
         keyword,
         brushingHand,
