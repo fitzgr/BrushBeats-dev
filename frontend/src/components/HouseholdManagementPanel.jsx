@@ -72,16 +72,13 @@ function buildRewardSettingsDraft(rewardSettings = {}) {
     levelStepPoints: createNumericDraftValue(rewardSettings.levelStepPoints, 120),
     levelGrowthPoints: createNumericDraftValue(rewardSettings.levelGrowthPoints, 20),
     brushingSessionPoints: createNumericDraftValue(rewardSettings.brushingSessionPoints, 12),
-    supportRoutinePoints: createNumericDraftValue(rewardSettings.supportRoutinePoints, 8),
-    toothMilestonePoints: createNumericDraftValue(rewardSettings.toothMilestonePoints, 18),
-    routineVarietyPoints: createNumericDraftValue(rewardSettings.routineVarietyPoints, 10)
+    toothMilestonePoints: createNumericDraftValue(rewardSettings.toothMilestonePoints, 18)
   };
 }
 
 function buildGoalSettingsDraft(goalSettings = {}) {
   return {
-    weeklyBrushingSessions: createNumericDraftValue(goalSettings.weeklyBrushingSessions, 14),
-    weeklySupportRoutines: createNumericDraftValue(goalSettings.weeklySupportRoutines, 5)
+    weeklyBrushingSessions: createNumericDraftValue(goalSettings.weeklyBrushingSessions, 14)
   };
 }
 
@@ -278,24 +275,12 @@ export default function HouseholdManagementPanel({
             <input type="number" inputMode="numeric" min="1" step="1" value={rewardSettings.brushingSessionPoints} onChange={(event) => setRewardSettings((current) => ({ ...current, brushingSessionPoints: event.target.value }))} />
           </label>
           <label>
-            <span>{t("app.householdManagement.fields.supportRoutinePoints")}</span>
-            <input type="number" inputMode="numeric" min="1" step="1" value={rewardSettings.supportRoutinePoints} onChange={(event) => setRewardSettings((current) => ({ ...current, supportRoutinePoints: event.target.value }))} />
-          </label>
-          <label>
             <span>{t("app.householdManagement.fields.toothMilestonePoints")}</span>
             <input type="number" inputMode="numeric" min="1" step="1" value={rewardSettings.toothMilestonePoints} onChange={(event) => setRewardSettings((current) => ({ ...current, toothMilestonePoints: event.target.value }))} />
           </label>
           <label>
-            <span>{t("app.householdManagement.fields.routineVarietyPoints")}</span>
-            <input type="number" inputMode="numeric" min="0" step="1" value={rewardSettings.routineVarietyPoints} onChange={(event) => setRewardSettings((current) => ({ ...current, routineVarietyPoints: event.target.value }))} />
-          </label>
-          <label>
             <span>{t("app.householdManagement.fields.weeklyBrushingSessions")}</span>
             <input type="number" inputMode="numeric" min="1" step="1" value={goalSettings.weeklyBrushingSessions} onChange={(event) => setGoalSettings((current) => ({ ...current, weeklyBrushingSessions: event.target.value }))} />
-          </label>
-          <label>
-            <span>{t("app.householdManagement.fields.weeklySupportRoutines")}</span>
-            <input type="number" inputMode="numeric" min="0" step="1" value={goalSettings.weeklySupportRoutines} onChange={(event) => setGoalSettings((current) => ({ ...current, weeklySupportRoutines: event.target.value }))} />
           </label>
         </div>
         <p className="household-management-helper-copy">{t("app.householdManagement.rewardSettingsSummary")}</p>
@@ -311,13 +296,13 @@ export default function HouseholdManagementPanel({
                 levelStepPoints: parseIntegerInput(rewardSettings.levelStepPoints, 120, 40, 500),
                 levelGrowthPoints: parseIntegerInput(rewardSettings.levelGrowthPoints, 20, 0, 120),
                 brushingSessionPoints: parseIntegerInput(rewardSettings.brushingSessionPoints, 12, 1, 100),
-                supportRoutinePoints: parseIntegerInput(rewardSettings.supportRoutinePoints, 8, 1, 100),
-                toothMilestonePoints: parseIntegerInput(rewardSettings.toothMilestonePoints, 18, 1, 120),
-                routineVarietyPoints: parseIntegerInput(rewardSettings.routineVarietyPoints, 10, 0, 80)
+
+                toothMilestonePoints: parseIntegerInput(rewardSettings.toothMilestonePoints, 18, 1, 120)
+
               },
               goalSettings: {
-                weeklyBrushingSessions: parseIntegerInput(goalSettings.weeklyBrushingSessions, 14, 1, 40),
-                weeklySupportRoutines: parseIntegerInput(goalSettings.weeklySupportRoutines, 5, 0, 20)
+                weeklyBrushingSessions: parseIntegerInput(goalSettings.weeklyBrushingSessions, 14, 1, 40)
+
               }
             })}
           >

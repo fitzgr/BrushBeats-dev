@@ -474,7 +474,6 @@
 }
 
 .desktop-shell .workflow-tabs,
-.desktop-shell .care-routine-strip,
 .desktop-shell .language-simulator-card,
 .desktop-shell .error-banner,
 .desktop-shell .info-banner,
@@ -488,181 +487,6 @@
   max-width: 860px;
   margin-left: auto;
   margin-right: auto;
-}
-
-.care-routine-strip {
-  margin: 0 0 1rem;
-  padding: 0.9rem 1rem;
-  border-radius: 18px;
-  border: 1px solid var(--age-card-border);
-  background: var(--age-routine-gradient);
-}
-
-.care-routine-strip.compact {
-  padding: 0.7rem 0.8rem;
-}
-
-.care-routine-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  margin-bottom: 0.7rem;
-}
-
-.care-routine-strip.compact .care-routine-header {
-  margin-bottom: 0.45rem;
-}
-
-.care-routine-header strong {
-  color: #5f4724;
-}
-
-.care-routine-copy {
-  display: grid;
-  gap: 0.22rem;
-}
-
-.care-routine-copy p {
-  margin: 0;
-  max-width: 72ch;
-  font-size: 0.85rem;
-  line-height: 1.45;
-  color: #56666b;
-}
-
-.care-routine-toggle {
-  border: 1px solid rgba(16, 33, 37, 0.14);
-  background: rgba(255, 255, 255, 0.74);
-  color: #5b676a;
-  font: inherit;
-  font-size: 0.78rem;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  border-radius: 999px;
-  padding: 0.42rem 0.72rem;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.care-routine-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.7rem;
-}
-
-.care-routine-compact-layout {
-  display: grid;
-  grid-template-columns: minmax(0, 1.25fr) minmax(240px, 0.95fr);
-  gap: 0.65rem;
-  align-items: stretch;
-}
-
-.care-routine-card {
-  display: grid;
-  gap: 0.35rem;
-  padding: 0.9rem 0.95rem;
-  border-radius: 14px;
-  border: 1px solid rgba(16, 33, 37, 0.1);
-  background: rgba(255, 255, 255, 0.72);
-}
-
-.care-routine-card strong {
-  font-size: 0.98rem;
-}
-
-.care-routine-card p {
-  margin: 0;
-  font-size: 0.82rem;
-  color: #526265;
-}
-
-.care-routine-card.coming-soon {
-  opacity: 0.5;
-  filter: grayscale(0.2);
-}
-
-.care-routine-card.active {
-  background: linear-gradient(145deg, rgba(255, 239, 220, 0.96), rgba(255, 249, 240, 0.98));
-  border-color: rgba(202, 95, 22, 0.24);
-}
-
-.care-routine-card.best-practice {
-  background: linear-gradient(145deg, rgba(220, 245, 238, 0.96), rgba(240, 252, 248, 0.98));
-  border-color: rgba(66, 184, 154, 0.3);
-}
-
-.care-routine-card.best-practice .care-routine-badge {
-  background: rgba(66, 184, 154, 0.15);
-  color: #1e7a5e;
-}
-
-.care-routine-expanded {
-  margin-top: 0.5rem;
-}
-
-.care-routine-mini-pill {
-  background: none;
-  cursor: pointer;
-  font-family: inherit;
-}
-
-.care-routine-mini-pill.active {
-  background: rgba(220, 245, 238, 0.9);
-  border-color: rgba(66, 184, 154, 0.4);
-  color: #1e7a5e;
-}
-
-.care-routine-card.compact-primary {
-  padding: 0.75rem 0.85rem;
-  align-content: center;
-}
-
-.care-routine-card.compact-primary p {
-  margin: 0;
-  font-size: 0.8rem;
-  line-height: 1.35;
-}
-
-.care-routine-badge {
-  display: inline-flex;
-  justify-self: start;
-  padding: 0.2rem 0.5rem;
-  border-radius: 999px;
-  background: rgba(16, 33, 37, 0.07);
-  color: #5b676a;
-  font-size: 0.72rem;
-  font-weight: 800;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-}
-
-.care-routine-card.active .care-routine-badge {
-  background: rgba(202, 95, 22, 0.12);
-  color: #8a4716;
-}
-
-.care-routine-mini-list {
-  display: flex;
-  flex-wrap: wrap;
-  align-content: center;
-  gap: 0.5rem;
-  padding: 0.25rem 0;
-}
-
-.care-routine-mini-pill {
-  display: inline-flex;
-  align-items: center;
-  min-height: 38px;
-  padding: 0.45rem 0.7rem;
-  border-radius: 999px;
-  border: 1px solid rgba(16, 33, 37, 0.12);
-  background: rgba(255, 255, 255, 0.76);
-  color: #5b676a;
-  font-size: 0.8rem;
-  font-weight: 700;
-  line-height: 1.2;
 }
 
 .language-simulator-card {
@@ -3020,6 +2844,11 @@
   order: 1;
 }
 
+/* Allow the tooth map to take nearly the full phone width without clipping. */
+.layout-grid.mobile-mode .player.compact-mobile-frame {
+  padding-inline: clamp(0.4rem, 2vw, 0.75rem);
+}
+
 .layout-grid.mobile-mode .brush-actions-card {
   grid-column: span 12;
   order: 2;
@@ -3195,98 +3024,6 @@
   font-size: 0.8rem;
   color: #56666a;
   font-weight: 600;
-}
-
-.water-flossing-card {
-  display: grid;
-  gap: 0.55rem;
-  margin: 0.35rem 0 0.95rem;
-  padding: 0.8rem 0.9rem;
-  border-radius: 14px;
-  border: 1px solid rgba(16, 33, 37, 0.14);
-  background: linear-gradient(145deg, rgba(230, 247, 246, 0.9), rgba(246, 252, 255, 0.95));
-}
-
-.water-flossing-card.compact {
-  margin-bottom: 0.75rem;
-}
-
-.water-flossing-settings-grid {
-  display: grid;
-  gap: 0.55rem;
-}
-
-.water-flossing-title {
-  color: #145166;
-  font-size: 0.95rem;
-}
-
-.water-flossing-meta,
-.water-flossing-status,
-.water-flossing-last,
-.water-flossing-note {
-  margin: 0;
-  font-size: 0.84rem;
-  color: #33555d;
-}
-
-.water-flossing-last {
-  font-weight: 700;
-}
-
-.water-flossing-duration {
-  margin: 0;
-}
-
-.water-flossing-duration select {
-  width: 100%;
-  border: 1px solid rgba(16, 33, 37, 0.16);
-  background: #fffdf8;
-  color: var(--ink);
-  font: inherit;
-  font-weight: 700;
-  border-radius: 10px;
-  padding: 0.56rem 0.7rem;
-}
-
-.water-flossing-duration input[type="range"] {
-  width: 100%;
-  margin: 0.18rem 0 0;
-  accent-color: #1d6f86;
-}
-
-.water-flossing-inline-action {
-  display: grid;
-  align-content: end;
-}
-
-.water-flossing-inline-action .action-btn {
-  min-height: 40px;
-}
-
-.water-flossing-balance-caption {
-  display: block;
-  margin-top: 0.1rem;
-  font-size: 0.75rem;
-  color: #4a656c;
-  font-weight: 600;
-}
-
-.water-flossing-controls {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.5rem;
-}
-
-.water-flossing-controls .action-btn {
-  min-height: 40px;
-  padding-inline: 0.55rem;
-}
-
-@media (min-width: 760px) {
-  .water-flossing-settings-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
 }
 
 .brush-hand-actions {
@@ -4205,16 +3942,11 @@ select {
 }
 
 .guide-map-shell {
+  width: 100%;
+  background: transparent;
   position: relative;
   overflow: hidden;
   border-radius: 24px;
-}
-
-.guide-map-age-overlay {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  border-radius: inherit;
 }
 
 .guide-age-overlay {
@@ -6191,32 +5923,6 @@ select {
 }
 
 @media (max-width: 520px) {
-  .care-routine-header {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-
-  .care-routine-toggle {
-    align-self: flex-start;
-  }
-
-  .care-routine-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .care-routine-compact-layout {
-    grid-template-columns: 1fr;
-  }
-
-  .care-routine-mini-list {
-    padding-top: 0;
-  }
-
-  .care-routine-mini-pill {
-    width: 100%;
-    justify-content: center;
-  }
-
   .language-simulator-control {
     max-width: none;
   }
@@ -6909,7 +6615,8 @@ select {
   }
 
   .mouth-map {
-    width: min(100%, 320px);
+    width: 100%;
+    max-width: 420px;
   }
 
   .last-song-banner {

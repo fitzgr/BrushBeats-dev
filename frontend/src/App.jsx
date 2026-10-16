@@ -4,7 +4,6 @@ import BPMCalculator from "./components/BPMCalculator";
 import SongList from "./components/SongList";
 import Player from "./components/Player";
 import BrushingGuide from "./components/BrushingGuide";
-import WaterFlossingGuide from "./components/WaterFlossingGuide";
 import AgeThemePanel from "./components/AgeThemePanel";
 import HouseholdSetupPanel from "./components/HouseholdSetupPanel";
 import HouseholdOverviewPanel from "./components/HouseholdOverviewPanel";
@@ -252,6 +251,7 @@ function buildHouseholdSetupDraft({ household, activeUser, onboardingDraft, user
 function buildCompletionCelebrationMessage(t, fallbackMessage, unlockedAchievements, dashboard) {
   const highlightedAchievement = Array.isArray(unlockedAchievements) && unlockedAchievements.length > 0
     ? [...unlockedAchievements]
+      .filter((achievement) => achievement.achievementType !== "routine-mix")
       .map((achievement) => getAchievementPresentation(achievement))
       .sort((left, right) => Number(right.pointsAwarded || 0) - Number(left.pointsAwarded || 0))[0]
     : null;
@@ -264,51 +264,13 @@ function buildCompletionCelebrationMessage(t, fallbackMessage, unlockedAchieveme
     });
   }
 
-  if (dashboard?.nextAchievement) {
-    if (dashboard.goals?.summary?.allComplete) {
-      return t("app.achievements.completionCelebration.goalsComplete", {
-        brushing: dashboard.goals.weeklyBrushing.target,
-        support: dashboard.goals.weeklySupport.target
-      });
-    }
-
-    if (dashboard.goals?.summary?.nextFocus) {
-      const focusKey = dashboard.goals.summary.nextFocus === "support" ? "weeklySupport" : "weeklyBrushing";
-      const focusGoal = dashboard.goals[focusKey];
-      return t(`app.achievements.completionCelebration.${focusKey}`, {
-        current: focusGoal.current,
-        target: focusGoal.target,
-        remaining: focusGoal.remaining
-      });
-    }
-
-    if (dashboard.caregiverNudges?.length > 0) {
-      const topNudge = dashboard.caregiverNudges[0];
-      if (topNudge.key === "stageTransition") {
-        return t("app.achievements.completionCelebration.stageTransition", {
-          previousStage: t(`age.stages.${topNudge.values.previousStage}.label`),
-          newStage: t(`age.stages.${topNudge.values.newStage}.label`)
-        });
-      }
-
-      if (topNudge.key === "nextAchievement") {
-        return t("app.achievements.completionCelebration.nextAchievement", {
-          badge: t(`app.achievements.types.${topNudge.values.achievementType}.title`),
-          remaining: topNudge.values.remaining,
-          target: topNudge.values.target
-        });
-      }
-
-      return t(`app.achievements.completionCelebration.${topNudge.key}`, topNudge.values);
-    }
-
+  if (dashboard?.nextAchievement && dashboard.nextAchievement.achievementType !== "routine-mix") {
     return t("app.achievements.completionCelebration.progress", {
       level: dashboard.progression.currentLevel,
       remainingPoints: dashboard.progression.pointsToNextLevel,
       badge: t(`app.achievements.types.${dashboard.nextAchievement.achievementType}.title`)
     });
   }
-
   return fallbackMessage;
 }
 
@@ -546,7 +508,6 @@ function App() {
   const [brushingHand, setBrushingHand] = useState("right");
   const [brushType, setBrushType] = useState("manual");
   const [overlayThemeChoice, setOverlayThemeChoice] = useState(OVERLAY_THEME_AUTO);
-  const [expandedRoutineCard, setExpandedRoutineCard] = useState(null);
   const [brushDurationSeconds, setBrushDurationSeconds] = useState(DEFAULT_BRUSH_DURATION_SECONDS);
   const [rotatingStartEnabled, setRotatingStartEnabled] = useState(false);
   const [extendEnabled, setExtendEnabled] = useState(true);
@@ -576,7 +537,7 @@ function App() {
   const [householdManagementNotice, setHouseholdManagementNotice] = useState("");
   const [progressDashboard, setProgressDashboard] = useState(null);
   const [recentUnlockedAchievements, setRecentUnlockedAchievements] = useState([]);
-  const [progressDashboardFilters, setProgressDashboardFilters] = useState({ timeRange: "30d", activityType: "all" });
+  const [progressDashboardFilters, setProgressDashboardFilters] = useState({ timeRange: "30d", activityType: "brushing" });
   const [persistedMigrationState, setPersistedMigrationState] = useState(null);
   const [householdOnboardingState, setHouseholdOnboardingState] = useState(null);
   const [householdOnboardingUiState, setHouseholdOnboardingUiState] = useState(null);
@@ -614,7 +575,6 @@ function App() {
   const playbackSecondsRef = useRef(0);
   const countdownDeadlineRef = useRef(null);
   const playOnCountdownEndRef = useRef(false);
-  const compactRoutineRef = useRef(storageBannerDismissed || storageConsent !== "unknown");
   const preferencesHydratedRef = useRef(false);
   const repeatSessionBootstrapRef = useRef(false);
   const restoredSessionRef = useRef(null);
@@ -704,9 +664,6 @@ function App() {
 
     return supportedLanguageOptions.find((option) => option.value !== "en")?.value || "es";
   }, [i18n.resolvedLanguage, supportedLanguageOptions]);
-  const isReturningVisitor = compactRoutineRef.current;
-  const [isRoutineExpanded, setIsRoutineExpanded] = useState(!isReturningVisitor);
-  const showCompactRoutine = isReturningVisitor && !isRoutineExpanded;
   const reinforcementPool = useMemo(
     () => buildReinforcementPool(effectiveAgeEstimate?.phase, totalTeeth, brushType),
     [effectiveAgeEstimate?.phase, brushType, totalTeeth]
@@ -744,6 +701,15 @@ function App() {
   useEffect(() => {
     setHygienistFocusModes((currentModes) => buildHygienistFocusModeMap(values.top, values.bottom, currentModes));
   }, [values.bottom, values.top]);
+
+  // Remove persisted preferences for the discontinued water-floss coaching feature.
+  useEffect(() => {
+    try {
+      window.localStorage.removeItem("brushBeats.waterFlossing.settings.v1");
+    } catch {
+      // Storage restrictions must not interfere with brushing.
+    }
+  }, []);
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -873,12 +839,6 @@ function App() {
   useEffect(() => {
     playbackSecondsRef.current = playbackSeconds;
   }, [playbackSeconds]);
-
-  useEffect(() => {
-    if (isReturningVisitor && workflowStep === "brush") {
-      setIsRoutineExpanded(false);
-    }
-  }, [isReturningVisitor, workflowStep]);
 
   function applySavedSession(session) {
     if (!session) {
@@ -1821,57 +1781,6 @@ function App() {
       setError(removeError?.message || t("app.householdSetup.saveFailed"));
     } finally {
       setHouseholdManagementSaving(false);
-    }
-  }
-
-  async function handleLogRoutineActivity(sessionType) {
-    if (!storageConsent || storageConsent !== "granted" || !dbStatus.ready || !activeHouseholdUser?.userId || !householdProfile?.householdId) {
-      return;
-    }
-
-    const durationByType = {
-      flossing: 90,
-      "water-picking": 60
-    };
-
-    try {
-      const now = new Date().toISOString();
-      const durationSeconds = durationByType[sessionType] || 60;
-      const createdSession = await createBrushingSession({
-        userId: activeHouseholdUser.userId,
-        householdId: householdProfile.householdId,
-        sessionType,
-        startedAt: now,
-        completedAt: now,
-        durationSeconds,
-        targetDurationSeconds: durationSeconds,
-        topTeethCount: Number(values.top || 0),
-        bottomTeethCount: Number(values.bottom || 0),
-        totalTeethCount: Number(values.top || 0) + Number(values.bottom || 0),
-        performanceRating: "complete",
-        completed: true,
-        source: "phase3-quick-log"
-      });
-      const unlockedAchievements = await awardAchievementsForUser(activeHouseholdUser.userId, householdProfile.householdId, {
-        relatedSessionId: createdSession.sessionId,
-        sourceEventType: sessionType,
-        sourceEventId: createdSession.sessionId,
-        sourceEventAt: createdSession.completedAt,
-        sourceContext: {
-          sessionType,
-          brushType,
-          toothStage: toothAgeEstimate?.phase || "unknown"
-        }
-      });
-      if (unlockedAchievements.length > 0) {
-        setRecentUnlockedAchievements(unlockedAchievements);
-      }
-      setProgressDashboard(await loadUserProgressDashboard(activeHouseholdUser.userId, progressDashboardFilters, householdProfile?.rewardSettings, householdProfile?.goalSettings));
-      setPersistedStateRevision((current) => current + 1);
-      trackEvent("phase3_activity_logged", { session_type: sessionType });
-      setError("");
-    } catch (activityError) {
-      setError(activityError?.message || t("app.householdSetup.saveFailed"));
     }
   }
 
@@ -2947,81 +2856,6 @@ function App() {
           </button>
       </nav>
 
-      <section className={`care-routine-strip ${ageUiProfile.themeClassName}${showCompactRoutine ? " compact" : ""}`} aria-label={t("app.routine.ariaLabel")}>
-        <div className="care-routine-header">
-          <div className="care-routine-copy">
-            <strong>{t("app.routine.title")}</strong>
-            <p>{t("app.routine.intro")}</p>
-          </div>
-          {isReturningVisitor && (
-            <button
-              type="button"
-              className="care-routine-toggle"
-              onClick={() => setIsRoutineExpanded((current) => !current)}
-            >
-              {isRoutineExpanded ? t("app.routine.collapse") : t("app.routine.expand")}
-            </button>
-          )}
-        </div>
-        {showCompactRoutine ? (
-          <div className="care-routine-compact-layout">
-            <article className="care-routine-card active compact-primary">
-              <span className="care-routine-badge">{t("app.routine.available")}</span>
-              <strong>{t("app.routine.brushing.title")}</strong>
-              <p>{t("app.routine.brushing.description")}</p>
-            </article>
-            <div className="care-routine-mini-list" aria-label={t("app.routine.ariaLabel")}>
-              <button
-                type="button"
-                className={`care-routine-mini-pill${expandedRoutineCard === "flossing" ? " active" : ""}`}
-                onClick={() => setExpandedRoutineCard((c) => (c === "flossing" ? null : "flossing"))}
-              >
-                {t("app.routine.flossing.title")}
-              </button>
-              <button
-                type="button"
-                className={`care-routine-mini-pill${expandedRoutineCard === "waterPicking" ? " active" : ""}`}
-                onClick={() => setExpandedRoutineCard((c) => (c === "waterPicking" ? null : "waterPicking"))}
-              >
-                {t("app.routine.waterPicking.title")}
-              </button>
-            </div>
-            {expandedRoutineCard === "flossing" && (
-              <article className="care-routine-card best-practice care-routine-expanded">
-                <span className="care-routine-badge">{t("app.routine.bestPractice")}</span>
-                <strong>{t("app.routine.flossing.title")}</strong>
-                <p>{t("app.routine.flossing.description")}</p>
-              </article>
-            )}
-            {expandedRoutineCard === "waterPicking" && (
-              <article className="care-routine-card best-practice care-routine-expanded">
-                <span className="care-routine-badge">{t("app.routine.bestPractice")}</span>
-                <strong>{t("app.routine.waterPicking.title")}</strong>
-                <p>{t("app.routine.waterPicking.description")}</p>
-              </article>
-            )}
-          </div>
-        ) : (
-          <div className="care-routine-grid">
-            <article className="care-routine-card active">
-              <span className="care-routine-badge">{t("app.routine.available")}</span>
-              <strong>{t("app.routine.brushing.title")}</strong>
-              <p>{t("app.routine.brushing.description")}</p>
-            </article>
-            <article className="care-routine-card best-practice">
-              <span className="care-routine-badge">{t("app.routine.bestPractice")}</span>
-              <strong>{t("app.routine.flossing.title")}</strong>
-              <p>{t("app.routine.flossing.description")}</p>
-            </article>
-            <article className="care-routine-card best-practice">
-              <span className="care-routine-badge">{t("app.routine.bestPractice")}</span>
-              <strong>{t("app.routine.waterPicking.title")}</strong>
-              <p>{t("app.routine.waterPicking.description")}</p>
-            </article>
-          </div>
-        )}
-      </section>
-
       {languageFallbackState.needsSupportedLanguageChoice && (
         <section className="language-simulator-card" aria-label={t("settings.supportedLanguage.ariaLabel")}>
           <div className="language-simulator-copy">
@@ -3103,7 +2937,6 @@ function App() {
           activeUserName={activeHouseholdUser?.name}
           filters={progressDashboardFilters}
           onFilterChange={handleProgressDashboardFilterChange}
-          onLogActivity={handleLogRoutineActivity}
         />
       )}
 
@@ -3198,7 +3031,6 @@ function App() {
                 activeUserName={t("settings.experienceSimulator.previewUser", { label: detectedBrusherProfile.label })}
                 filters={progressDashboardFilters}
                 onFilterChange={handleProgressDashboardFilterChange}
-                onLogActivity={() => {}}
                 readOnly
                 previewLabel={t("settings.experienceSimulator.previewBadge")}
               />
@@ -3298,10 +3130,6 @@ function App() {
                 )}
               </>
             )}
-            <WaterFlossingGuide
-              toothCount={Number(values.top || 0) + Number(values.bottom || 0)}
-              isMobile={device.isMobile}
-            />
             {!device.isMobile && (
               <>
                 {brushingPhase === "complete" && (

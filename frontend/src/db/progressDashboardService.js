@@ -37,7 +37,9 @@ export async function loadUserProgressDashboard(userId, filters = { timeRange: "
     getAchievementsByUser(userId)
   ]);
 
-  const filteredSessions = allSessions.filter((session) => {
+  // Keep legacy non-brushing history, but show only brushing in the MVP.
+  const brushingSessions = allSessions.filter((session) => !session.sessionType || session.sessionType === "brushing");
+  const filteredSessions = brushingSessions.filter((session) => {
     if (!isWithinRange(session.completedAt || session.startedAt, filters.timeRange)) {
       return false;
     }
@@ -51,11 +53,11 @@ export async function loadUserProgressDashboard(userId, filters = { timeRange: "
 
   const filteredToothHistory = allToothHistory.filter((entry) => isWithinRange(entry.recordedAt, filters.timeRange));
   const completedSessions = filteredSessions.filter((session) => session.completed);
-  const weeklySessions = allSessions.filter((session) => isWithinRange(session.completedAt || session.startedAt, "7d") && session.completed);
-  const monthlySessions = allSessions.filter((session) => isWithinRange(session.completedAt || session.startedAt, "30d") && session.completed);
-  const progression = calculateProgressionSummary(allSessions, allToothHistory, allAchievements, rewardSettings);
-  const goals = calculateGoalProgress(allSessions, goalSettings);
-  const caregiverNudges = calculateCaregiverNudges(allSessions, progression, goals);
+  const weeklySessions = brushingSessions.filter((session) => isWithinRange(session.completedAt || session.startedAt, "7d") && session.completed);
+  const monthlySessions = brushingSessions.filter((session) => isWithinRange(session.completedAt || session.startedAt, "30d") && session.completed);
+  const progression = calculateProgressionSummary(brushingSessions, allToothHistory, allAchievements, rewardSettings);
+  const goals = calculateGoalProgress(brushingSessions, goalSettings);
+  const caregiverNudges = calculateCaregiverNudges(brushingSessions, progression, goals);
 
   return {
     filters,

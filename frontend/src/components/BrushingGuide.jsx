@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import AgeThemePanel from "./AgeThemePanel";
-import AgeOverlay from "./AgeOverlay";
 import { getBrushTechniqueTips } from "../lib/reinforcementMessages";
 import { buildSegments, buildBrushingSessionTimeline, getActiveTimelineEntry } from "../lib/brushingTimeline";
 import { getActiveToothPulseMs } from "../lib/brushingPulse";
@@ -1257,18 +1256,6 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
   const coachingIndex = Math.floor(Math.max(0, elapsedSeconds) / 14) % coachingSet.length;
   const activeCoaching = coachingSet[coachingIndex] || coachingSet[0];
   const showElectricLiftCue = brushType === "electric" && activeEntry?.type === "transition" && !isExtendMove;
-  const overlayPhase = brushingPhase === "complete"
-    ? "complete"
-    : brushingPhase === "running" || brushingPhase === "paused"
-      ? progress >= 82
-        ? "nearComplete"
-        : progress >= 18
-          ? "mid"
-          : "start"
-      : brushingPhase === "countdown"
-        ? "start"
-        : "idle";
-
   function renderFocusEditorContext() {
       const jaw = focusEditorTooth?.jaw === "bottom" ? "bottom" : "top";
       const chart = jaw === "top" ? topToothChart : bottomToothChart;
@@ -1504,12 +1491,6 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
 
 
       <div className="guide-map-shell">
-        <AgeOverlay
-          ageGroup={ageUiProfile?.phase || "adult"}
-          themeId={ageUiProfile?.overlayThemeId}
-          phase={overlayPhase}
-          className="guide-map-age-overlay"
-        />
         {showThemePanel && <AgeThemePanel profile={ageUiProfile} variant="guide" className="guide-age-overlay" chipLimit={2} />}
         <div
           className={`mouth-map${enableHygienistFocus && focusToothSet.size > 0 ? " hygienist-focus-mode" : ""}${brushingPhase === "complete" ? " completion-finished" : ""}${showCompletionFlash ? " completion-flash" : ""}`}

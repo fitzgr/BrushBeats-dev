@@ -73,28 +73,6 @@
       "music": "2. Müzik",
       "brush": "3. Fırçala"
     },
-    "routine": {
-      "ariaLabel": "Ağız bakımı yol haritası",
-      "title": "Tam diş bakımı",
-      "intro": "Bu, hanenizin tam dis ritmi yol arkadasidir: fircalama, dis ipi ve agiz dusu. Her kullanicinin rutini muzige senkronize olur ve ritim kendi ihtiyacina gore uyarlanir. Zamanla herkes dogal, dengeli ve tutarli aliskanliklar gelistirir; boylece her dis, her aralik ve her durulama esit ozen gorur.",
-      "expand": "Yol haritasını genişlet",
-      "collapse": "Yol haritasını daralt",
-      "available": "Şimdi kullanılabilir",
-      "comingSoon": "Yakında",
-      "bestPractice": "En iyi uygulamalar",
-      "brushing": {
-        "title": "Fırçalama",
-        "description": "Tempoya uyarlanmış fırçalama, müzik ve el konumu rehberi."
-      },
-      "flossing": {
-        "title": "Diş İpi",
-        "description": "Gunde bir kez dis ipi kullanin; her disi C seklinde sarin, dis eti cizgisinin altina nazikce inin ve her aralikta temiz ip bolumu kullanin."
-      },
-      "waterPicking": {
-        "title": "Ağız Duşu",
-        "description": "Ilik suyu dusuk-orta basincla kullanin, ucunu dis eti cizgisine 90 derece tutun ve dis aralarinda 1-2 saniye duraklayin."
-      }
-    },
     "languageFallbackNotice": "Bu dil henüz mevcut değil. İngilizce gösteriliyor.",
     "migration": {
       "importedLegacyStorage": "Mevcut BrushBeats tercihlerin ve son oturumun yeni yerel hane veritabanina aktarıldı. Bu tarayıcı artık önce yeni yerel veritabanını kullanıyor ve eski çerezler yalnızca uyumluluk yedeği olarak kalıyor.",
@@ -154,21 +132,12 @@
       "caregiverSummarySubtitle": "Nelerin acildigini, neyin yakin oldugunu ve siradaki odagi hizlica gosterir.",
       "filters": {
         "timeRange": "Zaman araligi",
-        "activityType": "Etkinlik",
         "options": {
           "7d": "Son 7 gun",
           "30d": "Son 30 gun",
           "all": "Tum zamanlar",
-          "allActivities": "Tum etkinlikler",
-          "brushing": "Fircalama",
-          "flossing": "Dis ipi",
-          "waterPicking": "Agiz dusu"
+          "brushing": "Fircalama"
         }
-      },
-      "quickActionsTitle": "Hizli rutin kaydi",
-      "quickActions": {
-        "flossing": "Dis ipi kaydet",
-        "waterPicking": "Agiz dusu kaydet"
       },
       "stats": {
         "totalSessions": "Izlenen oturumlar",
@@ -185,9 +154,7 @@
       "nudgesTitle": "Bakici yonlendirmeleri",
       "pointsBreakdown": {
         "brushing": "Fircalama +{{points}}",
-        "support": "Dis ipi/agiz dusu +{{points}}",
         "milestones": "Dis kilometre taslari +{{points}}",
-        "variety": "Rutin cesitliligi +{{points}}",
         "achievements": "Rozet bonuslari +{{points}}"
       },
       "caregiverCards": {
@@ -196,36 +163,24 @@
         "nextRewardRoutineMix": "{{title}} icin {{target}} rutinden {{remaining}} rutin tipi daha gerekli.",
         "nextRewardDevelopment": "{{title}} sonraki dis asamasi gecisinde acilacak.",
         "noPendingReward": "Mevcut odul yollarinin tamami acildi.",
-        "routineMixTitle": "Rutin karisimi: {{current}}/{{total}}",
-        "routineMixPending": "Hala eksik: {{items}}.",
-        "routineMixComplete": "Tum rutin tipleri izleniyor.",
         "badgeMixTitle": "Rozet katmanlari",
         "badgeMixValue": "Bronz {{bronze}} · Gumus {{silver}} · Altin {{gold}}"
       },
       "goalCards": {
         "weeklyBrushingTitle": "Haftalik fircalama hedefi",
         "weeklyBrushingProgress": "Bu hafta {{target}} hedefinin {{current}} kadari tamamlandi. {{remaining}} kaldi.",
-        "weeklyBrushingComplete": "Haftalik fircalama hedefi {{current}} / {{target}} ile tamamlandi.",
-        "weeklySupportTitle": "Haftalik destek-rutini hedefi",
-        "weeklySupportProgress": "Bu hafta {{target}} destek rutininin {{current}} kadari tamamlandi. {{remaining}} kaldi.",
-        "weeklySupportComplete": "Haftalik destek-rutini hedefi {{current}} / {{target}} ile tamamlandi."
+        "weeklyBrushingComplete": "Haftalik fircalama hedefi {{current}} / {{target}} ile tamamlandi."
       },
       "nudgeTitles": {
-        "goalsComplete": "Hedefler tamam",
         "weeklyBrushing": "Siradaki fircalama",
-        "weeklySupport": "Siradaki destek rutini",
         "restartMomentum": "Momentumu yeniden baslat",
         "stageTransition": "Gelisim odagi",
-        "routineVariety": "Rutin cesitliligi",
         "nextAchievement": "Rozet yakinda"
       },
       "nudges": {
-        "goalsComplete": "Bu hafta hedefte. Simdi odak tutarlilik ve rozet cesitliligi olabilir.",
         "weeklyBrushing": "Bu hafta {{target}} hedefine yetismek icin {{remaining}} fircalama daha planlayin.",
-        "weeklySupport": "Bu hafta {{target}} hedefine ulasmak icin {{remaining}} dis ipi veya agiz dusu rutini daha ekleyin.",
         "restartMomentum": "Son iki gunde fircalama yok. Bugun kisa bir rutin momentumu yeniden baslatir.",
         "stageTransition": "Gulumseme {{previousStage}} evresinden {{newStage}} evresine gecti. Bu degisimi anlatmak ve rutini sabit tutmak icin iyi bir zaman.",
-        "routineVariety": "Bu hafta destek rutinleri eksik. Kapsami genisletmek icin dis ipi veya agiz dusu ekleyin.",
         "nextAchievement": "{{badge}}, {{target}} hedefine sadece {{remaining}} uzakta."
       },
       "momentum": {
@@ -235,9 +190,7 @@
         "strong": "Momentum guclu. Profil artik daha yuksek seri ve hacim odullerine hazir."
       },
       "activityTypes": {
-        "brushing": "Fircalama oturumu",
-        "flossing": "Dis ipi oturumu",
-        "water-picking": "Agiz dusu oturumu"
+        "brushing": "Fircalama oturumu"
       },
       "recentSessionsTitle": "Son oturumlar",
       "recentSessionsSummary": "Bu gorunumde {{count}} oturum var.",
@@ -341,11 +294,8 @@
         "levelStepPoints": "Seviye adim puani",
         "levelGrowthPoints": "Seviye basi artis",
         "brushingSessionPoints": "Fircalama puani",
-        "supportRoutinePoints": "Dis ipi / agiz dusu puani",
         "toothMilestonePoints": "Dis kilometre tasi puani",
-        "routineVarietyPoints": "Rutin cesitliligi bonusu",
         "weeklyBrushingSessions": "Haftalik fircalama hedefi",
-        "weeklySupportRoutines": "Haftalik destek-rutini hedefi",
         "memberName": "Uye adi",
         "topTeeth": "Ust disler",
         "bottomTeeth": "Alt disler",

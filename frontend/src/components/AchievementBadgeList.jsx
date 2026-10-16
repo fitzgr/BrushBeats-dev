@@ -1,5 +1,8 @@
 export default function AchievementBadgeList({ t, achievements, title, compact = false }) {
-  if (!Array.isArray(achievements) || achievements.length === 0) {
+  const visibleAchievements = Array.isArray(achievements)
+    ? achievements.filter((achievement) => achievement.achievementType !== "routine-mix")
+    : [];
+  if (visibleAchievements.length === 0) {
     return null;
   }
 
@@ -7,7 +10,7 @@ export default function AchievementBadgeList({ t, achievements, title, compact =
     <section className={`achievement-badge-list${compact ? " compact" : ""}`} aria-label={title || t("app.achievements.ariaLabel")}>
       {title && <strong>{title}</strong>}
       <div className="achievement-badge-grid">
-        {achievements.map((achievement) => (
+        {visibleAchievements.map((achievement) => (
           <article key={achievement.achievementId || achievement.achievementType} className={`achievement-badge-card tier-${achievement.tier || "bronze"}`}>
             <span className="achievement-badge-icon" aria-hidden="true">★</span>
             <div>

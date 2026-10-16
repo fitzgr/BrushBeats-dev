@@ -27,15 +27,6 @@ function formatNextAchievementSummary(t, nextAchievement) {
   });
 }
 
-function formatMissingRoutineTypes(t, routineCoverage) {
-  if (!routineCoverage || routineCoverage.missingTypes.length === 0) {
-    return t("app.progressDashboard.caregiverCards.routineMixComplete");
-  }
-
-  const labels = routineCoverage.missingTypes.map((routineType) => t(`app.progressDashboard.activityTypes.${routineType}`));
-  return t("app.progressDashboard.caregiverCards.routineMixPending", { items: labels.join(", ") });
-}
-
 function formatGoalSummary(t, goal, kind) {
   if (!goal) {
     return "";
@@ -75,10 +66,18 @@ function formatCaregiverNudge(t, nudge) {
   return t(`app.progressDashboard.nudges.${nudge.key}`, nudge.values);
 }
 
-export default function ProgressDashboardPanel({ t, dashboard, activeUserName, filters, onFilterChange, onLogActivity, readOnly = false, previewLabel = "" }) {
+export default function ProgressDashboardPanel({ t, dashboard, activeUserName, filters, onFilterChange, readOnly = false, previewLabel = "" }) {
   if (!dashboard) {
     return null;
   }
+
+  const visibleNudges = (dashboard.caregiverNudges || []).filter((nudge) =>
+    !["weeklySupport", "routineVariety", "goalsComplete"].includes(nudge.key) &&
+    !(nudge.key === "nextAchievement" && nudge.values?.achievementType === "routine-mix")
+  );
+  const brushingSessions = (dashboard.recentSessions || []).filter((session) =>
+    !session.sessionType || session.sessionType === "brushing"
+  );
 
   return (
     <section className={`progress-dashboard-panel${readOnly ? " readonly-preview" : ""}`} aria-label={t("app.progressDashboard.ariaLabel")}>
@@ -96,15 +95,6 @@ export default function ProgressDashboardPanel({ t, dashboard, activeUserName, f
               <option value="7d">{t("app.progressDashboard.filters.options.7d")}</option>
               <option value="30d">{t("app.progressDashboard.filters.options.30d")}</option>
               <option value="all">{t("app.progressDashboard.filters.options.all")}</option>
-            </select>
-          </label>
-          <label>
-            <span>{t("app.progressDashboard.filters.activityType")}</span>
-            <select value={filters.activityType} onChange={(event) => onFilterChange("activityType", event.target.value)} disabled={readOnly}>
-              <option value="all">{t("app.progressDashboard.filters.options.allActivities")}</option>
-              <option value="brushing">{t("app.progressDashboard.filters.options.brushing")}</option>
-              <option value="flossing">{t("app.progressDashboard.filters.options.flossing")}</option>
-              <option value="water-picking">{t("app.progressDashboard.filters.options.waterPicking")}</option>
             </select>
           </label>
         </div>
@@ -155,21 +145,12 @@ export default function ProgressDashboardPanel({ t, dashboard, activeUserName, f
               <span className="progress-dashboard-level-fill" style={{ width: `${dashboard.goals.weeklyBrushing.percent}%` }} />
             </div>
           </article>
-          <article className="progress-dashboard-caregiver-item">
-            <strong>{t("app.progressDashboard.goalCards.weeklySupportTitle")}</strong>
-            <span>{formatGoalSummary(t, dashboard.goals.weeklySupport, "weeklySupport")}</span>
-            <div className="progress-dashboard-level-track" aria-hidden="true">
-              <span className="progress-dashboard-level-fill" style={{ width: `${dashboard.goals.weeklySupport.percent}%` }} />
-            </div>
-          </article>
+          {dashboard.nextAchievement?.achievementType !== "routine-mix" && (
           <article className="progress-dashboard-caregiver-item">
             <strong>{t("app.progressDashboard.caregiverCards.nextRewardTitle")}</strong>
             <span>{formatNextAchievementSummary(t, dashboard.nextAchievement)}</span>
           </article>
-          <article className="progress-dashboard-caregiver-item">
-            <strong>{t("app.progressDashboard.caregiverCards.routineMixTitle", { current: dashboard.caregiverSummary.routineCoverage.current, total: dashboard.caregiverSummary.routineCoverage.target })}</strong>
-            <span>{formatMissingRoutineTypes(t, dashboard.caregiverSummary.routineCoverage)}</span>
-          </article>
+          )}
           <article className="progress-dashboard-caregiver-item">
             <strong>{t("app.progressDashboard.caregiverCards.badgeMixTitle")}</strong>
             <span>{t("app.progressDashboard.caregiverCards.badgeMixValue", {
@@ -180,13 +161,13 @@ export default function ProgressDashboardPanel({ t, dashboard, activeUserName, f
           </article>
         </div>
         <div className="progress-dashboard-points-breakdown" aria-label={t("app.progressDashboard.pointsBreakdownTitle")}>
-          {dashboard.progression.pointsBreakdown.map((entry) => (
+          {dashboard.progression.pointsBreakdown.filter((entry) => !["support", "variety"].includes(entry.key)).map((entry) => (
             <span key={entry.key}>{t(`app.progressDashboard.pointsBreakdown.${entry.key}`, { points: entry.points })}</span>
           ))}
         </div>
-        {dashboard.caregiverNudges.length > 0 && (
+        {visibleNudges.length > 0 && (
           <div className="progress-dashboard-nudges" aria-label={t("app.progressDashboard.nudgesTitle")}>
-            {dashboard.caregiverNudges.map((nudge) => (
+            {visibleNudges.map((nudge) => (
               <article key={`${nudge.key}-${nudge.priority}`} className="progress-dashboard-nudge-card">
                 <strong>{t(`app.progressDashboard.nudgeTitles.${nudge.key}`)}</strong>
                 <span>{formatCaregiverNudge(t, nudge)}</span>
@@ -203,27 +184,15 @@ export default function ProgressDashboardPanel({ t, dashboard, activeUserName, f
         title={t("app.progressDashboard.achievementsTitle")}
       />
 
-      <div className="progress-dashboard-quick-actions">
-        <strong>{t("app.progressDashboard.quickActionsTitle")}</strong>
-        <div className="progress-dashboard-quick-action-list">
-          <button type="button" className="action-btn secondary" onClick={() => onLogActivity("flossing")} disabled={readOnly}>
-            {t("app.progressDashboard.quickActions.flossing")}
-          </button>
-          <button type="button" className="action-btn secondary" onClick={() => onLogActivity("water-picking")} disabled={readOnly}>
-            {t("app.progressDashboard.quickActions.waterPicking")}
-          </button>
-        </div>
-      </div>
-
       <div className="progress-dashboard-grid">
         <section className="progress-dashboard-section">
           <div className="progress-dashboard-section-header">
             <strong>{t("app.progressDashboard.recentSessionsTitle")}</strong>
-            <span>{t("app.progressDashboard.recentSessionsSummary", { count: dashboard.recentSessions.length })}</span>
+            <span>{t("app.progressDashboard.recentSessionsSummary", { count: brushingSessions.length })}</span>
           </div>
-          {dashboard.recentSessions.length > 0 ? (
+          {brushingSessions.length > 0 ? (
             <div className="progress-dashboard-list">
-              {dashboard.recentSessions.map((session) => (
+              {brushingSessions.map((session) => (
                 <article key={session.sessionId} className="progress-dashboard-list-item">
                   <strong>
                     {session.songTitle

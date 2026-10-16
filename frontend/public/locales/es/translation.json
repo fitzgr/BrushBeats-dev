@@ -73,28 +73,6 @@
       "music": "2. Musica",
       "brush": "3. Cepillar"
     },
-    "routine": {
-      "ariaLabel": "Hoja de ruta de cuidado dental",
-      "title": "Cuidado dental completo",
-      "intro": "Este es el companero completo del ritmo dental de tu hogar: cepillado, hilo dental e irrigador. La rutina de cada persona se sincroniza con la musica, ajustando el ritmo a sus necesidades unicas. Con el tiempo, todos desarrollan habitos naturales, uniformes y consistentes, para que cada diente, cada espacio y cada enjuague reciba el mismo cuidado.",
-      "expand": "Ampliar hoja de ruta",
-      "collapse": "Reducir hoja de ruta",
-      "available": "Disponible ahora",
-      "comingSoon": "Proximamente",
-      "bestPractice": "Mejores practicas",
-      "brushing": {
-        "title": "Cepillado",
-        "description": "Cepillado sincronizado con el ritmo, musica y guia de posicion de la mano."
-      },
-      "flossing": {
-        "title": "Hilo dental",
-        "description": "Usa hilo una vez al dia formando una C alrededor de cada diente, entrando suavemente bajo la encia y usando un tramo limpio en cada espacio."
-      },
-      "waterPicking": {
-        "title": "Irrigador dental",
-        "description": "Usa agua tibia con presion baja a media, apunta a 90 grados hacia la linea de la encia y detente 1-2 segundos entre dientes."
-      }
-    },
     "languageFallbackNotice": "Este idioma todavia no esta disponible. Mostrando ingles.",
     "migration": {
       "importedLegacyStorage": "Tus preferencias actuales de BrushBeats y la ultima sesion se importaron a la nueva base de datos local del hogar. Este navegador ahora usa primero la nueva base de datos local y las cookies antiguas quedan solo como respaldo de compatibilidad.",
@@ -154,21 +132,12 @@
       "caregiverSummarySubtitle": "Vista rapida de lo desbloqueado, lo cercano y donde conviene insistir ahora.",
       "filters": {
         "timeRange": "Periodo",
-        "activityType": "Actividad",
         "options": {
           "7d": "Ultimos 7 dias",
           "30d": "Ultimos 30 dias",
           "all": "Todo el tiempo",
-          "allActivities": "Todas las actividades",
-          "brushing": "Cepillado",
-          "flossing": "Hilo dental",
-          "waterPicking": "Irrigador"
+          "brushing": "Cepillado"
         }
-      },
-      "quickActionsTitle": "Registro rapido de rutinas",
-      "quickActions": {
-        "flossing": "Registrar hilo dental",
-        "waterPicking": "Registrar irrigador"
       },
       "stats": {
         "totalSessions": "Sesiones registradas",
@@ -185,9 +154,7 @@
       "nudgesTitle": "Sugerencias para cuidadores",
       "pointsBreakdown": {
         "brushing": "Cepillado +{{points}}",
-        "support": "Hilo/irrigador +{{points}}",
         "milestones": "Hitos dentales +{{points}}",
-        "variety": "Variedad de rutinas +{{points}}",
         "achievements": "Bonos por insignias +{{points}}"
       },
       "caregiverCards": {
@@ -196,36 +163,24 @@
         "nextRewardRoutineMix": "{{title}} necesita {{remaining}} tipos de rutina mas de {{target}}.",
         "nextRewardDevelopment": "{{title}} se desbloqueara con el siguiente cambio de etapa dental.",
         "noPendingReward": "Todas las recompensas actuales ya estan desbloqueadas.",
-        "routineMixTitle": "Variedad: {{current}}/{{total}}",
-        "routineMixPending": "Todavia falta: {{items}}.",
-        "routineMixComplete": "Ya se registran todos los tipos de rutina.",
         "badgeMixTitle": "Niveles de insignia",
         "badgeMixValue": "Bronce {{bronze}} · Plata {{silver}} · Oro {{gold}}"
       },
       "goalCards": {
         "weeklyBrushingTitle": "Meta semanal de cepillado",
         "weeklyBrushingProgress": "{{current}} de {{target}} completados esta semana. Faltan {{remaining}}.",
-        "weeklyBrushingComplete": "La meta semanal de cepillado se completo con {{current}} de {{target}}.",
-        "weeklySupportTitle": "Meta semanal de rutinas de apoyo",
-        "weeklySupportProgress": "{{current}} de {{target}} rutinas de apoyo completadas esta semana. Faltan {{remaining}}.",
-        "weeklySupportComplete": "La meta semanal de apoyo se completo con {{current}} de {{target}}."
+        "weeklyBrushingComplete": "La meta semanal de cepillado se completo con {{current}} de {{target}}."
       },
       "nudgeTitles": {
-        "goalsComplete": "Metas cumplidas",
         "weeklyBrushing": "Sigue el cepillado",
-        "weeklySupport": "Sigue la rutina de apoyo",
         "restartMomentum": "Reactivar la inercia",
         "stageTransition": "Momento del desarrollo",
-        "routineVariety": "Variedad de rutinas",
         "nextAchievement": "Insignia cercana"
       },
       "nudges": {
-        "goalsComplete": "La semana ya va en objetivo. Ahora conviene cuidar la constancia y sumar variedad de insignias.",
         "weeklyBrushing": "Programa {{remaining}} sesiones mas de cepillado para sostener el ritmo hacia {{target}} esta semana.",
-        "weeklySupport": "Agrega {{remaining}} rutinas mas de hilo o irrigador para llegar a {{target}} esta semana.",
         "restartMomentum": "No hubo cepillado en los ultimos dos dias. Una rutina hoy reactivara la inercia.",
         "stageTransition": "La sonrisa paso de {{previousStage}} a {{newStage}}. Este cambio es buen momento para explicar lo que ocurre y mantener la rutina estable.",
-        "routineVariety": "Todavia faltan rutinas de apoyo esta semana. Suma hilo dental o irrigador para ampliar la cobertura.",
         "nextAchievement": "{{badge}} esta a {{remaining}} de su meta de {{target}}."
       },
       "momentum": {
@@ -236,9 +191,7 @@
       },
       "recentSessionsTitle": "Sesiones recientes",
       "activityTypes": {
-        "brushing": "Sesion de cepillado",
-        "flossing": "Sesion de hilo dental",
-        "water-picking": "Sesion de irrigador"
+        "brushing": "Sesion de cepillado"
       },
       "recentSessionsSummary": "{{count}} sesiones en esta vista.",
       "sessionWithSong": "Cepillado con {{title}}",
@@ -341,11 +294,8 @@
         "levelStepPoints": "Puntos por nivel",
         "levelGrowthPoints": "Crecimiento por nivel",
         "brushingSessionPoints": "Puntos por cepillado",
-        "supportRoutinePoints": "Puntos por hilo / irrigador",
         "toothMilestonePoints": "Puntos por hitos dentales",
-        "routineVarietyPoints": "Bono por variedad",
         "weeklyBrushingSessions": "Meta semanal de cepillado",
-        "weeklySupportRoutines": "Meta semanal de apoyo",
         "memberName": "Nombre del miembro",
         "topTeeth": "Dientes superiores",
         "bottomTeeth": "Dientes inferiores",

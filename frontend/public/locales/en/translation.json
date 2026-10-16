@@ -75,28 +75,6 @@
       "music": "2. Music",
       "brush": "3. Brush"
     },
-    "routine": {
-      "ariaLabel": "Dental care roadmap",
-      "title": "Complete dental care",
-      "intro": "This is your household's complete dental rhythm companion-brushing, flossing, and water picking. Each user's routine syncs to music, matching rhythm to their unique needs. Over time, everyone naturally develops even, consistent habits-ensuring every tooth, every gap, and every rinse gets equal care.",
-      "expand": "Expand roadmap",
-      "collapse": "Collapse roadmap",
-      "available": "Available now",
-      "comingSoon": "Coming soon",
-      "bestPractice": "Best practices",
-      "brushing": {
-        "title": "Brushing",
-        "description": "Tempo-matched brushing, music, and guided hand positioning."
-      },
-      "flossing": {
-        "title": "Flossing",
-        "description": "Floss once daily by hugging each tooth in a C-shape, sliding below the gumline, and using clean floss sections between teeth."
-      },
-      "waterPicking": {
-        "title": "Water Picking",
-        "description": "Use a warm-water irrigator at low to medium pressure, trace the gumline at 90 degrees, and pause between teeth for 1-2 seconds."
-      }
-    },
     "languageFallbackNotice": "This language is not available yet. Showing English.",
     "migration": {
       "importedLegacyStorage": "Imported your existing BrushBeats preferences and last session into the new local household database. This browser now uses the new local database first, while older cookies stay only as compatibility fallback.",
@@ -156,21 +134,12 @@
       "caregiverSummarySubtitle": "A quick view of what is unlocked, what is close, and where to nudge next.",
       "filters": {
         "timeRange": "Time range",
-        "activityType": "Activity",
         "options": {
           "7d": "Last 7 days",
           "30d": "Last 30 days",
           "all": "All time",
-          "allActivities": "All activities",
-          "brushing": "Brushing",
-          "flossing": "Flossing",
-          "waterPicking": "Water picking"
+          "brushing": "Brushing"
         }
-      },
-      "quickActionsTitle": "Quick routine logging",
-      "quickActions": {
-        "flossing": "Log flossing",
-        "waterPicking": "Log water picking"
       },
       "stats": {
         "totalSessions": "Tracked sessions",
@@ -187,9 +156,7 @@
       "nudgesTitle": "Caregiver nudges",
       "pointsBreakdown": {
         "brushing": "Brushing +{{points}}",
-        "support": "Flossing/water picking +{{points}}",
         "milestones": "Tooth milestones +{{points}}",
-        "variety": "Routine variety +{{points}}",
         "achievements": "Badge bonuses +{{points}}"
       },
       "caregiverCards": {
@@ -198,36 +165,24 @@
         "nextRewardRoutineMix": "{{title}} needs {{remaining}} more routine types out of {{target}}.",
         "nextRewardDevelopment": "{{title}} will unlock after the next tooth-stage transition.",
         "noPendingReward": "All current reward tracks are unlocked.",
-        "routineMixTitle": "Routine mix: {{current}}/{{total}}",
-        "routineMixPending": "Still missing: {{items}}.",
-        "routineMixComplete": "All routine types are being tracked.",
         "badgeMixTitle": "Badge tiers",
         "badgeMixValue": "Bronze {{bronze}} · Silver {{silver}} · Gold {{gold}}"
       },
       "goalCards": {
         "weeklyBrushingTitle": "Weekly brushing goal",
         "weeklyBrushingProgress": "{{current}} of {{target}} done this week. {{remaining}} to go.",
-        "weeklyBrushingComplete": "Weekly brushing goal cleared at {{current}} of {{target}}.",
-        "weeklySupportTitle": "Weekly support-routine goal",
-        "weeklySupportProgress": "{{current}} of {{target}} support routines done this week. {{remaining}} to go.",
-        "weeklySupportComplete": "Weekly support-routine goal cleared at {{current}} of {{target}}."
+        "weeklyBrushingComplete": "Weekly brushing goal cleared at {{current}} of {{target}}."
       },
       "nudgeTitles": {
-        "goalsComplete": "Goals cleared",
         "weeklyBrushing": "Brushing next",
-        "weeklySupport": "Support routine next",
         "restartMomentum": "Momentum reset",
         "stageTransition": "Development spotlight",
-        "routineVariety": "Routine variety",
         "nextAchievement": "Badge in reach"
       },
       "nudges": {
-        "goalsComplete": "This week is already on target. Shift attention to consistency and badge variety.",
         "weeklyBrushing": "Schedule {{remaining}} more brushing sessions to stay on pace for {{target}} this week.",
-        "weeklySupport": "Add {{remaining}} more flossing or water-picking routines to reach {{target}} this week.",
         "restartMomentum": "No brushing session has landed in the last two days. A quick routine today will restart momentum.",
         "stageTransition": "The smile just moved from {{previousStage}} to {{newStage}}. Use this milestone to explain what is changing and keep routines steady.",
-        "routineVariety": "Support routines are still missing this week. Mix in flossing or water picking to widen coverage.",
         "nextAchievement": "{{badge}} is {{remaining}} away from its {{target}} goal."
       },
       "momentum": {
@@ -237,9 +192,7 @@
         "strong": "Momentum is strong. The profile is ready for higher-tier streak and volume rewards."
       },
       "activityTypes": {
-        "brushing": "Brushing session",
-        "flossing": "Flossing session",
-        "water-picking": "Water-picking session"
+        "brushing": "Brushing session"
       },
       "recentSessionsTitle": "Recent sessions",
       "recentSessionsSummary": "{{count}} sessions in this view.",
@@ -343,11 +296,8 @@
         "levelStepPoints": "Level step points",
         "levelGrowthPoints": "Per-level growth",
         "brushingSessionPoints": "Brushing points",
-        "supportRoutinePoints": "Flossing / water-picking points",
         "toothMilestonePoints": "Tooth milestone points",
-        "routineVarietyPoints": "Routine variety bonus",
         "weeklyBrushingSessions": "Weekly brushing goal",
-        "weeklySupportRoutines": "Weekly support-routine goal",
         "memberName": "Member name",
         "topTeeth": "Top teeth",
         "bottomTeeth": "Bottom teeth",
@@ -635,8 +585,8 @@
       "rotate": "Rotate",
       "transition": "Transition"
     },
-    "technique": "{{quadrant}}: {{motion}} with your {{hand}} hand."
-    ,"toothChart": {
+    "technique": "{{quadrant}}: {{motion}} with your {{hand}} hand.",
+    "toothChart": {
       "label": "Tooth {{number}}: {{name}}",
       "names": {
         "thirdMolar": "3rd molar (wisdom tooth)",
