@@ -14,7 +14,7 @@ const timeline = buildBrushingSessionTimeline({
 const firstStart = timeline.find((entry) => entry.transitionCue === "extendStart");
 const focusEntries = timeline.filter((entry) => entry.type === "tooth" && entry.pass === "extend");
 const state = (elapsedSeconds, jaw, mapIndex, surface, extendPassStarted = elapsedSeconds >= firstStart.startsAt) =>
-  getToothSurfaceVisualState({ timeline, elapsedSeconds, jaw, mapIndex, surface, focusSurfaceModes, extendPassStarted });
+  getToothSurfaceVisualState({ timeline, elapsedSeconds, jaw, mapIndex, surface, focusSurfaceModes: focusModes, extendPassStarted });
 
 test("Extra Care surfaces reset to gray immediately at Extend start cue", () => {
   assert.ok(Math.abs(firstStart.startsAt - 120) < 1e-7);
@@ -49,6 +49,6 @@ test("A standard session does not reset the focused surface visuals", () => {
   });
   assert.deepEqual(getToothSurfaceVisualState({
     timeline: standard, elapsedSeconds: 120, jaw: "top", mapIndex: 0,
-    surface: "front", focusSurfaceModes, extendPassStarted: true
+    surface: "front", focusSurfaceModes: focusModes, extendPassStarted: true
   }), { brushed: true, extendPending: false });
 });
