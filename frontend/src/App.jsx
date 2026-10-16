@@ -3151,9 +3151,9 @@ function App() {
         <div className="brain-challenge-backdrop" role="presentation" onClick={() => setBrainChallengeInfoOpen(false)}>
           <section className="brain-challenge-modal" role="dialog" aria-modal="true" aria-labelledby="brain-challenge-title" onClick={(event) => event.stopPropagation()}>
             <button type="button" className="brain-challenge-close" aria-label="Close" onClick={() => setBrainChallengeInfoOpen(false)}>×</button>
-            <h3 id="brain-challenge-title">Left brain / right brain challenge</h3>
+            <h3 id="brain-challenge-title">Alternate: starting hand</h3>
             <p>Break up your usual brushing pattern by alternating which hand you start with each session. Using your non-dominant hand can make a familiar task feel novel and challenge coordination and attention.</p>
-            <p>This is a coordination challenge, not a claim that one hand literally exercises one “side” of the brain. The simple left-brain/right-brain personality idea is an oversimplification of how the brain works.</p>
+            <p>When enabled, Brush Beats switches your starting hand between left and right each new session and shows the starting hand before brushing begins. When disabled, your regular saved hand is used.</p>
           </section>
         </div>
       )}
@@ -3345,7 +3345,7 @@ function App() {
                       checked={Boolean(rotatingStartEnabled)}
                       onChange={(event) => handleRotatingStartEnabledChange(event.target.checked)}
                     />
-                    <button type="button" className="brain-challenge-info-link" onClick={(event) => { event.preventDefault(); setRotatingStartInfoOpen(true); }}>Rotate starting tooth</button>
+                    <button type="button" className="brain-challenge-info-link" onClick={(event) => { event.preventDefault(); setRotatingStartInfoOpen(true); }}>Rotate</button>
                   </label>
                   <label className="brush-start-rotation-toggle-row extend-mode-copy">
                     <input
@@ -3363,7 +3363,7 @@ function App() {
                       onChange={(event) => setBrainChallengeEnabled(event.target.checked)}
                     />
                     <button type="button" className="brain-challenge-info-link" onClick={(event) => { event.preventDefault(); setBrainChallengeInfoOpen(true); }}>
-                      Alternate hands
+                      Alternate
                     </button>
                   </label>
                 </div>
@@ -3397,6 +3397,10 @@ function App() {
                 onRestartBrushing={restartBrushing}
                 rotatingStartEnabled={rotatingStartEnabled}
                 onRotatingStartEnabledChange={handleRotatingStartEnabledChange}
+                onRotatingStartInfoClick={() => setRotatingStartInfoOpen(true)}
+                brainChallengeEnabled={brainChallengeEnabled}
+                onBrainChallengeEnabledChange={setBrainChallengeEnabled}
+                onBrainChallengeInfoClick={() => setBrainChallengeInfoOpen(true)}
                 ageUiProfile={ageUiProfile}
                 embedded
                 showThemePanel={false}
