@@ -139,9 +139,14 @@ test("manual brushing still switches at center; shifted electric segments includ
         for (const surface of ["front", "back"]) {
           const leftSegment = segments.find((segment) => segment.key === `${surface}-${jaw}-left`);
           const rightSegment = segments.find((segment) => segment.key === `${surface}-${jaw}-right`);
-          const expectedBoundary = count < 3
-            ? Math.ceil(count / 2)
-            : Math.max(1, Math.min(count - 1, Math.ceil(count / 2) + (brushHand === "left" ? -1 : 1)));
+          // The one-tooth-past-center shift applies only when the row
+          // direction matches the active hand; the return row stays centered.
+          const handedDirection = brushHand === "left" ? "rtl" : "ltr";
+          const rowDirection = surface === "front" ? "ltr" : "rtl";
+          const shifted = count >= 3 && rowDirection === handedDirection;
+          const expectedBoundary = shifted
+            ? Math.max(1, Math.min(count - 1, Math.ceil(count / 2) + (brushHand === "left" ? -1 : 1)))
+            : Math.ceil(count / 2);
           assert.equal(leftSegment?.mapIndices.length ?? 0, expectedBoundary);
           assert.equal(rightSegment?.mapIndices.length ?? 0, count - expectedBoundary);
           const indices = segments
