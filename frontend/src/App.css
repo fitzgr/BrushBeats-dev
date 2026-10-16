@@ -3145,6 +3145,10 @@
 }
 
 .guide-session-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.8rem;
   margin-bottom: 0.1rem;
 }
 
