@@ -655,6 +655,9 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
   const activeEntry = hasActiveBrushTimeline ? getActiveTimelineEntry(timeline, elapsedSeconds) : null;
   const activeToothEntry = activeEntry?.type === "tooth" ? activeEntry : null;
   const isExtendPass = activeToothEntry?.pass === "extend";
+  const isExtendMove = activeEntry?.type === "transition" && activeEntry.pass === "extend";
+  const focusStartCue = isExtendMove && activeEntry.transitionCue === "extendStart";
+  const focusCueSeconds = isExtendMove ? Math.max(1, Math.ceil(activeEntry.endsAt - elapsedSeconds)) : 0;
   const activeToothPulseMs = getActiveToothPulseMs(guideBpm) * (activeToothEntry?.weight || 1);
   const activeToothProgress = activeToothEntry
     ? clampNumber((elapsedSeconds - activeToothEntry.startsAt) / Math.max(0.001, activeToothEntry.endsAt - activeToothEntry.startsAt), 0, 1)
@@ -748,7 +751,7 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
   }, [brushingPhase]);
 
   useEffect(() => {
-    if (reducedMotion || activeEntry?.type !== "transition") {
+    if (reducedMotion || activeEntry?.type !== "transition" || activeEntry.pass === "extend") {
       return;
     }
 
@@ -885,6 +888,17 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
     }
 
     if (activeEntry?.type === "transition") {
+      if (activeEntry.pass === "extend") {
+        const jawName = activeEntry.toJaw === "top" ? "Top" : "Bottom";
+        const surfaceName = activeEntry.toSurface === "front" ? "Outside" : "Inside";
+        const toothNumber = activeEntry.toMapIndex + 1;
+        onCueChange({
+          kind: "transition",
+          title: activeEntry.transitionCue === "extendStart" ? "Extend · Find your starting tooth" : "Extend · Move your brush",
+          detail: `${jawName} · ${surfaceName} · tooth ${toothNumber} — ${nextMoveSeconds}s to move`
+        });
+        return;
+      }
       if (activeEntry.transitionCue === "switchHand") {
         onCueChange({
           kind: "side-switch",
@@ -1136,6 +1150,23 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
       ? t("brushing.guide.startFrontTooth")
       : t("brushing.guide.startInsideTooth");
   }, [countdownPreviewTarget, t]);
+  // Reuse the original starting-tooth indicator for each repositioning cue
+  // during Extend, pointing to the exact next selected tooth surface.
+  const extendCuePoint = useMemo(() => {
+    if (!isExtendMove) return null;
+    const points = activeEntry.toJaw === "top" ? topPoints : bottomPoints;
+    const point = points[activeEntry.toMapIndex];
+    if (!point) return null;
+    return {
+      x: point.x,
+      y: point.y,
+      labelY: activeEntry.toJaw === "top" ? mapCenter.y + 88 : mapCenter.y - 82,
+      labelX: mapCenter.x
+    };
+  }, [activeEntry, bottomPoints, isExtendMove, mapCenter.x, mapCenter.y, topPoints]);
+  const extendCueLabel = isExtendMove
+    ? `${activeEntry.toJaw === "top" ? "Top" : "Bottom"} · ${activeEntry.toSurface === "front" ? "Outside" : "Inside"} · Tooth ${activeEntry.toMapIndex + 1}`
+    : "";
   const countdownStartSurfaceLabelLines = useMemo(() => {
     const match = String(countdownStartSurfaceLabel || "").match(/^(.+?)\s*\((.+)\)$/);
 
@@ -1151,8 +1182,8 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
     ? completionMessage || t("brushing.guide.cleanShineLabel")
     : isPreStartBrushPhase
       ? "Tap brush to start/stop. Hold to reset."
-      : isExtendPass ? "Extend · Extra Care" : activeTip || fallbackTip || primaryBrushActionLabel;
-  const centerTickerDetail = "";
+      : isExtendMove ? `${focusStartCue ? "Extend start" : "Move brush"} · ${focusCueSeconds}s` : isExtendPass ? "Extend · Extra Care" : activeTip || fallbackTip || primaryBrushActionLabel;
+  const centerTickerDetail = isExtendMove ? extendCueLabel : "";
   const showCenterTicker = brushingPhase === "running" || brushingPhase === "paused";
   const showBottomTicker = brushingPhase === "idle" || brushingPhase === "awaitingPlayback" || brushingPhase === "complete";
   const mapBrushDirectionClass = brushFacingDirection
@@ -1229,7 +1260,7 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
   const coachingSet = AGE_HYGIENE_COACHING[coachingMode][activeAgePhase] || AGE_HYGIENE_COACHING[coachingMode].adult;
   const coachingIndex = Math.floor(Math.max(0, elapsedSeconds) / 14) % coachingSet.length;
   const activeCoaching = coachingSet[coachingIndex] || coachingSet[0];
-  const showElectricLiftCue = brushType === "electric" && activeEntry?.type === "transition";
+  const showElectricLiftCue = brushType === "electric" && activeEntry?.type === "transition" && !isExtendMove;
   const overlayPhase = brushingPhase === "complete"
     ? "complete"
     : brushingPhase === "running" || brushingPhase === "paused"
@@ -1588,6 +1619,19 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
                     {line}
                   </tspan>
                 ))}
+              </text>
+            </g>
+          )}
+          {isExtendMove && extendCuePoint && (
+            <g className="countdown-start-indicator" aria-label={extendCueLabel}>
+              <line x1={mapCenter.x} y1={mapCenter.y} x2={extendCuePoint.x} y2={extendCuePoint.y} className="countdown-start-guide" />
+              <circle cx={extendCuePoint.x} cy={extendCuePoint.y} r="8" className="countdown-start-core" />
+              <circle cx={extendCuePoint.x} cy={extendCuePoint.y} r="14" className="countdown-start-ring" />
+              <text x={extendCuePoint.labelX} y={extendCuePoint.labelY} textAnchor="middle" className="countdown-start-label">
+                {focusStartCue ? "Extend: start here" : "Extend: move here"}
+                <tspan x={extendCuePoint.labelX} dy="1.2em" className="countdown-start-label-sub">
+                  {extendCueLabel}
+                </tspan>
               </text>
             </g>
           )}

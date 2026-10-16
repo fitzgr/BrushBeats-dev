@@ -346,22 +346,56 @@ export function buildBrushingSessionTimeline({
     return baseTimeline;
   }
 
+  // The full-mouth pass always ends at the user-selected duration. The
+  // focused pass follows the same rotated segment order, with time to find
+  // its starting tooth and realistic pauses only for brush repositioning.
   let cursor = baseTimeline.at(-1)?.endsAt || 0;
-  const extraEntries = [];
-  for (const entry of baseTimeline) {
-    if (entry.type !== "tooth") continue;
+  const focusedTeeth = baseTimeline.filter((entry) => {
+    if (entry.type !== "tooth") return false;
     const mode = focusModes.get(`${entry.jaw}:${entry.mapIndex}`);
-    if (mode !== "both" && mode !== entry.surface) continue;
-    const durationSeconds = entry.durationSeconds;
-    extraEntries.push({
+    return mode === "both" || mode === entry.surface;
+  });
+  const focusedTimeline = [];
+  const appendMove = (previous, next, index) => {
+    const isStart = index === 0;
+    const jawChanged = Boolean(previous && previous.jaw !== next.jaw);
+    const surfaceChanged = Boolean(previous && previous.surface !== next.surface);
+    const indexDistance = previous ? Math.abs(previous.mapIndex - next.mapIndex) : 0;
+    // Adjacent teeth on the same jaw and face do not require a pause.
+    const moveSeconds = isStart ? 5
+      : jawChanged ? 4
+      : surfaceChanged ? 2
+      : indexDistance <= 1 ? 0
+      : Math.min(3, 1.5 + 0.3 * Math.max(0, indexDistance - 2));
+    if (moveSeconds <= 0) return;
+    focusedTimeline.push({
+      type: "transition",
+      key: `extend-move-${index}`,
+      pass: "extend",
+      transitionCue: isStart ? "extendStart" : jawChanged ? "extendJaw" : "extendMove",
+      fromLabel: previous?.label || baseTimeline.filter((entry) => entry.type === "tooth").at(-1)?.label || next.label,
+      toLabel: next.label,
+      toJaw: next.jaw,
+      toSurface: next.surface,
+      toMapIndex: next.mapIndex,
+      startsAt: cursor,
+      endsAt: cursor + moveSeconds
+    });
+    cursor += moveSeconds;
+  };
+  focusedTeeth.forEach((entry, index) => {
+    appendMove(focusedTeeth[index - 1], entry, index);
+    focusedTimeline.push({
       ...entry,
       key: `extend-${entry.key}`,
       pass: "extend",
+      segmentPosition: index + 1,
+      segmentSize: focusedTeeth.length,
       startsAt: cursor,
-      endsAt: cursor + durationSeconds,
+      endsAt: cursor + entry.durationSeconds,
       weight: 1
     });
-    cursor += durationSeconds;
-  }
-  return [...baseTimeline, ...extraEntries];
+    cursor += entry.durationSeconds;
+  });
+  return [...baseTimeline, ...focusedTimeline];
 }
