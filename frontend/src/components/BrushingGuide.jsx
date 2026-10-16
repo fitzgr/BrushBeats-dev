@@ -6,6 +6,7 @@ import { getBrushTechniqueTips } from "../lib/reinforcementMessages";
 import { buildSegments, buildBrushingSessionTimeline, getActiveTimelineEntry } from "../lib/brushingTimeline";
 import { getActiveToothPulseMs } from "../lib/brushingPulse";
 import { buildFocusSurfaceModeMapFromSelector } from "../lib/focusModes";
+import { getToothSurfaceVisualState } from "../lib/brushingSurfaceState";
 
 function toRadians(degrees) {
   return (degrees * Math.PI) / 180;
@@ -652,6 +653,9 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
       ? Math.min(totalSeconds, Math.max(0, Number(brushingMusicElapsedSeconds) || 0))
       : 0;
   const completedToothEntries = toothEntries.filter((entry) => entry.endsAt <= elapsedSeconds).length;
+  // Begin the second visual brushing pass with its five-second starting cue.
+  const extendPassStart = timeline.find((entry) => entry.pass === "extend")?.startsAt;
+  const extendPassStarted = hasActiveBrushTimeline && extendPassStart !== undefined && elapsedSeconds >= extendPassStart;
   const activeEntry = hasActiveBrushTimeline ? getActiveTimelineEntry(timeline, elapsedSeconds) : null;
   const activeToothEntry = activeEntry?.type === "tooth" ? activeEntry : null;
   const isExtendPass = activeToothEntry?.pass === "extend";
@@ -1032,6 +1036,8 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
     const state = {
       frontDone: false,
       backDone: false,
+      frontExtendPending: false,
+      backExtendPending: false,
       activeSurface: null
     };
 
@@ -1039,22 +1045,12 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
       return state;
     }
 
-    state.frontDone = timeline.some(
-      (entry) =>
-        entry.type === "tooth" &&
-        entry.jaw === jaw &&
-        entry.surface === "front" &&
-        entry.mapIndex === mapIndex &&
-        entry.endsAt <= elapsedSeconds
-    );
-    state.backDone = timeline.some(
-      (entry) =>
-        entry.type === "tooth" &&
-        entry.jaw === jaw &&
-        entry.surface === "back" &&
-        entry.mapIndex === mapIndex &&
-        entry.endsAt <= elapsedSeconds
-    );
+    const front = getToothSurfaceVisualState({ timeline, elapsedSeconds, jaw, mapIndex, surface: "front", focusSurfaceModes, extendPassStarted });
+    const back = getToothSurfaceVisualState({ timeline, elapsedSeconds, jaw, mapIndex, surface: "back", focusSurfaceModes, extendPassStarted });
+    state.frontDone = front.brushed;
+    state.backDone = back.brushed;
+    state.frontExtendPending = front.extendPending;
+    state.backExtendPending = back.extendPending;
 
     if (activeToothEntry?.jaw === jaw && activeToothEntry.mapIndex === mapIndex) {
       state.activeSurface = activeToothEntry.surface;
@@ -1395,13 +1391,13 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
           />
         )}
         <path
-          className={`tooth-face back-face${state.backDone ? " clean" : ""}${activeSurface === "back" ? " active-surface" : ""}${countdownSurface === "back" ? " countdown-preview-surface" : ""}`}
+          className={`tooth-face back-face${state.backDone ? " clean" : ""}${state.backExtendPending ? " extend-pending" : ""}${activeSurface === "back" ? " active-surface" : ""}${countdownSurface === "back" ? " countdown-preview-surface" : ""}`}
           d={toothShape.path}
           clipPath={`url(#${toothId}-back-surface)`}
           style={countdownSurface === "back" ? countdownSurfaceStyle : undefined}
         />
         <path
-          className={`tooth-face front-face${state.frontDone ? " clean" : ""}${activeSurface === "front" ? " active-surface" : ""}${countdownSurface === "front" ? " countdown-preview-surface" : ""}`}
+          className={`tooth-face front-face${state.frontDone ? " clean" : ""}${state.frontExtendPending ? " extend-pending" : ""}${activeSurface === "front" ? " active-surface" : ""}${countdownSurface === "front" ? " countdown-preview-surface" : ""}`}
           d={toothShape.path}
           clipPath={`url(#${toothId}-front-surface)`}
           style={countdownSurface === "front" ? countdownSurfaceStyle : undefined}

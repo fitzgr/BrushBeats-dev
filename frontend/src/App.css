@@ -5456,6 +5456,14 @@ select {
   fill: #f5e6bd;
 }
 
+/* At the start of Extend, only the selected Extra Care surfaces return to a
+   gray unbrushed state; they light up again as the focused pass completes. */
+.tooth-svg.focus-tooth .tooth-face.extend-pending:not(.active-surface) {
+  fill: #aeb5bd;
+  opacity: 0.92;
+  filter: none;
+}
+
 .tooth-svg .tooth-face.clean {
   fill: #eafff7;
   opacity: 1;
