@@ -197,6 +197,21 @@ function resolveToothDurations(segments, secondsPerTooth, options = {}) {
     };
   });
 
+  // Extend mode uses equal time for every tooth surface across the whole mouth,
+  // even when missing teeth make quadrant sizes unequal. Normal mode retains
+  // the existing equal-quadrant budgets and 1.5x Extra Care weighting.
+  if (options.uniformToothTiming) {
+    const secondsPerSurface = weightedEntries.length > 0
+      ? toothDurationBudgetSeconds / weightedEntries.length
+      : 0;
+    return weightedEntries.map((entry) => ({
+      ...entry,
+      quadrantIndex: getQuadrantIndex(entry.segmentIndex),
+      durationSeconds: secondsPerSurface,
+      weight: 1
+    }));
+  }
+
   const quadrantCount = Math.max(1, Math.ceil(segments.length / 2));
   const quadrantBudgetSeconds = toothDurationBudgetSeconds / quadrantCount;
   const groupedEntries = new Map();
@@ -291,4 +306,62 @@ export function getActiveTimelineEntry(timeline, elapsedSeconds) {
 export function getActiveToothEntry(timeline, elapsedSeconds) {
   const entry = getActiveTimelineEntry(timeline, elapsedSeconds);
   return entry?.type === "tooth" ? entry : null;
+}
+
+/**
+ * Build the standard full-mouth pass, optionally followed by a second pass
+ * containing only the patient-selected hygienist focus surfaces. The first
+ * pass always uses the user's selected base duration; the second pass adds
+ * exactly one ordinary surface allocation per selected surface, without
+ * redistributing time away from the rest of the mouth.
+ *
+ * focusModes is a Map of "jaw:mapIndex" -> "front" | "back" | "both".
+ */
+export function buildBrushingSessionTimeline({
+  segments = [],
+  secondsPerTooth = 0,
+  transitionBufferSeconds = 1,
+  baseDurationSeconds = 120,
+  beatsPerMinute = 0,
+  focusModes = new Map(),
+  extendEnabled = false,
+  focusWeight = 1.5
+} = {}) {
+  const transitionTimeline = buildTimeline(segments, secondsPerTooth, transitionBufferSeconds);
+  const totalTransitionSeconds = transitionTimeline
+    .filter((entry) => entry.type === "transition")
+    .reduce((sum, entry) => sum + (entry.endsAt - entry.startsAt), 0);
+  const baseTimeline = buildTimeline(segments, secondsPerTooth, transitionBufferSeconds, {
+    toothDurationBudgetSeconds: Math.max(0, Number(baseDurationSeconds) - totalTransitionSeconds),
+    beatsPerMinute,
+    uniformToothTiming: extendEnabled,
+    toothWeightResolver: ({ jaw, mapIndex, surface }) => {
+      if (extendEnabled) return 1;
+      const mode = focusModes.get(`${jaw}:${mapIndex}`);
+      return mode === "both" || mode === surface ? focusWeight : 1;
+    }
+  });
+
+  if (!extendEnabled || !focusModes.size) {
+    return baseTimeline;
+  }
+
+  let cursor = baseTimeline.at(-1)?.endsAt || 0;
+  const extraEntries = [];
+  for (const entry of baseTimeline) {
+    if (entry.type !== "tooth") continue;
+    const mode = focusModes.get(`${entry.jaw}:${entry.mapIndex}`);
+    if (mode !== "both" && mode !== entry.surface) continue;
+    const durationSeconds = entry.durationSeconds;
+    extraEntries.push({
+      ...entry,
+      key: `extend-${entry.key}`,
+      pass: "extend",
+      startsAt: cursor,
+      endsAt: cursor + durationSeconds,
+      weight: 1
+    });
+    cursor += durationSeconds;
+  }
+  return [...baseTimeline, ...extraEntries];
 }
