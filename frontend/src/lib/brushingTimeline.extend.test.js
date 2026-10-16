@@ -15,7 +15,7 @@ test("Extend preserves every user-chosen base duration, then repeats only select
     const plainEntries = plain.filter((entry) => entry.type === "tooth");
     const baseEntries = extended.filter((entry) => entry.type === "tooth" && entry.pass !== "extend");
     const focusEntries = extended.filter((entry) => entry.type === "tooth" && entry.pass === "extend");
-    const transitionSeconds = extended.filter((entry) => entry.type === "transition").reduce((sum, entry) => sum + (entry.endsAt - entry.startsAt), 0);
+    const transitionSeconds = extended.filter((entry) => entry.type === "transition" && entry.pass !== "extend").reduce((sum, entry) => sum + (entry.endsAt - entry.startsAt), 0);
     const secondsPerSurface = (baseDurationSeconds - transitionSeconds) / toothCount;
 
     assert.equal(plainEntries.length, toothCount);
