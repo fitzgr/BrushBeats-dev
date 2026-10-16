@@ -587,7 +587,7 @@ function RowCelebrationCascade({ celebration, reducedMotion, lowPerformanceMode 
   return <canvas className={`row-celebration-cascade${celebration ? " active" : ""}`} ref={canvasRef} aria-hidden="true" />;
 }
 
-function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isMobile, brushingMusicElapsedSeconds, startCountdownTotalMs = 5000, startCountdownRemainingMs = 0, sessionStartSegmentKey = null, brushingHand, showStartingHandCue = false, brushType = "manual", hideIntro = false, onCueChange, completionMessage = "", brushControlCue, primaryBrushActionLabel, onPrimaryBrushAction, onRestartBrushing, rotatingStartEnabled = false, onRotatingStartEnabledChange, extendEnabled = false, onExtendEnabledChange, onExtendInfoClick, sessionTotalSeconds, ageUiProfile, embedded = false, showThemePanel = true, enableHygienistFocus = false, hygienistFocusModes = null, onHygienistFocusModesChange = null }) {
+function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isMobile, brushingMusicElapsedSeconds, startCountdownTotalMs = 5000, startCountdownRemainingMs = 0, sessionStartSegmentKey = null, brushingHand, showStartingHandCue = false, brushType = "manual", hideIntro = false, onCueChange, completionMessage = "", brushControlCue, primaryBrushActionLabel, onPrimaryBrushAction, onRestartBrushing, rotatingStartEnabled = false, onRotatingStartEnabledChange, onRotatingStartInfoClick, extendEnabled = false, onExtendEnabledChange, onExtendInfoClick, brainChallengeEnabled = false, onBrainChallengeEnabledChange, onBrainChallengeInfoClick, sessionTotalSeconds, ageUiProfile, embedded = false, showThemePanel = true, enableHygienistFocus = false, hygienistFocusModes = null, onHygienistFocusModesChange = null }) {
   const resetHoldTimerRef = useRef(null);
   const resetHoldTriggeredRef = useRef(false);
   const RESET_HOLD_MS = 700;
@@ -1488,12 +1488,20 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
                   checked={Boolean(rotatingStartEnabled)}
                   onChange={(event) => onRotatingStartEnabledChange?.(event.target.checked)}
                 />
-                <span>rotate starting tooth</span>
+                <button type="button" className="brain-challenge-info-link" onClick={(event) => { event.preventDefault(); onRotatingStartInfoClick?.(); }}>Rotate</button>
               </label>
               <label className="brush-start-rotation-toggle-row extend-mode-copy">
                 <input type="checkbox" checked={Boolean(extendEnabled)} disabled={["running", "paused", "countdown", "awaitingPlayback"].includes(brushingPhase)} onChange={(event) => onExtendEnabledChange?.(event.target.checked)} />
                 <button type="button" className="brain-challenge-info-link" onClick={(event) => { event.preventDefault(); onExtendInfoClick?.(); }}>Extend</button>
               </label>
+               <label className="brush-start-rotation-toggle-row brain-challenge-copy">
+                 <input
+                   type="checkbox"
+                   checked={Boolean(brainChallengeEnabled)}
+                   onChange={(event) => onBrainChallengeEnabledChange?.(event.target.checked)}
+                 />
+                 <button type="button" className="brain-challenge-info-link" onClick={(event) => { event.preventDefault(); onBrainChallengeInfoClick?.(); }}>Alternate</button>
+               </label>
             </div>
           </div>
         )}
