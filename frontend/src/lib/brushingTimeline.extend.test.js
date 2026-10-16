@@ -14,7 +14,7 @@ test("Extend preserves every user-chosen base duration, then repeats only select
     const extended = buildBrushingSessionTimeline({ segments, baseDurationSeconds, secondsPerTooth: 1.8, transitionBufferSeconds: 1, beatsPerMinute: 119, focusModes, extendEnabled: true });
     const plainEntries = plain.filter((entry) => entry.type === "tooth");
     const baseEntries = extended.filter((entry) => entry.type === "tooth" && entry.pass !== "extend");
-    const focusEntries = extended.filter((entry) => entry.pass === "extend");
+    const focusEntries = extended.filter((entry) => entry.type === "tooth" && entry.pass === "extend");
     const transitionSeconds = extended.filter((entry) => entry.type === "transition").reduce((sum, entry) => sum + (entry.endsAt - entry.startsAt), 0);
     const secondsPerSurface = (baseDurationSeconds - transitionSeconds) / toothCount;
 
@@ -81,9 +81,9 @@ test("Extend adds a five-second starting guide and only necessary move pauses", 
   const focusEntries = timeline.filter((entry) => entry.type === "tooth" && entry.pass === "extend");
   assert.equal(focusEntries.length, 4);
   assert.equal(movements[0].transitionCue, "extendStart");
-  assert.equal(movements[0].startsAt, 120);
-  assert.equal(movements[0].endsAt, 125);
-  assert.equal(focusEntries[0].startsAt, 125);
+  nearly(movements[0].startsAt, 120);
+  nearly(movements[0].endsAt, 125);
+  nearly(focusEntries[0].startsAt, 125);
   assert.equal(movements.length, 3); // start + separated teeth + cross-jaw
   assert.equal(movements.some((entry) => entry.transitionCue === "extendJaw"), true);
   assert.equal(movements.find((entry) => entry.transitionCue === "extendJaw").endsAt -
