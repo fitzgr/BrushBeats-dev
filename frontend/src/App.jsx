@@ -28,6 +28,8 @@ import { getUserScopedState, saveUserScopedDefaults, saveUserScopedFavoriteSongs
 import { getLanguageFallbackInfo, setPreferredSupportedLanguage } from "./i18n.ts";
 import { getGeoCountry, getSongs, getYoutubeVideo } from "./api/client";
 import { calculateBpm } from "./lib/bpm";
+import { buildBrushingSessionTimeline, buildSegments } from "./lib/brushingTimeline";
+import { buildFocusSurfaceModeMapFromSelector } from "./lib/focusModes";
 import { buildReinforcementPool, getAgeMessageGroupCount, pickReinforcementMessage } from "./lib/reinforcementMessages";
 import {
   analyticsEnabled,
@@ -547,6 +549,7 @@ function App() {
   const [expandedRoutineCard, setExpandedRoutineCard] = useState(null);
   const [brushDurationSeconds, setBrushDurationSeconds] = useState(DEFAULT_BRUSH_DURATION_SECONDS);
   const [rotatingStartEnabled, setRotatingStartEnabled] = useState(false);
+  const [extendEnabled, setExtendEnabled] = useState(false);
   const [rotatingStartIndex, setRotatingStartIndex] = useState(0);
   const [rotatingStartPersistStatus, setRotatingStartPersistStatus] = useState("idle");
   const [brainChallengeEnabled, setBrainChallengeEnabled] = useState(false);
@@ -663,6 +666,28 @@ function App() {
     [ageSimulation.active, effectiveAgeEstimate?.phase]
   );
   const selectedBrushBpm = Number(selectedSong?.bpm || bpmData?.searchBpm || 120);
+  const sessionTotalSeconds = useMemo(() => {
+    const baseSeconds = Number(bpmData?.totalBrushingSeconds || brushDurationSeconds);
+    if (!extendEnabled || !enableHygienistFocusExperience) return baseSeconds;
+
+    const focusModes = buildFocusSurfaceModeMapFromSelector(hygienistFocusModes);
+    if (!focusModes.size) return baseSeconds;
+
+    const segments = buildSegments(values.top, values.bottom, sessionStartSegmentKey, {
+      brushingHand: sessionBrushingHand || brushingHand,
+      brushType
+    });
+    const timeline = buildBrushingSessionTimeline({
+      segments,
+      secondsPerTooth: Number(bpmData?.secondsPerTooth) || baseSeconds / Math.max(1, (values.top + values.bottom) * 2),
+      transitionBufferSeconds: Number(bpmData?.transitionBufferSeconds || 1),
+      baseDurationSeconds: baseSeconds,
+      beatsPerMinute: selectedBrushBpm,
+      focusModes,
+      extendEnabled: true
+    });
+    return Math.max(baseSeconds, timeline.at(-1)?.endsAt || baseSeconds);
+  }, [bpmData, brushDurationSeconds, brushType, brushingHand, enableHygienistFocusExperience, extendEnabled, hygienistFocusModes, selectedBrushBpm, sessionBrushingHand, sessionStartSegmentKey, values.bottom, values.top]);
   const supportedLanguageOptions = useMemo(
     () => [
       { value: "en", label: t("settings.supportedLanguage.options.english") },
@@ -711,8 +736,8 @@ function App() {
 
   const ageGroupCount = getAgeMessageGroupCount();
   const completionBannerMessage = useMemo(
-    () => buildCompletionCelebrationMessage(t, completionMessage || t("app.success", { duration: formatTime(Number(bpmData?.totalBrushingSeconds || brushDurationSeconds)) }), recentUnlockedAchievements, progressDashboard),
-    [bpmData?.totalBrushingSeconds, brushDurationSeconds, completionMessage, progressDashboard, recentUnlockedAchievements, t]
+    () => buildCompletionCelebrationMessage(t, completionMessage || t("app.success", { duration: formatTime(Math.ceil(sessionTotalSeconds)) }), recentUnlockedAchievements, progressDashboard),
+    [completionMessage, progressDashboard, recentUnlockedAchievements, sessionTotalSeconds, t]
   );
 
   useEffect(() => {
@@ -878,6 +903,7 @@ function App() {
     const nextRotatingStartIndex = clampValue(Math.floor(Number(session.rotatingStartIndex) || 0), 0, ROTATING_START_SEGMENT_SEQUENCE.length - 1);
     setRotatingStartEnabled(nextRotatingStartEnabled);
     setRotatingStartIndex(nextRotatingStartIndex);
+    setExtendEnabled(Boolean(session.extendEnabled));
     setBrainChallengeEnabled(Boolean(session.brainChallengeEnabled));
     setBrainChallengeNextHand(session.brainChallengeNextHand === "left" ? "left" : "right");
     setSessionBrushingHand(null);
@@ -903,6 +929,7 @@ function App() {
         brushType,
         rotatingStartEnabled,
         rotatingStartIndex,
+        extendEnabled,
         brainChallengeEnabled,
         brainChallengeNextHand,
         overlayTheme: overlayThemeChoice,
@@ -1256,6 +1283,7 @@ function App() {
       brushType,
       rotatingStartEnabled,
       rotatingStartIndex,
+      extendEnabled,
       brainChallengeEnabled,
       brainChallengeNextHand,
       overlayTheme: overlayThemeChoice,
@@ -1273,7 +1301,7 @@ function App() {
         setRotatingStartPersistStatus("error");
       }
     }
-  }, [brainChallengeEnabled, brainChallengeNextHand, brushDurationSeconds, brushingHand, brushType, hygienistFocusModes, keyword, overlayThemeChoice, rotatingStartEnabled, rotatingStartIndex, songFilters, storageConsent, values]);
+  }, [brainChallengeEnabled, brainChallengeNextHand, brushDurationSeconds, extendEnabled, brushingHand, brushType, hygienistFocusModes, keyword, overlayThemeChoice, rotatingStartEnabled, rotatingStartIndex, songFilters, storageConsent, values]);
 
   useEffect(() => {
     if (storageConsent !== "granted" || !dbStatus.ready || !activeHouseholdUser?.userId || !preferencesHydratedRef.current) {
@@ -1288,6 +1316,7 @@ function App() {
       brushType,
       rotatingStartEnabled,
       rotatingStartIndex,
+      extendEnabled,
       brainChallengeEnabled,
       brainChallengeNextHand,
       overlayTheme: overlayThemeChoice,
@@ -1295,7 +1324,7 @@ function App() {
       brushDurationSeconds,
       savedAt: Date.now()
     });
-  }, [activeHouseholdUser?.userId, brainChallengeEnabled, brainChallengeNextHand, brushDurationSeconds, brushingHand, brushType, dbStatus.ready, hygienistFocusModes, keyword, overlayThemeChoice, rotatingStartEnabled, rotatingStartIndex, songFilters, storageConsent, values]);
+  }, [activeHouseholdUser?.userId, brainChallengeEnabled, brainChallengeNextHand, brushDurationSeconds, extendEnabled, brushingHand, brushType, dbStatus.ready, hygienistFocusModes, keyword, overlayThemeChoice, rotatingStartEnabled, rotatingStartIndex, songFilters, storageConsent, values]);
 
   useEffect(() => {
     if (storageConsent !== "granted" || !dbStatus.ready || !activeHouseholdUser?.userId || !preferencesHydratedRef.current) {
@@ -1356,7 +1385,7 @@ function App() {
         startedAt: sessionStartedAtRef.current || new Date(Date.now() - Math.round(brushingMusicElapsedSeconds * 1000)).toISOString(),
         completedAt: new Date().toISOString(),
         durationSeconds: Math.max(0, Math.round(brushingMusicElapsedSeconds)),
-        targetDurationSeconds: Number(bpmData?.totalBrushingSeconds || brushDurationSeconds),
+        targetDurationSeconds: Math.ceil(sessionTotalSeconds),
         songTitle: selectedSong?.title || null,
         artistName: selectedSong?.artist || null,
         bpmUsed: Number(selectedSong?.bpm || bpmData?.searchBpm || 0),
@@ -1384,7 +1413,7 @@ function App() {
     })().catch((sessionError) => {
       setError(sessionError?.message || t("app.householdSetup.saveFailed"));
     });
-  }, [activeHouseholdUser?.userId, bpmData?.searchBpm, bpmData?.totalBrushingSeconds, brushDurationSeconds, brushType, brushingMusicElapsedSeconds, brushingPhase, dbStatus.ready, householdProfile?.goalSettings, householdProfile?.householdId, householdProfile?.rewardSettings, progressDashboardFilters, selectedSong?.artist, selectedSong?.bpm, selectedSong?.title, storageConsent, t, toothAgeEstimate?.phase, values.bottom, values.top]);
+  }, [activeHouseholdUser?.userId, bpmData?.searchBpm, bpmData?.totalBrushingSeconds, brushDurationSeconds, brushType, brushingMusicElapsedSeconds, brushingPhase, sessionTotalSeconds, dbStatus.ready, householdProfile?.goalSettings, householdProfile?.householdId, householdProfile?.rewardSettings, progressDashboardFilters, selectedSong?.artist, selectedSong?.bpm, selectedSong?.title, storageConsent, t, toothAgeEstimate?.phase, values.bottom, values.top]);
 
   async function handleAllowStorage() {
     const nextStatus = setStorageConsent(true);
@@ -1951,7 +1980,7 @@ function App() {
   }
 
   function beginBrushingCountdown() {
-    const totalSeconds = Number(bpmData?.totalBrushingSeconds || brushDurationSeconds);
+    const totalSeconds = sessionTotalSeconds;
     const startDelayMs = START_DELAY_SECONDS * 1000;
     countdownDeadlineRef.current = Date.now() + startDelayMs;
     setCountdownRemainingMs(startDelayMs);
@@ -2083,7 +2112,7 @@ function App() {
       return;
     }
 
-    const nextSeconds = Number(bpmData?.totalBrushingSeconds || brushDurationSeconds);
+    const nextSeconds = Math.ceil(sessionTotalSeconds);
     setTimer((prev) => {
       if (prev.remaining === nextSeconds && prev.running === false) {
         return prev;
@@ -2091,7 +2120,7 @@ function App() {
 
       return { running: false, remaining: nextSeconds };
     });
-  }, [bpmData?.totalBrushingSeconds, brushDurationSeconds, brushingPhase, timer.running]);
+  }, [brushingPhase, sessionTotalSeconds, timer.running]);
 
   useEffect(() => {
     if (brushingPhase !== "countdown") {
@@ -2099,7 +2128,7 @@ function App() {
     }
 
     if (countdownRemainingMs <= 0) {
-      const totalSeconds = Number(bpmData?.totalBrushingSeconds || brushDurationSeconds);
+      const totalSeconds = sessionTotalSeconds;
       countdownDeadlineRef.current = null;
       setCountdownRemainingMs(0);
       setTimer({ running: true, remaining: totalSeconds });
@@ -2116,7 +2145,7 @@ function App() {
     return () => {
       window.clearInterval(intervalId);
     };
-  }, [bpmData?.totalBrushingSeconds, brushDurationSeconds, brushingPhase, countdownRemainingMs]);
+  }, [brushingPhase, countdownRemainingMs, sessionTotalSeconds]);
 
   useEffect(() => {
     if (!bpmData?.searchBpm || (workflowStep !== "music" && brushingPhase !== "running")) {
@@ -2279,11 +2308,12 @@ function App() {
       return;
     }
 
-    const totalSeconds = Number(bpmData?.totalBrushingSeconds || brushDurationSeconds);
-    const remaining = Math.max(0, totalSeconds - Math.floor(brushingMusicElapsedSeconds));
+    const totalSeconds = sessionTotalSeconds;
+    const completed = brushingMusicElapsedSeconds >= totalSeconds - 0.000001;
+    const remaining = completed ? 0 : Math.max(1, Math.ceil(totalSeconds - brushingMusicElapsedSeconds));
 
     setTimer((prev) => {
-      const nextRunning = remaining > 0;
+      const nextRunning = !completed;
       if (prev.remaining === remaining && prev.running === nextRunning) {
         return prev;
       }
@@ -2295,7 +2325,7 @@ function App() {
       trackEvent("brushing_completed");
       setBrushingPhase("complete");
     }
-  }, [timer.running, brushingPhase, brushingMusicElapsedSeconds, bpmData?.totalBrushingSeconds, brushDurationSeconds]);
+  }, [timer.running, brushingPhase, brushingMusicElapsedSeconds, sessionTotalSeconds]);
 
   function issuePlayerCommand(type) {
     setPlayerCommand((previous) => ({ type, nonce: previous.nonce + 1 }));
@@ -2504,7 +2534,7 @@ function App() {
       return;
     }
 
-    const totalSeconds = Number(bpmData?.totalBrushingSeconds || brushDurationSeconds);
+    const totalSeconds = sessionTotalSeconds;
     const shouldResume = Boolean(options.resumeFromPause);
     const shouldRestartVideo = Boolean(options.restartVideo);
 
@@ -2575,12 +2605,14 @@ function App() {
           : undefined,
         bpmSnapshot: bpmData,
         values,
+        extendEnabled,
         filters: songFilters,
         keyword,
         brushingHand,
         brushType,
         rotatingStartEnabled,
         rotatingStartIndex,
+        extendEnabled,
         brainChallengeEnabled,
         brainChallengeNextHand,
         hygienistFocusModes,
@@ -2596,6 +2628,7 @@ function App() {
         brushType,
         rotatingStartEnabled,
         rotatingStartIndex,
+        extendEnabled,
         brainChallengeEnabled,
         brainChallengeNextHand,
         overlayTheme: overlayThemeChoice,
@@ -2607,7 +2640,7 @@ function App() {
       setLastSession(sessionToSave);
     }
 
-    trackEvent("brushing_started", { song_title: selectedSong?.title, song_artist: selectedSong?.artist, duration_seconds: totalSeconds });
+    trackEvent("brushing_started", { song_title: selectedSong?.title, song_artist: selectedSong?.artist, duration_seconds: Math.ceil(totalSeconds), extend_enabled: extendEnabled });
     setError("");
   }
 
@@ -2627,7 +2660,7 @@ function App() {
   }
 
   function restartBrushing() {
-    const totalSeconds = Number(bpmData?.totalBrushingSeconds || brushDurationSeconds);
+    const totalSeconds = sessionTotalSeconds;
     const remainingSongSeconds = songDurationSeconds > 0 ? Math.max(0, songDurationSeconds - playbackSeconds) : null;
     const needsSongRestart = typeof remainingSongSeconds === "number" && remainingSongSeconds < totalSeconds + START_DELAY_SECONDS;
     const confirmMessage = needsSongRestart
@@ -2671,7 +2704,7 @@ function App() {
     }
 
     if (brushingPhase === "complete") {
-      const totalSeconds = Number(bpmData?.totalBrushingSeconds || brushDurationSeconds);
+      const totalSeconds = sessionTotalSeconds;
       issuePlayerCommand("reset");
       setPlaybackSeconds(0);
       lastPlaybackTickRef.current = 0;
@@ -2752,7 +2785,7 @@ function App() {
       ? t("brushing.pause")
       : brushingPhase === "complete"
         ? t("common.buttons.stopMusic")
-        : t("brushing.start", { duration: formatTime(Number(bpmData?.totalBrushingSeconds || brushDurationSeconds)) });
+        : t("brushing.start", { duration: formatTime(Math.ceil(sessionTotalSeconds)) });
 
   const showTopConsentNotices = workflowStep === "teeth";
   const showAnalyticsConsentBanner = analyticsAvailable && analyticsConsent === "unknown";
@@ -3295,6 +3328,15 @@ function App() {
                     />
                     <button type="button" className="brain-challenge-info-link" onClick={(event) => { event.preventDefault(); setRotatingStartInfoOpen(true); }}>Rotate starting tooth</button>
                   </label>
+                  <label className="brush-start-rotation-toggle-row extend-mode-copy">
+                    <input
+                      type="checkbox"
+                      checked={Boolean(extendEnabled)}
+                      disabled={["running", "paused", "countdown", "awaitingPlayback"].includes(brushingPhase)}
+                      onChange={(event) => setExtendEnabled(event.target.checked)}
+                    />
+                    <span>Extend</span>
+                  </label>
                   <label className="brush-start-rotation-toggle-row brain-challenge-copy">
                     <input
                       type="checkbox"
@@ -3317,6 +3359,9 @@ function App() {
                 isMobile={device.isMobile}
                 playbackSeconds={playbackSeconds}
                 brushingMusicElapsedSeconds={brushingMusicElapsedSeconds}
+                sessionTotalSeconds={sessionTotalSeconds}
+                extendEnabled={extendEnabled}
+                onExtendEnabledChange={setExtendEnabled}
                 startCountdownTotalMs={START_DELAY_SECONDS * 1000}
                 startCountdownRemainingMs={countdownRemainingMs}
                 sessionStartSegmentKey={sessionStartSegmentKey}
