@@ -556,6 +556,7 @@ function App() {
   const [brainChallengeNextHand, setBrainChallengeNextHand] = useState("right");
   const [brainChallengeInfoOpen, setBrainChallengeInfoOpen] = useState(false);
   const [rotatingStartInfoOpen, setRotatingStartInfoOpen] = useState(false);
+  const [extendInfoOpen, setExtendInfoOpen] = useState(false);
   const [sessionBrushingHand, setSessionBrushingHand] = useState(null);
   const [hygienistFocusModes, setHygienistFocusModes] = useState(() => buildHygienistFocusModeMap(DEFAULT_VALUES.top, DEFAULT_VALUES.bottom));
   const [sessionStartSegmentKey, setSessionStartSegmentKey] = useState(null);
@@ -3127,6 +3128,18 @@ function App() {
         </div>
       )}
 
+      {extendInfoOpen && (
+        <div className="brain-challenge-backdrop" role="presentation" onClick={() => setExtendInfoOpen(false)}>
+          <section className="brain-challenge-modal" role="dialog" aria-modal="true" aria-labelledby="extend-info-title" onClick={(event) => event.stopPropagation()}>
+            <button type="button" className="brain-challenge-close" aria-label="Close" onClick={() => setExtendInfoOpen(false)}>×</button>
+            <h3 id="extend-info-title">Extend: how brushing time changes</h3>
+            <p><strong>Standard (Extend off):</strong> Your entire brushing session fits the time you selected. Hygienist-highlighted surfaces get about 1.5× the attention, so other surfaces receive a little less time.</p>
+            <p><strong>Extend on:</strong> First, every tooth surface gets an equal share of your selected brushing time. After the full-mouth pass, Brush Beats returns only to the highlighted surfaces and gives each the same brushing time again.</p>
+            <p>Extend adds that focused second pass <strong>after</strong> your selected time. For example, a two-minute selection still gives the whole mouth two minutes; the extra-care pass is additional, with its length based on how many surfaces you highlighted.</p>
+          </section>
+        </div>
+      )}
+
       {brainChallengeInfoOpen && (
         <div className="brain-challenge-backdrop" role="presentation" onClick={() => setBrainChallengeInfoOpen(false)}>
           <section className="brain-challenge-modal" role="dialog" aria-modal="true" aria-labelledby="brain-challenge-title" onClick={(event) => event.stopPropagation()}>
@@ -3334,7 +3347,7 @@ function App() {
                       disabled={["running", "paused", "countdown", "awaitingPlayback"].includes(brushingPhase)}
                       onChange={(event) => setExtendEnabled(event.target.checked)}
                     />
-                    <span>Extend</span>
+                    <button type="button" className="brain-challenge-info-link" onClick={(event) => { event.preventDefault(); setExtendInfoOpen(true); }}>Extend</button>
                   </label>
                   <label className="brush-start-rotation-toggle-row brain-challenge-copy">
                     <input
@@ -3361,6 +3374,7 @@ function App() {
                 sessionTotalSeconds={sessionTotalSeconds}
                 extendEnabled={extendEnabled}
                 onExtendEnabledChange={setExtendEnabled}
+                onExtendInfoClick={() => setExtendInfoOpen(true)}
                 startCountdownTotalMs={START_DELAY_SECONDS * 1000}
                 startCountdownRemainingMs={countdownRemainingMs}
                 sessionStartSegmentKey={sessionStartSegmentKey}

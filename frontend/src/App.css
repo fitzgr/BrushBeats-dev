@@ -6991,9 +6991,10 @@ select {
 }
 
 
-/* Keep the two optional brushing challenges on a single compact row. */
+/* Three optional controls fit on one line when space allows and wrap on narrow phones. */
 .mobile-rotate-start-row {
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
+  row-gap: 0.35rem;
 }
 
 .mobile-rotate-start-row .guide-rotate-start-copy,
