@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import AgeThemePanel from "./AgeThemePanel";
 import AgeOverlay from "./AgeOverlay";
 import { getBrushTechniqueTips } from "../lib/reinforcementMessages";
-import { buildSegments, buildTimeline, getActiveTimelineEntry } from "../lib/brushingTimeline";
+import { buildSegments, buildBrushingSessionTimeline, getActiveTimelineEntry } from "../lib/brushingTimeline";
 import { getActiveToothPulseMs } from "../lib/brushingPulse";
 import { buildFocusSurfaceModeMapFromSelector } from "../lib/focusModes";
 
@@ -397,23 +397,6 @@ function getHygienistModeLabel(mode) {
   return "";
 }
 
-function getTotalTransitionSeconds(segmentCount, transitionBufferSeconds) {
-  const transitionCount = Math.max(0, Number(segmentCount || 0) - 1);
-  let total = 0;
-
-  for (let order = 1; order <= transitionCount; order += 1) {
-    if (order === 1 || order === transitionCount) {
-      total += 1;
-    } else if (order === 2 || order === 4) {
-      total += 0.75;
-    } else {
-      total += Number(transitionBufferSeconds || 1);
-    }
-  }
-
-  return total;
-}
-
 function getRowNumberFromLabel(label) {
   if (!label) {
     return null;
@@ -604,12 +587,13 @@ function RowCelebrationCascade({ celebration, reducedMotion, lowPerformanceMode 
   return <canvas className={`row-celebration-cascade${celebration ? " active" : ""}`} ref={canvasRef} aria-hidden="true" />;
 }
 
-function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isMobile, brushingMusicElapsedSeconds, startCountdownTotalMs = 5000, startCountdownRemainingMs = 0, sessionStartSegmentKey = null, brushingHand, showStartingHandCue = false, brushType = "manual", hideIntro = false, onCueChange, completionMessage = "", brushControlCue, primaryBrushActionLabel, onPrimaryBrushAction, onRestartBrushing, rotatingStartEnabled = false, onRotatingStartEnabledChange, ageUiProfile, embedded = false, showThemePanel = true, enableHygienistFocus = false, hygienistFocusModes = null, onHygienistFocusModesChange = null }) {
+function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isMobile, brushingMusicElapsedSeconds, startCountdownTotalMs = 5000, startCountdownRemainingMs = 0, sessionStartSegmentKey = null, brushingHand, showStartingHandCue = false, brushType = "manual", hideIntro = false, onCueChange, completionMessage = "", brushControlCue, primaryBrushActionLabel, onPrimaryBrushAction, onRestartBrushing, rotatingStartEnabled = false, onRotatingStartEnabledChange, extendEnabled = false, onExtendEnabledChange, sessionTotalSeconds, ageUiProfile, embedded = false, showThemePanel = true, enableHygienistFocus = false, hygienistFocusModes = null, onHygienistFocusModesChange = null }) {
   const resetHoldTimerRef = useRef(null);
   const resetHoldTriggeredRef = useRef(false);
   const RESET_HOLD_MS = 700;
   const { t } = useTranslation();
-  const totalSeconds = Number(bpmData?.totalBrushingSeconds || 120);
+  const baseSeconds = Number(bpmData?.totalBrushingSeconds || 120);
+  const totalSeconds = Number(sessionTotalSeconds || baseSeconds);
   const topTeeth = Number(values?.top || 16);
   const bottomTeeth = Number(values?.bottom || 16);
   const mapCenter = { x: 180, y: 214 };
@@ -646,28 +630,18 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
     [enableHygienistFocus, hygienistFocusModes]
   );
   const focusToothSet = useMemo(() => new Set(focusSurfaceModes.keys()), [focusSurfaceModes]);
-  const transitionTotalSeconds = useMemo(
-    () => getTotalTransitionSeconds(segments.length, transitionBufferSeconds),
-    [segments.length, transitionBufferSeconds]
-  );
-  const toothDurationBudgetSeconds = useMemo(
-    () => Math.max(0, totalSeconds - transitionTotalSeconds),
-    [totalSeconds, transitionTotalSeconds]
-  );
   const timeline = useMemo(
-    () => buildTimeline(segments, toothDurationSeconds, transitionBufferSeconds, {
-      toothDurationBudgetSeconds,
+    () => buildBrushingSessionTimeline({
+      segments,
+      secondsPerTooth: toothDurationSeconds,
+      transitionBufferSeconds,
+      baseDurationSeconds: baseSeconds,
       beatsPerMinute: guideBpm,
-      toothWeightResolver: ({ jaw, mapIndex, surface }) => {
-        if (!enableHygienistFocus) {
-          return 1;
-        }
-
-        const surfaceMode = focusSurfaceModes.get(buildFocusToothKey(jaw, mapIndex));
-        return doesModeCoverSurface(surfaceMode, surface) ? HYGIENIST_FOCUS_WEIGHT : 1;
-      }
+      focusModes: focusSurfaceModes,
+      extendEnabled: extendEnabled && enableHygienistFocus,
+      focusWeight: HYGIENIST_FOCUS_WEIGHT
     }),
-    [enableHygienistFocus, focusSurfaceModes, guideBpm, segments, toothDurationBudgetSeconds, toothDurationSeconds, transitionBufferSeconds]
+    [baseSeconds, enableHygienistFocus, extendEnabled, focusSurfaceModes, guideBpm, segments, toothDurationSeconds, transitionBufferSeconds]
   );
   const toothEntries = timeline.filter((entry) => entry.type === "tooth");
   const isPaused = brushingPhase === "paused";
@@ -680,6 +654,7 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
   const completedToothEntries = toothEntries.filter((entry) => entry.endsAt <= elapsedSeconds).length;
   const activeEntry = hasActiveBrushTimeline ? getActiveTimelineEntry(timeline, elapsedSeconds) : null;
   const activeToothEntry = activeEntry?.type === "tooth" ? activeEntry : null;
+  const isExtendPass = activeToothEntry?.pass === "extend";
   const activeToothPulseMs = getActiveToothPulseMs(guideBpm) * (activeToothEntry?.weight || 1);
   const activeToothProgress = activeToothEntry
     ? clampNumber((elapsedSeconds - activeToothEntry.startsAt) / Math.max(0.001, activeToothEntry.endsAt - activeToothEntry.startsAt), 0, 1)
@@ -976,7 +951,7 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
     if (activeToothEntry) {
       onCueChange({
         kind: "brushing",
-        title: t("brushing.cue.activeTitle", { label: getSegmentLabel(t, activeToothEntry.label) }),
+        title: `${isExtendPass ? "Extend · " : ""}${t("brushing.cue.activeTitle", { label: getSegmentLabel(t, activeToothEntry.label) })}`,
         detail: t("brushing.cue.activeDetail", {
           position: activeToothEntry.segmentPosition,
           size: activeToothEntry.segmentSize,
@@ -988,7 +963,7 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
     }
 
     onCueChange(null);
-  }, [activeEntry, activeToothEntry, brushingHand, brushingPhase, nextMoveSeconds, onCueChange, startCountdownRemainingMs, t, timer.running]);
+  }, [activeEntry, activeToothEntry, brushingHand, brushingPhase, isExtendPass, nextMoveSeconds, onCueChange, startCountdownRemainingMs, t, timer.running]);
 
   const topPoints = createJawToothLayout({ chart: topToothChart, jaw: "top", child: useChildToothChart, mapCenter });
   const bottomPoints = createJawToothLayout({ chart: bottomToothChart, jaw: "bottom", child: useChildToothChart, mapCenter });
@@ -1176,7 +1151,7 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
     ? completionMessage || t("brushing.guide.cleanShineLabel")
     : isPreStartBrushPhase
       ? "Tap brush to start/stop. Hold to reset."
-      : activeTip || fallbackTip || primaryBrushActionLabel;
+      : isExtendPass ? "Extend · Extra Care" : activeTip || fallbackTip || primaryBrushActionLabel;
   const centerTickerDetail = "";
   const showCenterTicker = brushingPhase === "running" || brushingPhase === "paused";
   const showBottomTicker = brushingPhase === "idle" || brushingPhase === "awaitingPlayback" || brushingPhase === "complete";
@@ -1484,6 +1459,10 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
                 />
                 <span>rotate starting tooth</span>
               </label>
+              <label className="brush-start-rotation-toggle-row extend-mode-copy">
+                <input type="checkbox" checked={Boolean(extendEnabled)} disabled={["running", "paused", "countdown", "awaitingPlayback"].includes(brushingPhase)} onChange={(event) => onExtendEnabledChange?.(event.target.checked)} />
+                <span>Extend</span>
+              </label>
             </div>
           </div>
         )}
@@ -1555,7 +1534,7 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
         )}
         {showHygienistFocusHint && !isMobile && (
           <div className={`hygienist-contrast-hint ${focusHintPositionClass}`} aria-live="polite">
-            Orange teeth = extra care timing (1.5x)
+            {extendEnabled ? "Orange teeth = Extend focus surfaces" : "Orange teeth = extra care timing (1.5x)"}
           </div>
         )}
         <svg viewBox="0 0 360 420" preserveAspectRatio="xMidYMid meet">
@@ -1639,9 +1618,9 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
                   <span className="brush-focus-editor-eyebrow">Adjust brushing time</span>
                   <h3 id="brush-focus-editor-title">{focusEditorTooth.label}</h3>
                 </div>
-                <span className="brush-focus-editor-badge">1.5x focus</span>
+                <span className="brush-focus-editor-badge">{extendEnabled ? "Extend focus" : "1.5x focus"}</span>
               </div>
-              <p>Choose which surfaces should receive extra brushing time.</p>
+              <p>{extendEnabled ? "Choose surfaces to revisit after the full-mouth pass." : "Choose which surfaces should receive extra brushing time."}</p>
               {renderFocusEditorContext()}
               <div className="brush-focus-mode-options" role="radiogroup" aria-label="Brushing focus surface">
                 {HYGIENIST_SURFACE_MODES.map((mode) => (
@@ -1653,7 +1632,7 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
                     onClick={() => setPendingFocusMode(mode)}
                   >
                     <strong>{getHygienistModeLabel(mode) || "None"}</strong>
-                    <span>{mode === "none" ? "Use standard time" : "Add extra time"}</span>
+                    <span>{mode === "none" ? "Use standard time" : extendEnabled ? "Repeat this surface in Extend" : "Add extra time"}</span>
                   </button>
                 ))}
               </div>
@@ -1676,13 +1655,13 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
         </div>
         {showHygienistFocusHint && isMobile && (
           <div className="hygienist-contrast-hint-mobile" aria-live="polite">
-            Orange teeth = extra care timing (1.5x)
+            {extendEnabled ? "Orange teeth = Extend focus surfaces" : "Orange teeth = extra care timing (1.5x)"}
           </div>
         )}
       </div>
       {showTimingDebug && (
         <p className="guide-debug-timing" aria-live="off">
-          Debug: {totalTeeth} teeth | {toothDurationSeconds.toFixed(2)}s/tooth | source: {timingSourceLabel}
+          Debug: {totalTeeth} teeth | {toothDurationSeconds.toFixed(2)}s/tooth | session: {totalSeconds.toFixed(2)}s | Extend: {extendEnabled ? "on" : "off"} | source: {timingSourceLabel}
         </p>
       )}
 
