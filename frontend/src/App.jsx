@@ -904,7 +904,9 @@ function App() {
     const nextRotatingStartIndex = clampValue(Math.floor(Number(session.rotatingStartIndex) || 0), 0, ROTATING_START_SEGMENT_SEQUENCE.length - 1);
     setRotatingStartEnabled(nextRotatingStartEnabled);
     setRotatingStartIndex(nextRotatingStartIndex);
-    setExtendEnabled(session.extendEnabled == null ? true : Boolean(session.extendEnabled));
+    // Earlier releases saved Extend as false before the default was introduced.
+    // Migrate those profiles once; preserve explicit off choices thereafter.
+    setExtendEnabled(session.extendPreferenceVersion === 2 ? Boolean(session.extendEnabled) : true);
     setBrainChallengeEnabled(Boolean(session.brainChallengeEnabled));
     setBrainChallengeNextHand(session.brainChallengeNextHand === "left" ? "left" : "right");
     setSessionBrushingHand(null);
@@ -931,6 +933,7 @@ function App() {
         rotatingStartEnabled,
         rotatingStartIndex,
         extendEnabled,
+        extendPreferenceVersion: 2,
         brainChallengeEnabled,
         brainChallengeNextHand,
         overlayTheme: overlayThemeChoice,
@@ -1285,6 +1288,7 @@ function App() {
       rotatingStartEnabled,
       rotatingStartIndex,
       extendEnabled,
+      extendPreferenceVersion: 2,
       brainChallengeEnabled,
       brainChallengeNextHand,
       overlayTheme: overlayThemeChoice,
@@ -1318,6 +1322,7 @@ function App() {
       rotatingStartEnabled,
       rotatingStartIndex,
       extendEnabled,
+      extendPreferenceVersion: 2,
       brainChallengeEnabled,
       brainChallengeNextHand,
       overlayTheme: overlayThemeChoice,
@@ -2613,6 +2618,7 @@ function App() {
         rotatingStartEnabled,
         rotatingStartIndex,
         extendEnabled,
+        extendPreferenceVersion: 2,
         brainChallengeEnabled,
         brainChallengeNextHand,
         hygienistFocusModes,
@@ -2629,6 +2635,7 @@ function App() {
         rotatingStartEnabled,
         rotatingStartIndex,
         extendEnabled,
+        extendPreferenceVersion: 2,
         brainChallengeEnabled,
         brainChallengeNextHand,
         overlayTheme: overlayThemeChoice,
