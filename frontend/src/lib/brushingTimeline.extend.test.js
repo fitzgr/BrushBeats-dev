@@ -24,12 +24,12 @@ test("Extend preserves every user-chosen base duration, then repeats only select
     baseEntries.forEach((entry) => nearly(entry.durationSeconds, secondsPerSurface));
     focusEntries.forEach((entry) => nearly(entry.durationSeconds, secondsPerSurface));
     nearly(extended.find((entry) => entry.transitionCue === "extendStart").startsAt, baseDurationSeconds);
-    assert.ok(extended.at(-1).endsAt >= baseDurationSeconds + 5 + 3 * secondsPerSurface);
+    assert.ok(extended.at(-1).endsAt >= baseDurationSeconds + 3 + 3 * secondsPerSurface);
     assert.deepEqual(
       focusEntries.map((entry) => [entry.jaw, entry.mapIndex, entry.surface]).sort(),
       [["top", 0, "front"], ["top", 0, "back"], ["bottom", 2, "back"]].sort()
     );
-    assert.equal(getActiveToothEntry(extended, baseDurationSeconds + 5.001)?.pass, "extend");
+    assert.equal(getActiveToothEntry(extended, baseDurationSeconds + 3.001)?.pass, "extend");
   }
 });
 
@@ -65,7 +65,7 @@ test("With Extend disabled the 1.5x focus weighting remains; without selections 
   nearly(noFocus.at(-1).endsAt, 120);
 });
 
-test("Extend adds a five-second starting guide and only necessary move pauses", () => {
+test("Extend adds a three-second starting guide and only necessary move pauses", () => {
   const segments = buildSegments(7, 7);
   const focusModes = new Map([
     ["top:0", "front"],
@@ -82,12 +82,12 @@ test("Extend adds a five-second starting guide and only necessary move pauses", 
   assert.equal(focusEntries.length, 4);
   assert.equal(movements[0].transitionCue, "extendStart");
   nearly(movements[0].startsAt, 120);
-  nearly(movements[0].endsAt, 125);
-  nearly(focusEntries[0].startsAt, 125);
+  nearly(movements[0].endsAt, 123);
+  nearly(focusEntries[0].startsAt, 123);
   assert.equal(movements.length, 3); // start + separated teeth + cross-jaw
   assert.equal(movements.some((entry) => entry.transitionCue === "extendJaw"), true);
   assert.equal(movements.find((entry) => entry.transitionCue === "extendJaw").endsAt -
-    movements.find((entry) => entry.transitionCue === "extendJaw").startsAt, 4);
+    movements.find((entry) => entry.transitionCue === "extendJaw").startsAt, 3);
   assert.equal(movements.some((entry) => entry.toJaw === "top" && entry.toMapIndex === 1), false);
   assert.equal(timeline.at(-1).endsAt > 120 + focusEntries.reduce((sum, entry) => sum + entry.durationSeconds, 0), true);
 });
@@ -107,4 +107,33 @@ test("Rotate starting tooth changes which focus tooth is first", () => {
   assert.equal(first(normal).toSurface, "front");
   assert.equal(first(rotated).toJaw, "bottom");
   assert.equal(first(rotated).toSurface, "back");
+});
+
+// Extra Care adjustments never change the user's chosen full-mouth pass or surface allocations.
+test("Extend uses a 3s start, 1.5s face flips, 3s jaw changes, and no pause for adjacent teeth", () => {
+  const timeline = buildBrushingSessionTimeline({
+    segments: buildSegments(7, 7),
+    baseDurationSeconds: 120,
+    secondsPerTooth: 2,
+    focusModes: new Map([
+      ["top:0", "both"],
+      ["top:1", "front"],
+      ["bottom:2", "back"]
+    ]),
+    extendEnabled: true
+  });
+  const focus = timeline.filter((entry) => entry.type === "tooth" && entry.pass === "extend");
+  const moves = timeline.filter((entry) => entry.type === "transition" && entry.pass === "extend");
+  const start = moves.find((entry) => entry.transitionCue === "extendStart");
+  const face = moves.find((entry) => entry.transitionCue === "extendSurface");
+  const jaw = moves.find((entry) => entry.transitionCue === "extendJaw");
+  const seconds = (entry) => entry.endsAt - entry.startsAt;
+  assert.ok(start && face && jaw);
+  nearly(start.startsAt, 120);
+  nearly(seconds(start), 3);
+  nearly(seconds(face), 1.5);
+  nearly(seconds(jaw), 3);
+  assert.equal(moves.length, 3); // Adjacent top teeth get no added pause.
+  assert.equal(focus.length, 4);
+  nearly(focus[0].durationSeconds, focus[1].durationSeconds);
 });

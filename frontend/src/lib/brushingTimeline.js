@@ -362,9 +362,9 @@ export function buildBrushingSessionTimeline({
     const surfaceChanged = Boolean(previous && previous.surface !== next.surface);
     const indexDistance = previous ? Math.abs(previous.mapIndex - next.mapIndex) : 0;
     // Adjacent teeth on the same jaw and face do not require a pause.
-    const moveSeconds = isStart ? 5
-      : jawChanged ? 4
-      : surfaceChanged ? 2
+    const moveSeconds = isStart ? 3
+      : jawChanged ? 3
+      : surfaceChanged ? 1.5
       : indexDistance <= 1 ? 0
       : Math.min(3, 1.5 + 0.3 * Math.max(0, indexDistance - 2));
     if (moveSeconds <= 0) return;
@@ -372,7 +372,7 @@ export function buildBrushingSessionTimeline({
       type: "transition",
       key: `extend-move-${index}`,
       pass: "extend",
-      transitionCue: isStart ? "extendStart" : jawChanged ? "extendJaw" : "extendMove",
+      transitionCue: isStart ? "extendStart" : jawChanged ? "extendJaw" : surfaceChanged ? "extendSurface" : "extendMove",
       fromLabel: previous?.label || baseTimeline.filter((entry) => entry.type === "tooth").at(-1)?.label || next.label,
       toLabel: next.label,
       toJaw: next.jaw,
