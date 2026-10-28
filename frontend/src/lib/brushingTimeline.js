@@ -346,23 +346,47 @@ export function buildBrushingSessionTimeline({
     return baseTimeline;
   }
 
-  // The full-mouth pass always ends at the user-selected duration. The
-  // focused pass follows the same rotated segment order, with time to find
-  // its starting tooth and realistic pauses only for brush repositioning.
+  // The full-mouth pass always ends at the user-selected duration.
+  // Begin Extend on the jaw where that pass finished, if it has any selected
+  // surfaces, and keep that jaw together before changing jaws. Within a jaw,
+  // take the nearest remaining tooth from the brush's current position.
+  // This applies to all eight rotated starts and avoids unnecessary travel.
   let cursor = baseTimeline.at(-1)?.endsAt || 0;
-  const focusedTeeth = baseTimeline.filter((entry) => {
-    if (entry.type !== "tooth") return false;
+  const baseTeeth = baseTimeline.filter((entry) => entry.type === "tooth");
+  const lastBaseTooth = baseTeeth.at(-1) || null;
+  const remainingFocus = baseTeeth.filter((entry) => {
     const mode = focusModes.get(`${entry.jaw}:${entry.mapIndex}`);
     return mode === "both" || mode === entry.surface;
   });
+  const focusedTeeth = [];
+  let currentTooth = lastBaseTooth;
+  while (remainingFocus.length) {
+    // Prefer the current jaw until it is exhausted. Never cross jaws just
+    // because an earlier segment happened to contain a selected surface.
+    const sameJaw = remainingFocus.filter((entry) => entry.jaw === currentTooth?.jaw);
+    const candidates = sameJaw.length ? sameJaw : remainingFocus;
+    const closest = candidates.reduce((best, entry) => {
+      if (!best) return entry;
+      const travelCost = (target) =>
+        Math.abs(target.mapIndex - (currentTooth?.mapIndex ?? target.mapIndex)) * 2
+        + (target.surface === currentTooth?.surface ? 0 : 1);
+      return travelCost(entry) < travelCost(best) ? entry : best;
+    }, null);
+    focusedTeeth.push(closest);
+    remainingFocus.splice(remainingFocus.indexOf(closest), 1);
+    currentTooth = closest;
+  }
+
   const focusedTimeline = [];
   const appendMove = (previous, next, index) => {
     const isStart = index === 0;
     const jawChanged = Boolean(previous && previous.jaw !== next.jaw);
     const surfaceChanged = Boolean(previous && previous.surface !== next.surface);
     const indexDistance = previous ? Math.abs(previous.mapIndex - next.mapIndex) : 0;
-    // Adjacent teeth on the same jaw and face do not require a pause.
-    const moveSeconds = isStart ? 3
+    const closeToFinish = isStart && !jawChanged && indexDistance <= 1;
+    // The first positioning cue is 2s for nearby surfaces, otherwise 3s.
+    // Adjacent teeth on the same face do not need an extra pause.
+    const moveSeconds = isStart ? (closeToFinish ? 2 : 3)
       : jawChanged ? 3
       : surfaceChanged ? 1.5
       : indexDistance <= 1 ? 0
@@ -373,7 +397,7 @@ export function buildBrushingSessionTimeline({
       key: `extend-move-${index}`,
       pass: "extend",
       transitionCue: isStart ? "extendStart" : jawChanged ? "extendJaw" : surfaceChanged ? "extendSurface" : "extendMove",
-      fromLabel: previous?.label || baseTimeline.filter((entry) => entry.type === "tooth").at(-1)?.label || next.label,
+      fromLabel: previous?.label || next.label,
       toLabel: next.label,
       toJaw: next.jaw,
       toSurface: next.surface,
@@ -384,7 +408,7 @@ export function buildBrushingSessionTimeline({
     cursor += moveSeconds;
   };
   focusedTeeth.forEach((entry, index) => {
-    appendMove(focusedTeeth[index - 1], entry, index);
+    appendMove(index === 0 ? lastBaseTooth : focusedTeeth[index - 1], entry, index);
     focusedTimeline.push({
       ...entry,
       key: `extend-${entry.key}`,
