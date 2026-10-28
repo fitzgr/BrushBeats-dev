@@ -2975,7 +2975,7 @@ function App() {
             <h3 id="extend-info-title">Extend: how brushing time changes</h3>
             <p><strong>Standard (Extend off):</strong> Your entire brushing session fits the time you selected. Hygienist-highlighted surfaces get about 1.5× the attention, so other surfaces receive a little less time.</p>
             <p><strong>Extend on:</strong> First, every tooth surface gets an equal share of your selected brushing time. After the full-mouth pass, Brush Beats returns only to the highlighted surfaces and gives each the same brushing time again.</p>
-            <p>Extend adds that focused second pass <strong>after</strong> your selected time. A five-second starting cue shows which tooth to brush first; short brush-move pauses are added when highlighted surfaces are apart, with more time for top-to-bottom moves. Rotate starting tooth also changes the starting order of this pass.</p>
+            <p>Extend adds that focused second pass <strong>after</strong> your selected time. A two- or three-second starting cue shows the nearest highlighted tooth on the finishing jaw first, when available; short brush-move pauses are added when highlighted surfaces are apart, with more time for top-to-bottom moves. Rotate starting tooth also changes the starting order of this pass.</p>
           </section>
         </div>
       )}
