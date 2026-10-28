@@ -103,10 +103,11 @@ test("Rotate starting tooth changes which focus tooth is first", () => {
     focusModes: modes, extendEnabled: true
   });
   const first = (timeline) => timeline.find((entry) => entry.type === "transition" && entry.transitionCue === "extendStart");
-  assert.equal(first(normal).toJaw, "top");
-  assert.equal(first(normal).toSurface, "front");
-  assert.equal(first(rotated).toJaw, "bottom");
-  assert.equal(first(rotated).toSurface, "back");
+  // Starting on top finishes on bottom, and vice versa.
+  assert.equal(first(normal).toJaw, "bottom");
+  assert.equal(first(normal).toSurface, "back");
+  assert.equal(first(rotated).toJaw, "top");
+  assert.equal(first(rotated).toSurface, "front");
 });
 
 // Extra Care adjustments never change the user's chosen full-mouth pass or surface allocations.
@@ -136,4 +137,61 @@ test("Extend uses a 3s start, 1.5s face flips, 3s jaw changes, and no pause for 
   assert.equal(moves.length, 3); // Adjacent top teeth get no added pause.
   assert.equal(focus.length, 4);
   nearly(focus[0].durationSeconds, focus[1].durationSeconds);
+});
+
+test("Extend starts on the finishing jaw and visits its nearest focus tooth first", () => {
+  const timeline = buildBrushingSessionTimeline({
+    segments: buildSegments(8, 8, "front-top-left"),
+    baseDurationSeconds: 120,
+    focusModes: new Map([
+      ["top:0", "back"],
+      ["bottom:6", "back"],
+      ["bottom:1", "front"]
+    ]),
+    extendEnabled: true
+  });
+  const base = timeline.filter((entry) => entry.type === "tooth" && entry.pass !== "extend");
+  const focus = timeline.filter((entry) => entry.type === "tooth" && entry.pass === "extend");
+  const moves = timeline.filter((entry) => entry.type === "transition" && entry.pass === "extend");
+  assert.deepEqual([base.at(-1).jaw, base.at(-1).mapIndex], ["bottom", 0]);
+  assert.deepEqual(focus.map((entry) => [entry.jaw, entry.mapIndex, entry.surface]), [
+    ["bottom", 1, "front"],
+    ["bottom", 6, "back"],
+    ["top", 0, "back"]
+  ]);
+  assert.equal(moves[0].transitionCue, "extendStart");
+  nearly(moves[0].endsAt - moves[0].startsAt, 2);
+  assert.equal(moves.filter((entry) => entry.transitionCue === "extendJaw").length, 1);
+});
+
+test("Extend respects rotated finishing jaw and shortens a same-tooth start to 2s", () => {
+  const timeline = buildBrushingSessionTimeline({
+    segments: buildSegments(8, 8, "front-bottom-right"),
+    baseDurationSeconds: 120,
+    focusModes: new Map([
+      ["bottom:7", "back"],
+      ["top:7", "back"],
+      ["top:0", "front"]
+    ]),
+    extendEnabled: true
+  });
+  const base = timeline.filter((entry) => entry.type === "tooth" && entry.pass !== "extend");
+  const focus = timeline.filter((entry) => entry.type === "tooth" && entry.pass === "extend");
+  const start = timeline.find((entry) => entry.transitionCue === "extendStart");
+  assert.deepEqual([base.at(-1).jaw, base.at(-1).mapIndex], ["top", 7]);
+  assert.deepEqual([focus[0].jaw, focus[0].mapIndex, focus[0].surface], ["top", 7, "back"]);
+  assert.deepEqual(focus.map((entry) => entry.jaw), ["top", "top", "bottom"]);
+  nearly(start.endsAt - start.startsAt, 2);
+});
+
+test("Extend crosses jaws immediately when the finishing jaw has no selected surfaces", () => {
+  const timeline = buildBrushingSessionTimeline({
+    segments: buildSegments(8, 8, "front-top-left"),
+    baseDurationSeconds: 120,
+    focusModes: new Map([["top:0", "front"]]),
+    extendEnabled: true
+  });
+  const first = timeline.find((entry) => entry.transitionCue === "extendStart");
+  assert.equal(first.toJaw, "top");
+  nearly(first.endsAt - first.startsAt, 3);
 });
