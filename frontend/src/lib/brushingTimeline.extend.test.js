@@ -88,7 +88,9 @@ test("Extend adds a three-second starting guide and only necessary move pauses",
   assert.equal(movements.some((entry) => entry.transitionCue === "extendJaw"), true);
   assert.equal(movements.find((entry) => entry.transitionCue === "extendJaw").endsAt -
     movements.find((entry) => entry.transitionCue === "extendJaw").startsAt, 3);
-  assert.equal(movements.some((entry) => entry.toJaw === "top" && entry.toMapIndex === 1), false);
+  const topAdjacent = focusEntries.filter((entry) => entry.jaw === "top" && [0, 1].includes(entry.mapIndex));
+  assert.equal(topAdjacent.length, 2);
+  nearly(topAdjacent[1].startsAt, topAdjacent[0].endsAt); // No pause between adjacent top teeth.
   assert.equal(timeline.at(-1).endsAt > 120 + focusEntries.reduce((sum, entry) => sum + entry.durationSeconds, 0), true);
 });
 
