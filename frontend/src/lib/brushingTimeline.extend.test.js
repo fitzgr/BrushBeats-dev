@@ -197,3 +197,34 @@ test("Extend crosses jaws immediately when the finishing jaw has no selected sur
   assert.equal(first.toJaw, "top");
   nearly(first.endsAt - first.startsAt, 3);
 });
+
+test("All eight rotating starts choose the finishing jaw and nearest local focus surface", () => {
+  for (const startKey of [
+    "front-top-left", "front-top-right", "back-top-left", "back-top-right",
+    "front-bottom-left", "front-bottom-right", "back-bottom-left", "back-bottom-right"
+  ]) {
+    const modes = new Map([
+      ["top:1", "front"], ["top:6", "back"],
+      ["bottom:1", "front"], ["bottom:6", "back"]
+    ]);
+    const timeline = buildBrushingSessionTimeline({
+      segments: buildSegments(8, 8, startKey),
+      baseDurationSeconds: 120, focusModes: modes, extendEnabled: true
+    });
+    const base = timeline.filter((entry) => entry.type === "tooth" && entry.pass !== "extend");
+    const focused = timeline.filter((entry) => entry.type === "tooth" && entry.pass === "extend");
+    const finished = base.at(-1);
+    const first = focused[0];
+    const localCandidates = focused.filter((entry) => entry.jaw === finished.jaw);
+    const cost = (entry) => Math.abs(entry.mapIndex - finished.mapIndex) * 2
+      + (entry.surface === finished.surface ? 0 : 1);
+    assert.equal(first.jaw, finished.jaw, startKey);
+    assert.equal(cost(first), Math.min(...localCandidates.map(cost)), startKey);
+    assert.deepEqual(focused.map((entry) => entry.jaw),
+      [finished.jaw, finished.jaw, finished.jaw === "top" ? "bottom" : "top", finished.jaw === "top" ? "bottom" : "top"],
+      startKey);
+    const firstMove = timeline.find((entry) => entry.transitionCue === "extendStart");
+    nearly(firstMove.endsAt - firstMove.startsAt,
+      Math.abs(first.mapIndex - finished.mapIndex) <= 1 ? 2 : 3, startKey);
+  }
+});
