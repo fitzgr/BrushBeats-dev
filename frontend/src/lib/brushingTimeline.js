@@ -346,11 +346,8 @@ export function buildBrushingSessionTimeline({
     return baseTimeline;
   }
 
-  // The full-mouth pass always ends at the user-selected duration.
-  // Begin Extend on the jaw where that pass finished, if it has any selected
-  // surfaces, and keep that jaw together before changing jaws. Within a jaw,
-  // take the nearest remaining tooth from the brush's current position.
-  // This applies to all eight rotated starts and avoids unnecessary travel.
+  // Extend stays on the finishing jaw, completing one face before flipping
+  // to the other. Within each face, take the nearest remaining selected tooth.
   let cursor = baseTimeline.at(-1)?.endsAt || 0;
   const baseTeeth = baseTimeline.filter((entry) => entry.type === "tooth");
   const lastBaseTooth = baseTeeth.at(-1) || null;
@@ -361,10 +358,10 @@ export function buildBrushingSessionTimeline({
   const focusedTeeth = [];
   let currentTooth = lastBaseTooth;
   while (remainingFocus.length) {
-    // Prefer the current jaw until it is exhausted. Never cross jaws just
-    // because an earlier segment happened to contain a selected surface.
     const sameJaw = remainingFocus.filter((entry) => entry.jaw === currentTooth?.jaw);
-    const candidates = sameJaw.length ? sameJaw : remainingFocus;
+    const jawCandidates = sameJaw.length ? sameJaw : remainingFocus;
+    const sameSurface = jawCandidates.filter((entry) => entry.surface === currentTooth?.surface);
+    const candidates = sameSurface.length ? sameSurface : jawCandidates;
     const closest = candidates.reduce((best, entry) => {
       if (!best) return entry;
       const travelCost = (target) =>
