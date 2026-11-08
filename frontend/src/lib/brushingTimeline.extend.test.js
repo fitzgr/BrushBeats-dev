@@ -228,3 +228,33 @@ test("All eight rotating starts choose the finishing jaw and nearest local focus
       Math.abs(first.mapIndex - finished.mapIndex) <= 1 ? 2 : 3, startKey);
   }
 });
+
+test("Extend groups selected teeth by jaw and face for every rotated start", () => {
+  for (const startKey of [
+    "front-top-left", "front-top-right", "back-top-left", "back-top-right",
+    "front-bottom-left", "front-bottom-right", "back-bottom-left", "back-bottom-right"
+  ]) {
+    const focusModes = new Map([
+      ["top:1", "both"], ["top:2", "both"], ["top:6", "both"],
+      ["bottom:1", "both"], ["bottom:2", "both"], ["bottom:6", "both"]
+    ]);
+    const timeline = buildBrushingSessionTimeline({
+      segments: buildSegments(8, 8, startKey),
+      baseDurationSeconds: 120, focusModes, extendEnabled: true
+    });
+    const base = timeline.filter((entry) => entry.type === "tooth" && entry.pass !== "extend");
+    const focus = timeline.filter((entry) => entry.type === "tooth" && entry.pass === "extend");
+    assert.equal(focus.length, 12, startKey);
+    assert.equal(focus[0].jaw, base.at(-1).jaw, startKey);
+    for (const jaw of ["top", "bottom"]) {
+      const surfaces = focus.filter((entry) => entry.jaw === jaw).map((entry) => entry.surface);
+      assert.equal(surfaces.length, 6, startKey);
+      assert.equal(surfaces.slice(0, 3).every((surface) => surface === surfaces[0]), true, startKey);
+      assert.equal(surfaces.slice(3).every((surface) => surface !== surfaces[0]), true, startKey);
+    }
+    assert.equal(focus.slice(0, 6).every((entry) => entry.jaw === base.at(-1).jaw), true, startKey);
+    assert.equal(focus.slice(6).every((entry) => entry.jaw !== base.at(-1).jaw), true, startKey);
+    assert.equal(timeline.filter((entry) => entry.transitionCue === "extendSurface").length, 2, startKey);
+    assert.equal(timeline.filter((entry) => entry.transitionCue === "extendJaw").length, 1, startKey);
+  }
+});
