@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Brush Beats Lab — Dual-Panel Mouth View</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div>
+          <h1>Brush Beats Lab — Dual-Panel Mouth View</h1>
+          <p class="subtitle">Experiment B: The full mouth and inside close-up swap positions between upper and lower brushing. <a href="index.html">Open experiment A: brushing flow</a></p>
+        </div>
+        <div class="step-chip" id="stepCounter">Step 1 / 8</div>
+      </header>
+      <main class="layout">
+        <section class="pane">
+          <div class="pane-head">
+            <h2 id="topPaneTitle">Front View</h2>
+            <p id="topPaneMeta">Full mouth</p>
+          </div>
+          <div class="view-card" id="topView"></div>
+        </section>
+        <section class="pane">
+          <div class="pane-head">
+            <h2 id="bottomPaneTitle">Inside View</h2>
+            <p id="bottomPaneMeta">Selected jaw close-up</p>
+          </div>
+          <div class="view-card" id="bottomView"></div>
+        </section>
+      </main>
+      <footer class="controls">
+        <div id="stepLabel" class="step-info">Top Left Outside</div>
+        <div class="button-row">
+          <button id="prevBtn" type="button">Back</button>
+          <button id="nextBtn" type="button">Next</button>
+        </div>
+      </footer>
+    </div>
+    <script src="app.js"></script>
+  </body>
+</html>
