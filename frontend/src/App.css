@@ -5426,13 +5426,32 @@ select {
   filter: none;
 }
 
-.start-preview-label {
+@media (prefers-reduced-motion: no-preference) {
+  .mouth-map .tooth-svg .tooth-face.countdown-jaw-flash {
+    animation: countdownJawFlash 850ms ease-in-out;
+  }
+}
+
+@keyframes countdownJawFlash {
+  0%, 48%, 100% { opacity: 1; }
+  24%, 74% { opacity: 0.2; }
+}
+
+.start-preview-countdown {
   fill: #eaf5ff;
-  font-size: 16px;
   font-weight: 800;
   paint-order: stroke fill;
   stroke: #08213f;
   stroke-width: 2px;
+  pointer-events: none;
+}
+
+.start-preview-number {
+  font-size: 64px;
+}
+
+.start-preview-label {
+  font-size: 16px;
 }
 
 .start-preview-announcement {

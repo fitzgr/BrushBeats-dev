@@ -574,7 +574,7 @@ function RowCelebrationCascade({ celebration, reducedMotion, lowPerformanceMode 
   return <canvas className={`row-celebration-cascade${celebration ? " active" : ""}`} ref={canvasRef} aria-hidden="true" />;
 }
 
-function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isMobile, brushingMusicElapsedSeconds, startCountdownTotalMs = 5000, startCountdownRemainingMs = 0, sessionStartSegmentKey = null, brushingHand, showStartingHandCue = false, brushType = "manual", hideIntro = false, onCueChange, completionMessage = "", brushControlCue, primaryBrushActionLabel, onPrimaryBrushAction, onRestartBrushing, rotatingStartEnabled = false, onRotatingStartEnabledChange, onRotatingStartInfoClick, extendEnabled = false, onExtendEnabledChange, onExtendInfoClick, brainChallengeEnabled = false, onBrainChallengeEnabledChange, onBrainChallengeInfoClick, sessionTotalSeconds, ageUiProfile, embedded = false, showThemePanel = true, enableHygienistFocus = false, hygienistFocusModes = null, onHygienistFocusModesChange = null }) {
+function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isMobile, brushingMusicElapsedSeconds, startCountdownRemainingMs = 0, sessionStartSegmentKey = null, brushingHand, showStartingHandCue = false, brushType = "manual", hideIntro = false, onCueChange, completionMessage = "", brushControlCue, primaryBrushActionLabel, onPrimaryBrushAction, onRestartBrushing, rotatingStartEnabled = false, onRotatingStartEnabledChange, onRotatingStartInfoClick, extendEnabled = false, onExtendEnabledChange, onExtendInfoClick, brainChallengeEnabled = false, onBrainChallengeEnabledChange, onBrainChallengeInfoClick, sessionTotalSeconds, ageUiProfile, embedded = false, showThemePanel = true, enableHygienistFocus = false, hygienistFocusModes = null, onHygienistFocusModesChange = null }) {
   const resetHoldTimerRef = useRef(null);
   const resetHoldTriggeredRef = useRef(false);
   const RESET_HOLD_MS = 700;
@@ -1051,20 +1051,20 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
   const countdownPreviewSegment = brushingPhase === "countdown" && sessionStartSegmentKey
     ? segments[0]
     : null;
-  const countdownProgress = clampNumber(1 - startCountdownRemainingMs / startCountdownTotalMs, 0, 1);
-  const countdownStep = countdownProgress < 0.3 ? 1 : countdownProgress < 0.7 ? 2 : 3;
+  const countdownNumber = Math.max(1, Math.ceil(startCountdownRemainingMs / 1000));
+  const countdownNumberY = countdownPreviewSegment?.jaw === "top" ? 290 : 120;
   const countdownPath = countdownPreviewSegment?.mapIndices;
   const countdownStartIndex = countdownPath?.[0];
-  const countdownSweepIndex = countdownPath && countdownStep === 2 && !reducedMotion
+  const countdownSweepIndex = countdownPath && countdownNumber === 2 && !reducedMotion
     ? countdownPath[countdownPath.length - 1 - Math.floor(
-        clampNumber((countdownProgress - 0.3) / 0.32, 0, 1) * (countdownPath.length - 1)
+        clampNumber((2000 - startCountdownRemainingMs) / 800, 0, 1) * (countdownPath.length - 1)
       )]
     : countdownStartIndex;
   const countdownSide = countdownPreviewSegment?.key.split("-").at(-1);
   const countdownPreviewLabel = countdownPreviewSegment && (
-    countdownStep === 1 ? `1. ${t(`brushing.jaw.${countdownPreviewSegment.jaw}`)}`
-      : countdownStep === 2 ? `2. ${t(`brushing.side.${countdownSide}`)}`
-        : `3. ${t(countdownPreviewSegment.surface === "front" ? "brushing.guide.startFrontTooth" : "brushing.guide.startInsideTooth")}`
+    countdownNumber === 3 ? t(`brushing.jaw.${countdownPreviewSegment.jaw}`)
+      : countdownNumber === 2 ? t(`brushing.side.${countdownSide}`)
+        : t(countdownPreviewSegment.surface === "front" ? "brushing.guide.startFrontTooth" : "brushing.guide.startInsideTooth")
   );
   const effectiveOrientationSide = countdownSide || activeSide;
   const effectiveOrientationJaw = countdownPreviewSegment?.jaw || activeJaw;
@@ -1124,7 +1124,7 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
       : "facing-right"
     : "";
   const brushActionGlyph = brushingPhase === "countdown"
-    ? String(Math.max(1, Math.ceil(startCountdownRemainingMs / 1000)))
+    ? countdownPreviewSegment ? "❚❚" : String(countdownNumber)
     : brushingPhase === "complete"
       ? "■"
     : brushingPhase === "running" || brushingPhase === "awaitingPlayback"
@@ -1242,11 +1242,13 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
       const celebrateFrontSurface = Boolean(rowCelebration && celebrationSurfaceTarget?.jaw === jaw && celebrationSurfaceTarget?.surface === "front");
       const celebrateBackSurface = Boolean(rowCelebration && celebrationSurfaceTarget?.jaw === jaw && celebrationSurfaceTarget?.surface === "back");
       const isCountdownJaw = countdownPreviewSegment?.jaw === jaw;
+      const countdownFlashesJaw = isCountdownJaw && countdownNumber === 3;
       const countdownHighlightsTooth = isCountdownJaw &&
-        (countdownStep === 1 || (countdownStep === 2 && mapIndex === countdownSweepIndex));
-      const countdownSurface = isCountdownJaw && countdownStep === 3 && mapIndex === countdownStartIndex
+        (countdownFlashesJaw || (countdownNumber === 2 && mapIndex === countdownSweepIndex));
+      const countdownSurface = isCountdownJaw && countdownNumber === 1 && mapIndex === countdownStartIndex
         ? countdownPreviewSegment.surface
         : null;
+      const countdownFlashClass = countdownFlashesJaw ? " countdown-jaw-flash" : "";
       const canEditFocus = enableHygienistFocus && Boolean(onHygienistFocusModesChange);
 
       function handleToothKeyDown(event) {
@@ -1307,12 +1309,12 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
           />
         )}
         <path
-          className={`tooth-face back-face${state.backDone ? " clean" : ""}${state.backExtendPending ? " extend-pending" : ""}${activeSurface === "back" ? " active-surface" : ""}${countdownHighlightsTooth || countdownSurface === "back" ? " countdown-highlight" : ""}`}
+          className={`tooth-face back-face${state.backDone ? " clean" : ""}${state.backExtendPending ? " extend-pending" : ""}${activeSurface === "back" ? " active-surface" : ""}${countdownHighlightsTooth || countdownSurface === "back" ? " countdown-highlight" : ""}${countdownFlashClass}`}
           d={toothShape.path}
           clipPath={`url(#${toothId}-back-surface)`}
         />
         <path
-          className={`tooth-face front-face${state.frontDone ? " clean" : ""}${state.frontExtendPending ? " extend-pending" : ""}${activeSurface === "front" ? " active-surface" : ""}${countdownHighlightsTooth || countdownSurface === "front" ? " countdown-highlight" : ""}`}
+          className={`tooth-face front-face${state.frontDone ? " clean" : ""}${state.frontExtendPending ? " extend-pending" : ""}${activeSurface === "front" ? " active-surface" : ""}${countdownHighlightsTooth || countdownSurface === "front" ? " countdown-highlight" : ""}${countdownFlashClass}`}
           d={toothShape.path}
           clipPath={`url(#${toothId}-front-surface)`}
         />
@@ -1526,9 +1528,10 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
             </text>
           )}
           {countdownPreviewLabel && (
-            <text className="start-preview-label" x="180" y="410" textAnchor="middle" aria-hidden="true">
-              {countdownPreviewLabel}
-            </text>
+            <g className="start-preview-countdown" textAnchor="middle" aria-hidden="true">
+              <text className="start-preview-number" x="180" y={countdownNumberY}>{countdownNumber}</text>
+              <text className="start-preview-label" x="180" y={countdownNumberY + 25}>{countdownPreviewLabel}</text>
+            </g>
           )}
         </svg>
         {focusEditorTooth && (
@@ -1574,7 +1577,7 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
           </div>
         )}
         </div>
-        <div className="start-preview-announcement" role="status">{countdownPreviewLabel}</div>
+        <div className="start-preview-announcement" role="status">{countdownPreviewLabel && `${countdownNumber}. ${countdownPreviewLabel}`}</div>
         {showHygienistFocusHint && isMobile && (
           <div className="hygienist-contrast-hint-mobile" aria-live="polite">
             {extendEnabled ? "Orange teeth = Extend focus surfaces" : "Orange teeth = extra care timing (1.5x)"}

@@ -65,6 +65,7 @@ const DEFAULT_VALUES = { top: 16, bottom: 16 };
 const DEFAULT_BRUSH_DURATION_SECONDS = 120;
 const BRUSH_DURATION_OPTIONS = [90, 120, 150, 180];
 const START_DELAY_SECONDS = 5;
+const ROTATING_START_DELAY_SECONDS = 3;
 const ROTATING_START_SEGMENT_SEQUENCE = [
   "back-top-left",
   "front-top-left",
@@ -1896,7 +1897,7 @@ function App() {
 
   function beginBrushingCountdown() {
     const totalSeconds = sessionTotalSeconds;
-    const startDelayMs = START_DELAY_SECONDS * 1000;
+    const startDelayMs = (sessionStartSegmentKey ? ROTATING_START_DELAY_SECONDS : START_DELAY_SECONDS) * 1000;
     countdownDeadlineRef.current = Date.now() + startDelayMs;
     setCountdownRemainingMs(startDelayMs);
     setTimer({ running: false, remaining: totalSeconds });
@@ -2576,7 +2577,8 @@ function App() {
   function restartBrushing() {
     const totalSeconds = sessionTotalSeconds;
     const remainingSongSeconds = songDurationSeconds > 0 ? Math.max(0, songDurationSeconds - playbackSeconds) : null;
-    const needsSongRestart = typeof remainingSongSeconds === "number" && remainingSongSeconds < totalSeconds + START_DELAY_SECONDS;
+    const startDelaySeconds = rotatingStartEnabled ? ROTATING_START_DELAY_SECONDS : START_DELAY_SECONDS;
+    const needsSongRestart = remainingSongSeconds !== null && remainingSongSeconds < totalSeconds + startDelaySeconds;
     const confirmMessage = needsSongRestart
       ? t("brushing.resetConfirmRestartSuggested", {
           remaining: formatTime(Math.floor(remainingSongSeconds))
@@ -3208,7 +3210,6 @@ function App() {
                 extendEnabled={extendEnabled}
                 onExtendEnabledChange={setExtendEnabled}
                 onExtendInfoClick={() => setExtendInfoOpen(true)}
-                startCountdownTotalMs={START_DELAY_SECONDS * 1000}
                 startCountdownRemainingMs={countdownRemainingMs}
                 sessionStartSegmentKey={sessionStartSegmentKey}
                 brushingHand={sessionBrushingHand || brushingHand}
