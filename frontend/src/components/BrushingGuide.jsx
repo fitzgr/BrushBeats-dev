@@ -574,7 +574,7 @@ function RowCelebrationCascade({ celebration, reducedMotion, lowPerformanceMode 
   return <canvas className={`row-celebration-cascade${celebration ? " active" : ""}`} ref={canvasRef} aria-hidden="true" />;
 }
 
-function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isMobile, brushingMusicElapsedSeconds, startCountdownRemainingMs = 0, sessionStartSegmentKey = null, brushingHand, showStartingHandCue = false, brushType = "manual", hideIntro = false, onCueChange, completionMessage = "", brushControlCue, primaryBrushActionLabel, onPrimaryBrushAction, onRestartBrushing, rotatingStartEnabled = false, onRotatingStartEnabledChange, onRotatingStartInfoClick, extendEnabled = false, onExtendEnabledChange, onExtendInfoClick, brainChallengeEnabled = false, onBrainChallengeEnabledChange, onBrainChallengeInfoClick, sessionTotalSeconds, ageUiProfile, embedded = false, showThemePanel = true, enableHygienistFocus = false, hygienistFocusModes = null, onHygienistFocusModesChange = null }) {
+function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isMobile, brushingMusicElapsedSeconds, startCountdownRemainingMs = 0, rotatingStartCueMs = 1000, sessionStartSegmentKey = null, brushingHand, showStartingHandCue = false, brushType = "manual", hideIntro = false, onCueChange, completionMessage = "", brushControlCue, primaryBrushActionLabel, onPrimaryBrushAction, onRestartBrushing, rotatingStartEnabled = false, onRotatingStartEnabledChange, onRotatingStartInfoClick, extendEnabled = false, onExtendEnabledChange, onExtendInfoClick, brainChallengeEnabled = false, onBrainChallengeEnabledChange, onBrainChallengeInfoClick, sessionTotalSeconds, ageUiProfile, embedded = false, showThemePanel = true, enableHygienistFocus = false, hygienistFocusModes = null, onHygienistFocusModesChange = null }) {
   const resetHoldTimerRef = useRef(null);
   const resetHoldTriggeredRef = useRef(false);
   const RESET_HOLD_MS = 700;
@@ -1051,13 +1051,14 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
   const countdownPreviewSegment = brushingPhase === "countdown" && sessionStartSegmentKey
     ? segments[0]
     : null;
-  const countdownNumber = Math.max(1, Math.ceil(startCountdownRemainingMs / 1000));
+  const countdownStepMs = countdownPreviewSegment ? rotatingStartCueMs : 1000;
+  const countdownNumber = Math.max(1, Math.ceil(startCountdownRemainingMs / countdownStepMs));
   const countdownNumberY = countdownPreviewSegment?.jaw === "top" ? 290 : 120;
   const countdownPath = countdownPreviewSegment?.mapIndices;
   const countdownStartIndex = countdownPath?.[0];
   const countdownSweepIndex = countdownPath && countdownNumber === 2 && !reducedMotion
     ? countdownPath[countdownPath.length - 1 - Math.floor(
-        clampNumber((2000 - startCountdownRemainingMs) / 800, 0, 1) * (countdownPath.length - 1)
+        clampNumber((2 * countdownStepMs - startCountdownRemainingMs) / (0.8 * countdownStepMs), 0, 1) * (countdownPath.length - 1)
       )]
     : countdownStartIndex;
   const countdownSide = countdownPreviewSegment?.key.split("-").at(-1);

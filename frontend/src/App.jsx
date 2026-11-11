@@ -65,7 +65,8 @@ const DEFAULT_VALUES = { top: 16, bottom: 16 };
 const DEFAULT_BRUSH_DURATION_SECONDS = 120;
 const BRUSH_DURATION_OPTIONS = [90, 120, 150, 180];
 const START_DELAY_SECONDS = 5;
-const ROTATING_START_DELAY_SECONDS = 3;
+const ROTATING_START_CUE_MS = 2000;
+const ROTATING_START_DELAY_SECONDS = 3 * ROTATING_START_CUE_MS / 1000;
 const ROTATING_START_SEGMENT_SEQUENCE = [
   "back-top-left",
   "front-top-left",
@@ -3211,6 +3212,7 @@ function App() {
                 onExtendEnabledChange={setExtendEnabled}
                 onExtendInfoClick={() => setExtendInfoOpen(true)}
                 startCountdownRemainingMs={countdownRemainingMs}
+                rotatingStartCueMs={ROTATING_START_CUE_MS}
                 sessionStartSegmentKey={sessionStartSegmentKey}
                 brushingHand={sessionBrushingHand || brushingHand}
                 showStartingHandCue={brainChallengeEnabled}
