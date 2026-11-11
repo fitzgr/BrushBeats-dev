@@ -2054,7 +2054,7 @@ function App() {
 
     const intervalId = window.setInterval(() => {
       const remaining = Math.max(0, (countdownDeadlineRef.current || 0) - Date.now());
-      setCountdownRemainingMs((previous) => (Math.abs(previous - remaining) < 20 ? previous : remaining));
+      setCountdownRemainingMs((previous) => (remaining > 0 && Math.abs(previous - remaining) < 20 ? previous : remaining));
     }, 100);
 
     return () => {
@@ -2479,9 +2479,7 @@ function App() {
     }
 
     if (shouldResume) {
-      if (countdownRemainingMs <= 0) {
-        issuePlayerCommand("play");
-      }
+      issuePlayerCommand("play");
     } else if (shouldRestartVideo) {
       issuePlayerCommand("restart");
     } else {

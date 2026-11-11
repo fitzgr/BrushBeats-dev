@@ -5420,41 +5420,19 @@ select {
   }
 }
 
-.mouth-map.showing-start-preview {
-  background: linear-gradient(180deg, #102c38 0%, #174d59 56%, #0f3140 100%);
-}
-
-.showing-start-preview .map-hand-orientation-layer {
-  top: 50%;
-}
-
-.start-preview-lips {
-  fill: rgba(255, 192, 210, 0.16);
-  stroke: rgba(255, 225, 232, 0.3);
-  stroke-width: 1.4;
-}
-
-.start-preview-opening {
-  fill: rgba(34, 5, 16, 0.78);
-  stroke: rgba(255, 211, 225, 0.22);
-  stroke-width: 1.2;
-}
-
-.start-preview-tooth {
-  fill: #fffdf9;
-  stroke: #c8b7a6;
-  stroke-width: 1.4;
-}
-
-.start-preview-tooth.highlighted,
-.start-preview-surface {
+.mouth-map .tooth-svg .tooth-face.countdown-highlight {
   fill: #2f80ff;
+  opacity: 1;
+  filter: none;
 }
 
 .start-preview-label {
   fill: #eaf5ff;
   font-size: 16px;
   font-weight: 800;
+  paint-order: stroke fill;
+  stroke: #08213f;
+  stroke-width: 2px;
 }
 
 .start-preview-announcement {
