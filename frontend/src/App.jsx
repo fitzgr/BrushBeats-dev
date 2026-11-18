@@ -2603,7 +2603,7 @@ function App() {
         />
       )}
 
-      {appView === "brush" && storageConsent === "granted" && dbStatus.ready && householdOnboardingState?.completedAt && householdProfile?.householdId && (
+      {appView === "brush" && storageConsent === "granted" && dbStatus.ready && householdProfile?.householdId && (
         <HouseholdAuthPanel household={householdProfile} />
       )}
 
