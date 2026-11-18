@@ -172,7 +172,17 @@ export async function syncHouseholdSnapshot(householdId) {
   // Server-issued subscription records are the sole source of entitlement.
   // The legacy local subscriptionTier must not disable an active free trial
   // or turn an expired household back into a paying account.
-  const { entitlement } = await getHouseholdEntitlement(householdId);
+  // An unclaimed local family should remain local-only until the parent
+  // explicitly connects it. A missing cloud household is not a failed save.
+  let entitlement;
+  try {
+    ({ entitlement } = await getHouseholdEntitlement(householdId));
+  } catch (error) {
+    if (error?.code === "household_not_found" || error?.status === 404) {
+      return { ok: false, skipped: true, reason: "household-not-connected" };
+    }
+    throw error;
+  }
   if (!entitlement?.allowed) {
     await updateHousehold(householdId, { syncStatus: "subscriber-required" });
     return { ok: false, skipped: true, reason: "subscriber-required" };
