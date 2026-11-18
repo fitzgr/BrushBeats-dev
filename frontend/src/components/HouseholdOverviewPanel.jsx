@@ -49,7 +49,6 @@ export default function HouseholdOverviewPanel({ t, overview, onSwitchUser }) {
               {member.userId === overview.activeUserId && <span>{t("app.householdOverview.active")}</span>}
             </div>
             <p>{t("app.householdOverview.sessions", { count: member.totalSessions })}</p>
-            <p>{t("app.householdOverview.streak", { count: member.streakDays })}</p>
             <p>
               {member.lastActivityAt
                 ? t("app.householdOverview.lastActivity", { date: String(member.lastActivityAt).slice(0, 10) })
