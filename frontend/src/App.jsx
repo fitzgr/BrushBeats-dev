@@ -23,6 +23,7 @@ import { createBrushingSession, logToothChange, updateUser } from "./db/storeHel
 import { getUserScopedState, saveUserScopedDefaults, saveUserScopedFavoriteSongs, saveUserScopedLastSession } from "./db/userScopedStateService";
 import { getLanguageFallbackInfo, setPreferredSupportedLanguage } from "./i18n.ts";
 import { getGeoCountry, getSongs, getYoutubeVideo } from "./api/client";
+import { parsePlayerVideoId } from "./lib/playerVideoId";
 import { calculateBpm } from "./lib/bpm";
 import { buildBrushingSessionTimeline, buildSegments } from "./lib/brushingTimeline";
 import { buildFocusSurfaceModeMapFromSelector } from "./lib/focusModes";
@@ -2106,7 +2107,8 @@ function App() {
     latestVideoLookupRef.current = lookupId;
     setSelectedSong(song);
     setSongDurationSeconds(0);
-    // Keep old playerData visible while loading new video
+    // Don't show the previous song's video while locating this song.
+    setPlayerData(null);
     if (!loading.player) {
       setLoading((prev) => ({ ...prev, player: true }));
     }
@@ -2121,6 +2123,15 @@ function App() {
         return null;
       }
 
+      const playableVideoId = parsePlayerVideoId(video);
+      if (!playableVideoId) {
+        const playbackWarning = video?.warning === "YOUTUBE_API_KEY is not configured."
+          ? "YouTube video search is not configured on this server. Add YOUTUBE_API_KEY in Render to enable music videos."
+          : "No playable YouTube video was found for this song. Return to Music and queue another track.";
+        setPlayerData({ playbackWarning });
+        setError("");
+        return null;
+      }
       setPlayerData(video);
       setSongsDebugInfo((previous) => ({
         ...(previous || {}),
@@ -2146,8 +2157,10 @@ function App() {
       if (lookupId !== latestVideoLookupRef.current) {
         return null;
       }
-      setError(err.message);
-      setPlayerData(null);
+      setError("");
+      setPlayerData({
+        playbackWarning: "YouTube video search failed. Check the backend connection or try another song."
+      });
       return null;
     } finally {
       if (lookupId === latestVideoLookupRef.current) {
@@ -2163,8 +2176,8 @@ function App() {
       return;
     }
 
-    if (!playerData?.embedUrl) {
-      setError(t("brushing.errors.needsPlayback"));
+    if (!parsePlayerVideoId(playerData)) {
+      setError(playerData?.playbackWarning || t("brushing.errors.needsPlayback"));
       return;
     }
 
@@ -2787,6 +2800,12 @@ function App() {
             {selectedSong && (
               <>
                 <p className="brush-selected-song">{t("brushing.selectedSong", { title: selectedSong.title, artist: selectedSong.artist })}</p>
+                {loading.player && <p className="info-banner" role="status">Finding a YouTube video for this song…</p>}
+                {!loading.player && !parsePlayerVideoId(playerData) && (
+                  <p className="error-banner" role="alert">
+                    {playerData?.playbackWarning || "No playable YouTube video is ready. Return to Music and queue a song."}
+                  </p>
+                )}
                 {queuedSongPreview && brushingPhase === "running" && (
                   <p className="brush-next-song">{t("brushing.upNext", { title: queuedSongPreview.title, artist: queuedSongPreview.artist })}</p>
                 )}
