@@ -114,8 +114,23 @@ export async function getHousehold(householdId) {
     return getItem(STORE_NAMES.household, householdId);
   }
 
+  // A parent may restore a household from another device. Respect the
+  // explicitly selected local household rather than always opening the first
+  // record IndexedDB happens to return.
+  const selected = await getAppSetting("system.activeHouseholdId");
+  if (typeof selected?.value === "string" && selected.value) {
+    const active = await getItem(STORE_NAMES.household, selected.value);
+    if (active) return active;
+  }
   const households = await getAllItems(STORE_NAMES.household);
   return households[0] || null;
+}
+
+export async function selectLocalHousehold(householdId) {
+  const household = await getItem(STORE_NAMES.household, householdId);
+  if (!household) throw new Error("Cannot select a household that is not on this device");
+  await setAppSetting("system.activeHouseholdId", householdId);
+  return household;
 }
 
 export async function updateHousehold(householdId, updates = {}) {
