@@ -295,7 +295,8 @@ router.post("/:householdId/sync", async (req, res, next) => {
     return res.status(400).json({ error: "householdId path parameter does not match household payload" });
   }
 
-  if (!ensureCloudSyncEnabled(res, householdId)) {
+  // Require ownership and a server-issued trial/subscription entitlement before accepting writes.
+  if (!await ensureCloudSyncEnabled(req, res, householdId, true)) {
     return;
   }
 
