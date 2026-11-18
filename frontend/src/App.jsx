@@ -1127,12 +1127,16 @@ function App() {
 
   async function handleAllowStorage() {
     const nextStatus = setStorageConsent(true);
+    if (nextStatus !== "granted" || getStorageConsentStatus() !== "granted") {
+      throw new Error("This browser is blocking local storage. Check site storage permissions and try again.");
+    }
+
     setStorageConsentState(nextStatus);
     setStorageBannerDismissed(false);
     setStorageBannerDismissedState(false);
 
     if (!dbStatus.ready) {
-      return;
+      return "fallback";
     }
 
     try {
@@ -1141,10 +1145,16 @@ function App() {
         window.__brushbeatsMigrationStatus = migrationStatus;
         window.dispatchEvent(new CustomEvent("brushbeats:migration-status", { detail: migrationStatus }));
       }
+      if (migrationStatus?.kind === "migration-failed") {
+        setError(migrationStatus.error || t("app.migration.failedLegacyStorage"));
+        return "fallback";
+      }
       setPersistedStateRevision((current) => current + 1);
       setError("");
+      return "database";
     } catch (setupError) {
       setError(setupError?.message || t("app.migration.failedLegacyStorage"));
+      return "fallback";
     }
   }
 
@@ -1181,15 +1191,22 @@ function App() {
   }
 
   async function handleConfirmStorageToggle() {
-    if (storageToggleRequest === "enable") {
-      await handleAllowStorage();
-      setStorageToggleNotice("Session storage enabled: BrushBeats will remember your preferences, last session, and favorites on this device.");
-    } else if (storageToggleRequest === "disable") {
-      await handleDeclineStorage();
-      setStorageToggleNotice("Session storage disabled: saved preferences, last session, and favorites were cleared on this device.");
+    try {
+      if (storageToggleRequest === "enable") {
+        const storageMode = await handleAllowStorage();
+        setStorageToggleNotice(storageMode === "database"
+          ? "Device storage enabled. Your preferences and brushing sessions can now be saved locally."
+          : "Storage permission enabled, but the household database is unavailable. Brushing history may not be saved.");
+      } else if (storageToggleRequest === "disable") {
+        await handleDeclineStorage();
+        setStorageToggleNotice("Session storage disabled: saved preferences, last session, and favorites were cleared on this device.");
+      }
+    } catch (toggleError) {
+      setStorageToggleNotice(toggleError?.message || "Device storage could not be enabled.");
+      setError(toggleError?.message || "Device storage could not be enabled.");
+    } finally {
+      setStorageToggleRequest(null);
     }
-
-    setStorageToggleRequest(null);
   }
 
   function handleCancelStorageToggle() {
@@ -2534,7 +2551,16 @@ function App() {
         </section>
       )}
 
-      {showTopConsentNotices && !storageBannerDismissed && (
+      {showTopConsentNotices && storageConsent === "granted" && (
+        <p className="info-banner storage-enabled-summary" role="status">
+          <strong>Device storage: On.</strong>{" "}
+          {dbStatus.ready
+            ? "The local household database is available on this device."
+            : "Only browser fallback storage is available; brushing history might not be saved."}
+        </p>
+      )}
+
+      {showTopConsentNotices && storageConsent !== "granted" && !storageBannerDismissed && (
         <section className="storage-banner" role="region" aria-label="Storage consent controls">
           <p>
             {t("privacy.storageMessage")}
