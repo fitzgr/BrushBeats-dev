@@ -411,30 +411,9 @@ router.post("/:householdId/sync", async (req, res, next) => {
       );
     }
 
-    if (members.length > 0) {
-      await client.query(
-        `
-          update members
-          set is_deleted = true,
-              deleted_at = coalesce(deleted_at, now()),
-              updated_at = now()
-          where household_id = $1
-            and not (user_id = any($2::text[]))
-        `,
-        [householdId, members.map((member) => member.userId)]
-      );
-    } else {
-      await client.query(
-        `
-          update members
-          set is_deleted = true,
-              deleted_at = coalesce(deleted_at, now()),
-              updated_at = now()
-          where household_id = $1
-        `,
-        [householdId]
-      );
-    }
+    // Syncs are incremental: absence from an older device's snapshot does
+    // not mean another device's members should be deleted. Explicit
+    // isDeleted tombstones are handled by the member upsert above.
 
     const snapshot = await loadSnapshot(client, householdId);
     await client.query("commit");
