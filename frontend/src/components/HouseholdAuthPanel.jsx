@@ -38,6 +38,7 @@ export default function HouseholdAuthPanel({ household }) {
   const [parent, setParent] = useState(null);
   const [status, setStatus] = useState("");
   const [error, setError] = useState("");
+  const [connectionDiagnostics, setConnectionDiagnostics] = useState(null);
   const [entitlement, setEntitlement] = useState(null);
   const [ownedHouseholds, setOwnedHouseholds] = useState([]);
   const [busy, setBusy] = useState(false);
@@ -113,32 +114,60 @@ export default function HouseholdAuthPanel({ household }) {
   }
 
   async function connectHousehold() {
+    let stage = "List cloud households";
     setBusy(true);
     setError("");
     setStatus("");
+    setConnectionDiagnostics(null);
     try {
       const owned = await getOwnedHouseholds();
       setOwnedHouseholds(Array.isArray(owned.households) ? owned.households : []);
       const matches = owned.households?.filter((row) => row.householdId === household.householdId) || [];
-      const result = matches.length
-        ? matches[0]
-        : await claimHousehold({
-            householdId: household.householdId,
-            householdName: household.householdName || "Brush Beats Household"
-          });
+
+      let result = matches[0];
+      if (!result) {
+        stage = "Claim household and start trial";
+        result = await claimHousehold({
+          householdId: household.householdId,
+          householdName: household.householdName || "Brush Beats Household"
+        });
+      }
+
       setEntitlement(result.entitlement);
       if (!result.entitlement?.allowed) {
         setStatus(describeEntitlement(result.entitlement));
+        setConnectionDiagnostics({
+          stage,
+          status: "Not provided",
+          code: "entitlement_not_allowed",
+          message: "Cloud access has not been granted."
+        });
         return;
       }
+
+      stage = "Synchronize family members";
       const synced = await trySyncHouseholdSnapshot(household.householdId);
       if (synced.ok) {
         setStatus("This household is connected. Cloud sync completed successfully.");
       } else {
         setStatus("Household linked, but cloud sync has not completed. Local family records are preserved.");
+        setConnectionDiagnostics({
+          stage,
+          status: synced.error?.status ?? "Not provided",
+          code: synced.error?.code || synced.reason || "sync_not_completed",
+          message: synced.error?.message || "The cloud sync was skipped or incomplete."
+        });
       }
     } catch (err) {
       setError(err.message || "Could not connect household");
+      // Show only request stage and sanitized client error metadata.
+      // Never display credentials, JWTs, request payloads, or household UUIDs.
+      setConnectionDiagnostics({
+        stage,
+        status: err.status ?? "Not provided",
+        code: err.code || "unclassified",
+        message: err.message || "The request did not succeed."
+      });
     } finally {
       setBusy(false);
     }
@@ -332,6 +361,15 @@ export default function HouseholdAuthPanel({ household }) {
       {entitlement && <p className="household-auth-entitlement">{describeEntitlement(entitlement)}</p>}
       {status && <p className="household-auth-status" role="status">{status}</p>}
       {error && <p className="household-auth-error" role="alert">{error}</p>}
+      {connectionDiagnostics && (
+        <div className="household-auth-debug" role="status">
+          <strong>Dev connection diagnostics</strong>
+          <p>Step: {connectionDiagnostics.stage}</p>
+          <p>HTTP status: {connectionDiagnostics.status} · Error code: {connectionDiagnostics.code}</p>
+          <p>Message: {connectionDiagnostics.message}</p>
+          <small>Safe to screenshot: no passwords, tokens, or household IDs are shown here.</small>
+        </div>
+      )}
       <small>60-day household trial. After the trial, cloud access costs £4.99 per year. Payment setup is coming next.</small>
     </section>
   );
