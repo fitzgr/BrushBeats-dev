@@ -66,22 +66,6 @@ function formatSyncTimestamp(value) {
   }).format(parsed);
 }
 
-function buildRewardSettingsDraft(rewardSettings = {}) {
-  return {
-    levelBasePoints: createNumericDraftValue(rewardSettings.levelBasePoints, 100),
-    levelStepPoints: createNumericDraftValue(rewardSettings.levelStepPoints, 120),
-    levelGrowthPoints: createNumericDraftValue(rewardSettings.levelGrowthPoints, 20),
-    brushingSessionPoints: createNumericDraftValue(rewardSettings.brushingSessionPoints, 12),
-    toothMilestonePoints: createNumericDraftValue(rewardSettings.toothMilestonePoints, 18)
-  };
-}
-
-function buildGoalSettingsDraft(goalSettings = {}) {
-  return {
-    weeklyBrushingSessions: createNumericDraftValue(goalSettings.weeklyBrushingSessions, 14)
-  };
-}
-
 function buildEmptyMemberDraft() {
   return {
     name: "",
@@ -219,8 +203,6 @@ export default function HouseholdManagementPanel({
   onActivateMember
 }) {
   const [householdName, setHouseholdName] = useState(() => management?.household?.householdName || "");
-  const [rewardSettings, setRewardSettings] = useState(() => buildRewardSettingsDraft(management?.household?.rewardSettings));
-  const [goalSettings, setGoalSettings] = useState(() => buildGoalSettingsDraft(management?.household?.goalSettings));
   const [newMemberDraft, setNewMemberDraft] = useState(buildEmptyMemberDraft());
 
   if (!management?.household) {
@@ -258,32 +240,7 @@ export default function HouseholdManagementPanel({
             <strong>{formatSyncStatus(management.household.syncStatus)}</strong>
             <small>{formatSyncTimestamp(management.household.lastSyncedAt)}</small>
           </div>
-          <label>
-            <span>{t("app.householdManagement.fields.levelBasePoints")}</span>
-            <input type="number" inputMode="numeric" min="40" step="10" value={rewardSettings.levelBasePoints} onChange={(event) => setRewardSettings((current) => ({ ...current, levelBasePoints: event.target.value }))} />
-          </label>
-          <label>
-            <span>{t("app.householdManagement.fields.levelStepPoints")}</span>
-            <input type="number" inputMode="numeric" min="40" step="10" value={rewardSettings.levelStepPoints} onChange={(event) => setRewardSettings((current) => ({ ...current, levelStepPoints: event.target.value }))} />
-          </label>
-          <label>
-            <span>{t("app.householdManagement.fields.levelGrowthPoints")}</span>
-            <input type="number" inputMode="numeric" min="0" step="5" value={rewardSettings.levelGrowthPoints} onChange={(event) => setRewardSettings((current) => ({ ...current, levelGrowthPoints: event.target.value }))} />
-          </label>
-          <label>
-            <span>{t("app.householdManagement.fields.brushingSessionPoints")}</span>
-            <input type="number" inputMode="numeric" min="1" step="1" value={rewardSettings.brushingSessionPoints} onChange={(event) => setRewardSettings((current) => ({ ...current, brushingSessionPoints: event.target.value }))} />
-          </label>
-          <label>
-            <span>{t("app.householdManagement.fields.toothMilestonePoints")}</span>
-            <input type="number" inputMode="numeric" min="1" step="1" value={rewardSettings.toothMilestonePoints} onChange={(event) => setRewardSettings((current) => ({ ...current, toothMilestonePoints: event.target.value }))} />
-          </label>
-          <label>
-            <span>{t("app.householdManagement.fields.weeklyBrushingSessions")}</span>
-            <input type="number" inputMode="numeric" min="1" step="1" value={goalSettings.weeklyBrushingSessions} onChange={(event) => setGoalSettings((current) => ({ ...current, weeklyBrushingSessions: event.target.value }))} />
-          </label>
         </div>
-        <p className="household-management-helper-copy">{t("app.householdManagement.rewardSettingsSummary")}</p>
         <div className="household-management-inline-actions">
           <button
             type="button"
@@ -291,19 +248,8 @@ export default function HouseholdManagementPanel({
             disabled={saving}
             onClick={() => onSaveHousehold({
               householdName,
-              rewardSettings: {
-                levelBasePoints: parseIntegerInput(rewardSettings.levelBasePoints, 100, 40, 500),
-                levelStepPoints: parseIntegerInput(rewardSettings.levelStepPoints, 120, 40, 500),
-                levelGrowthPoints: parseIntegerInput(rewardSettings.levelGrowthPoints, 20, 0, 120),
-                brushingSessionPoints: parseIntegerInput(rewardSettings.brushingSessionPoints, 12, 1, 100),
-
-                toothMilestonePoints: parseIntegerInput(rewardSettings.toothMilestonePoints, 18, 1, 120)
-
-              },
-              goalSettings: {
-                weeklyBrushingSessions: parseIntegerInput(goalSettings.weeklyBrushingSessions, 14, 1, 40)
-
-              }
+              rewardSettings: management.household.rewardSettings || {},
+              goalSettings: management.household.goalSettings || {}
             })}
           >
             {saving ? t("app.householdManagement.saving") : t("common.buttons.save")}
@@ -406,13 +352,6 @@ export default function HouseholdManagementPanel({
         </section>
       )}
 
-      <section className="household-management-section household-management-caregiver-note">
-        <div className="household-management-section-header">
-          <strong>{t("app.householdManagement.caregiverTitle")}</strong>
-          <span>{t("app.householdManagement.caregiverSummary")}</span>
-        </div>
-        <p>{t("app.householdManagement.caregiverNote")}</p>
-      </section>
     </section>
   );
 }
