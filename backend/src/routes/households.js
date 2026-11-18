@@ -1,35 +1,115 @@
 const express = require("express");
+const { randomUUID } = require("node:crypto");
+const { requireNeonAuth } = require("../middleware/neonAuth");
+const { evaluateHouseholdEntitlement } = require("../services/subscriptionPolicy");
 const { getPool } = require("../config/database");
 const { isSafeIdentifier, safeJsonByteSize, sanitizeText, toBoundedNumber } = require("../utils/inputValidation");
 
 const router = express.Router();
 
-function getCloudSyncAllowedHouseholdIds() {
-  return new Set(
-    String(process.env.CLOUD_SYNC_ALLOWED_HOUSEHOLD_IDS || "")
-      .split(",")
-      .map((value) => value.trim())
-      .filter(Boolean)
+router.use(requireNeonAuth);
+
+async function getOwned(client, id, subject) {
+  const result = await client.query(
+    `SELECT h.household_id, h.household_name, s.trial_started_at, s.trial_ends_at,
+            s.status, s.paid_through
+       FROM households h
+       JOIN accounts a ON a.account_id = h.owner_account_id
+       LEFT JOIN household_subscriptions s ON s.household_id = h.household_id
+      WHERE h.household_id = $1 AND a.auth_subject = $2`,
+    [id, subject]
   );
+  return result.rows[0] || null;
 }
 
-function buildCloudSyncDeniedPayload(householdId) {
-  return {
-    error: `Cloud sync is not enabled for household ${householdId}.`,
-    code: "cloud_sync_not_enabled"
-  };
+function denyNotOwned(res) {
+  return res.status(404).json({ code: "household_not_found", error: "Household not found" });
 }
 
-function ensureCloudSyncEnabled(res, householdId) {
-  const allowedHouseholdIds = getCloudSyncAllowedHouseholdIds();
-
-  if (allowedHouseholdIds.has(householdId)) {
-    return true;
+async function ensureCloudSyncEnabled(req, res, householdId, forWrite = false) {
+  const owned = await getOwned(getPool(), householdId, req.authAccount.subject);
+  if (!owned) {
+    denyNotOwned(res);
+    return false;
   }
-
-  res.status(403).json(buildCloudSyncDeniedPayload(householdId));
-  return false;
+  if (forWrite && !evaluateHouseholdEntitlement(owned).allowed) {
+    res.status(402).json({ code: "subscription_required", error: "Trial or subscription expired" });
+    return false;
+  }
+  return true;
 }
+
+// Link a new local UUID household to the parent's verified Neon Auth identity.
+// Existing households cannot be re-claimed by another account.
+router.post("/:householdId/claim", async (req, res, next) => {
+  const householdId = String(req.params.householdId || "");
+  if (!/^household_[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(householdId)) {
+    return res.status(400).json({ error: "A randomly generated household ID is required" });
+  }
+  const name = sanitizeText(req.body?.householdName || "Brush Beats Household", { maxLength: 80, fallback: "Brush Beats Household" });
+  const client = await getPool().connect();
+  try {
+    await client.query("begin");
+    const account = await client.query(
+      `INSERT INTO accounts (account_id, auth_subject, email, display_name)
+       VALUES ($1, $2, $3, $4)
+       ON CONFLICT (auth_subject) DO UPDATE SET display_name = excluded.display_name
+       RETURNING account_id`,
+      ["account_" + randomUUID(), req.authAccount.subject, req.authAccount.email, req.authAccount.displayName]
+    );
+    await client.query(
+      `INSERT INTO households (household_id, household_name, owner_account_id)
+       VALUES ($1, $2, $3) ON CONFLICT (household_id) DO NOTHING`,
+      [householdId, name, account.rows[0].account_id]
+    );
+    const owned = await getOwned(client, householdId, req.authAccount.subject);
+    if (!owned) {
+      await client.query("rollback");
+      return denyNotOwned(res);
+    }
+    await client.query(
+      `INSERT INTO household_subscriptions (household_id) VALUES ($1)
+       ON CONFLICT (household_id) DO NOTHING`,
+      [householdId]
+    );
+    const updated = await getOwned(client, householdId, req.authAccount.subject);
+    await client.query("commit");
+    return res.json({ householdId, entitlement: evaluateHouseholdEntitlement(updated) });
+  } catch (error) {
+    await client.query("rollback");
+    return next(error);
+  } finally {
+    client.release();
+  }
+});
+
+router.get("/mine", async (req, res, next) => {
+  try {
+    const result = await getPool().query(
+      `SELECT h.household_id, h.household_name, s.status, s.trial_ends_at, s.paid_through
+       FROM households h JOIN accounts a ON a.account_id = h.owner_account_id
+       LEFT JOIN household_subscriptions s ON s.household_id = h.household_id
+       WHERE a.auth_subject = $1 ORDER BY h.created_at ASC`,
+      [req.authAccount.subject]
+    );
+    return res.json({ households: result.rows.map((row) => ({
+      householdId: row.household_id,
+      householdName: row.household_name,
+      entitlement: evaluateHouseholdEntitlement(row)
+    })) });
+  } catch (error) { return next(error); }
+});
+
+router.get("/:householdId/entitlement", async (req, res, next) => {
+  if (!isSafeIdentifier(req.params.householdId, { maxLength: 64 })) {
+    return res.status(400).json({ error: "Invalid household ID" });
+  }
+  try {
+    const owned = await getOwned(getPool(), req.params.householdId, req.authAccount.subject);
+    if (!owned) return denyNotOwned(res);
+    return res.json({ householdId: req.params.householdId, entitlement: evaluateHouseholdEntitlement(owned) });
+  } catch (error) { return next(error); }
+});
 
 function normalizeInteger(value, fallback = 0) {
   return toBoundedNumber(value, { min: 0, max: 10_000, fallback, integer: true });
@@ -47,7 +127,7 @@ function normalizeHouseholdSnapshot(householdId, household = {}) {
   return {
     householdId,
     householdName: sanitizeText(household.householdName || household.name || "BrushBeats Household", { maxLength: 80, fallback: "BrushBeats Household" }) || "BrushBeats Household",
-    subscriptionTier: sanitizeText(household.subscriptionTier || "free", { maxLength: 24, fallback: "free", toLowerCase: true }),
+    subscriptionTier: "free", // Never trust tier values supplied by the browser.
     activeUserId: household.activeUserId ? String(household.activeUserId) : null,
     migrationSource: sanitizeText(household.migrationSource || "manual", { maxLength: 32, fallback: "manual", toLowerCase: true }),
     syncStatus: "connected",
@@ -168,7 +248,7 @@ router.get("/:householdId", async (req, res, next) => {
     return res.status(400).json({ error: "householdId is invalid" });
   }
 
-  if (!ensureCloudSyncEnabled(res, householdId)) {
+  if (!await ensureCloudSyncEnabled(req, res, householdId, req.method === "POST")) {
     return;
   }
 
@@ -200,12 +280,15 @@ router.post("/:householdId/sync", async (req, res, next) => {
     return res.status(413).json({ error: "sync payload is too large" });
   }
 
+  if (!Array.isArray(req.body?.members) || req.body.members.length > 20) {
+    return res.status(400).json({ error: "members must be an array with up to 20 entries" });
+  }
   const household = normalizeHouseholdSnapshot(householdId, req.body?.household);
   const members = Array.isArray(req.body?.members)
     ? req.body.members
         .map((member) => normalizeMemberSnapshot(householdId, member))
         .filter((member) => member.userId && isSafeIdentifier(member.userId, { maxLength: 64 }))
-        .slice(0, 20)
+
     : [];
 
   if (req.body?.household?.householdId && req.body.household.householdId !== householdId) {
@@ -238,7 +321,6 @@ router.post("/:householdId/sync", async (req, res, next) => {
         values ($1, $2, $3, $4, $5, $6, $7::jsonb, $8::jsonb, $9::timestamptz, $10::timestamptz)
         on conflict (household_id) do update set
           household_name = excluded.household_name,
-          subscription_tier = excluded.subscription_tier,
           active_user_id = excluded.active_user_id,
           migration_source = excluded.migration_source,
           sync_status = excluded.sync_status,
@@ -288,7 +370,7 @@ router.post("/:householdId/sync", async (req, res, next) => {
             $11, $12, $13::jsonb, $14::timestamptz, $15::timestamptz, $16, $17, $18::timestamptz
           )
           on conflict (user_id) do update set
-            household_id = excluded.household_id,
+            household_id = members.household_id,
             name = excluded.name,
             avatar = excluded.avatar,
             birth_year = excluded.birth_year,
@@ -304,6 +386,7 @@ router.post("/:householdId/sync", async (req, res, next) => {
             sync_version = excluded.sync_version,
             is_deleted = excluded.is_deleted,
             deleted_at = excluded.deleted_at
+          where members.household_id = excluded.household_id
         `,
         [
           member.userId,
