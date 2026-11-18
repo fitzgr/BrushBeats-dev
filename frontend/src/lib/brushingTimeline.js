@@ -361,7 +361,14 @@ export function buildBrushingSessionTimeline({
     const sameJaw = remainingFocus.filter((entry) => entry.jaw === currentTooth?.jaw);
     const jawCandidates = sameJaw.length ? sameJaw : remainingFocus;
     const sameSurface = jawCandidates.filter((entry) => entry.surface === currentTooth?.surface);
-    const candidates = sameSurface.length ? sameSurface : jawCandidates;
+    // The very first Extend tooth must be physically nearest to where the
+    // main brushing pass finished. Otherwise prioritizing the current face
+    // can send the user across half the jaw before a nearby selected tooth.
+    // After that first pickup, group the remaining teeth by face so brushing
+    // still requires only the necessary rotations.
+    const candidates = focusedTeeth.length === 0
+      ? jawCandidates
+      : (sameSurface.length ? sameSurface : jawCandidates);
     const closest = candidates.reduce((best, entry) => {
       if (!best) return entry;
       const travelCost = (target) =>
