@@ -31,6 +31,12 @@ export async function registerParent({ name, email, password }) {
   return (await callAuth("/sign-up/email", { method: "POST", body: { name, email, password } })).data;
 }
 
+export async function sendParentEmailVerification({ email }) {
+  return (await callAuth("/email-otp/send-verification-otp", {
+    method: "POST", body: { email, type: "email-verification" }
+  })).data;
+}
+
 export async function verifyParentEmail({ email, code }) {
   return (await callAuth("/email-otp/verify-email", {
     method: "POST", body: { email, otp: code }
