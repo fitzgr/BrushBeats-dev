@@ -308,6 +308,7 @@ function App() {
   const [isSongPoolExhausted, setIsSongPoolExhausted] = useState(false);
   const [loading, setLoading] = useState({ bpm: false, songs: false, player: false });
   const [backendStatus, setBackendStatus] = useState("");
+  const [dbRetrying, setDbRetrying] = useState(false);
   const [error, setError] = useState("");
   const [analyticsConsent, setAnalyticsConsentState] = useState(() => getAnalyticsConsentStatus());
   const [storageConsent, setStorageConsentState] = useState(() => getStorageConsentStatus());
@@ -1206,6 +1207,23 @@ function App() {
       setError(toggleError?.message || "Device storage could not be enabled.");
     } finally {
       setStorageToggleRequest(null);
+    }
+  }
+
+  async function handleRetryLocalDatabase() {
+    const retry = typeof window !== "undefined" ? window.__brushbeatsRetryLocalDatabase : null;
+    if (typeof retry !== "function") {
+      setError("The database retry is unavailable in this version. Reload Brush Beats Dev.");
+      return;
+    }
+
+    setDbRetrying(true);
+    try {
+      await retry();
+    } catch (retryError) {
+      setError(retryError?.message || "The household database could not be reopened.");
+    } finally {
+      setDbRetrying(false);
     }
   }
 
@@ -2558,6 +2576,19 @@ function App() {
             ? "The local household database is available on this device."
             : "Only browser fallback storage is available; brushing history might not be saved."}
         </p>
+      )}
+
+      {showTopConsentNotices && storageConsent === "granted" && !dbStatus.ready && (
+        <section className="info-banner storage-diagnostic" role="alert">
+          <strong>Household database unavailable.</strong>{" "}
+          {dbStatus.errorMessage
+            ? `Browser error: ${dbStatus.errorName || "StorageError"} — ${dbStatus.errorMessage}`
+            : "The database has not finished opening or is blocked by the browser."}
+          <p>Family sign-in and brushing history require this local database. Retrying does not delete saved preferences.</p>
+          <button className="action-btn secondary" type="button" disabled={dbRetrying} onClick={handleRetryLocalDatabase}>
+            {dbRetrying ? "Retrying database…" : "Retry household database"}
+          </button>
+        </section>
       )}
 
       {showTopConsentNotices && storageConsent !== "granted" && !storageBannerDismissed && (
