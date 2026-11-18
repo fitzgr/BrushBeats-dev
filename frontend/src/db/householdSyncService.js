@@ -179,6 +179,9 @@ export async function syncHouseholdSnapshot(householdId) {
     ({ entitlement } = await getHouseholdEntitlement(householdId));
   } catch (error) {
     if (error?.code === "household_not_found" || error?.status === 404) {
+      // This family has not been claimed (or is not accessible to the account).
+      // Keep local records while clearing stale "sync error" UI state.
+      await updateHousehold(householdId, { syncStatus: "local-only" });
       return { ok: false, skipped: true, reason: "household-not-connected" };
     }
     throw error;
