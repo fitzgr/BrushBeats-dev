@@ -304,7 +304,7 @@
         "language": "Preferred language",
         "brushingHand": "Brushing hand",
         "brushType": "Brush type",
-        "duration": "Routine duration",
+        "duration": "Routine duration (seconds)",
         "keyword": "Music keyword"
       }
     },
