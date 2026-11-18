@@ -7,6 +7,7 @@ import BrushingGuide from "./components/BrushingGuide";
 import HouseholdSetupPanel from "./components/HouseholdSetupPanel";
 import HouseholdOverviewPanel from "./components/HouseholdOverviewPanel";
 import HouseholdManagementPanel from "./components/HouseholdManagementPanel";
+import HouseholdAuthPanel from "./components/HouseholdAuthPanel";
 import TranslationWorkshop from "./components/TranslationWorkshop";
 import VersionHistory from "./components/VersionHistory";
 import MyStoryPage from "./components/MyStoryPage";
@@ -2600,6 +2601,10 @@ function App() {
           onRemoveMember={handleDeleteHouseholdMember}
           onActivateMember={handleSwitchHouseholdUser}
         />
+      )}
+
+      {appView === "brush" && storageConsent === "granted" && dbStatus.ready && householdOnboardingState?.completedAt && householdProfile?.householdId && (
+        <HouseholdAuthPanel household={householdProfile} />
       )}
 
       {rotatingStartInfoOpen && (
