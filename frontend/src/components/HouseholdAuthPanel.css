@@ -59,6 +59,17 @@
 }
 .household-auth-error { color: #7a1d1d; background: rgba(208, 76, 76, .12); }
 .household-auth-entitlement { background: rgba(183, 224, 197, .35); }
+.household-auth-debug {
+  margin: .7rem 0;
+  padding: .8rem;
+  border: 1px solid rgba(16, 33, 37, .2);
+  border-radius: 10px;
+  background: rgba(16, 33, 37, .04);
+  font-size: .9rem;
+  overflow-wrap: anywhere;
+}
+.household-auth-debug p { margin: .3rem 0; }
+
 .household-auth-panel small { display: block; line-height: 1.45; opacity: .8; }
 
 .household-auth-restore {
