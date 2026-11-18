@@ -1,5 +1,4 @@
 import { getDB, STORE_NAMES, waitForTransaction } from "./indexedDbService";
-import { tryHydrateHouseholdFromCloud } from "./householdSyncService";
 import { getHousehold, getAppSetting, setAppSetting, getUserById, getUsersByHousehold } from "./storeHelpers";
 import { preferLatestPreferences } from "../lib/preferenceFreshness";
 
@@ -42,15 +41,9 @@ async function resolveActiveUser(household) {
 }
 
 export async function loadPersistedAppState(fallbackState = {}) {
-  let household = await getHousehold();
-
-  if (household?.householdId) {
-    const hydrationResult = await tryHydrateHouseholdFromCloud(household.householdId);
-    if (hydrationResult?.ok && hydrationResult.household?.householdId) {
-      household = hydrationResult.household;
-    }
-  }
-
+  // Cloud restoration is always user-initiated. Pulling on every reload
+  // can overwrite local member changes that have not synced yet.
+  const household = await getHousehold();
   const activeUser = await resolveActiveUser(household);
   const [
     storageConsent,
