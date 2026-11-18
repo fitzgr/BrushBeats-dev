@@ -9,7 +9,7 @@ const LEGACY_MIGRATIONS = ["001_phase5_foundation.sql", "002_align_household_sch
 function assertNonDestructive(filename, sql) {
   // Previous migration 002 drops all household tables. Never replay that
   // operation on a database containing customer records.
-  if (/\\b(?:drop\\s+(?:table|schema)|truncate\\s+(?:table\\s+)?)/i.test(sql)) {
+  if (/\b(?:drop\s+(?:table|schema)|truncate\s+(?:table\s+)?)/i.test(sql)) {
     throw new Error(`Refusing destructive migration ${filename}. Create a forward-only migration instead.`);
   }
 }
