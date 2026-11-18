@@ -1,29 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-
-const YOUTUBE_VIDEO_ID_REGEX = /^[a-zA-Z0-9_-]{11}$/;
-
-function normalizeVideoId(value) {
-  const candidate = String(value || "").trim();
-  return YOUTUBE_VIDEO_ID_REGEX.test(candidate) ? candidate : null;
-}
-
-function parseVideoId(playerData) {
-  if (playerData?.videoId) {
-    return normalizeVideoId(playerData.videoId);
-  }
-
-  if (!playerData?.embedUrl) {
-    return null;
-  }
-
-  try {
-    const url = new URL(playerData.embedUrl);
-    return normalizeVideoId(url.pathname.split("/").pop());
-  } catch {
-    return null;
-  }
-}
+import { parsePlayerVideoId } from "../lib/playerVideoId";
 
 function Player({
   selectedSong,
@@ -50,7 +27,7 @@ function Player({
   const onSongEndedRef = useRef(onSongEnded);
   const [apiReady, setApiReady] = useState(Boolean(window.YT?.Player));
   const [playerError, setPlayerError] = useState("");
-  const videoId = useMemo(() => parseVideoId(playerData), [playerData]);
+  const videoId = useMemo(() => parsePlayerVideoId(playerData), [playerData]);
 
   useEffect(() => {
     onPlaybackTickRef.current = onPlaybackTick;
@@ -164,15 +141,16 @@ function Player({
   }, []);
 
   useEffect(() => {
-    if (!apiReady || !hostRef.current || playerRef.current) {
+    if (!apiReady || !hostRef.current || playerRef.current || !videoId) {
       return;
     }
 
-    playerRef.current = new window.YT.Player(hostRef.current, {
+    try {
+      playerRef.current = new window.YT.Player(hostRef.current, {
       width: "100%",
       height: "100%",
       host: "https://www.youtube-nocookie.com",
-      videoId: videoId || undefined,
+      videoId,
       playerVars: {
         rel: 0,
         autoplay: 0,
@@ -213,7 +191,14 @@ function Player({
           }
         }
       }
-    });
+      });
+    } catch (error) {
+      // The external IFrame API may reject a video or fail during initialization.
+      // Keep the app usable and let the user choose another song.
+      console.warn("YouTube player could not start", error);
+      playerRef.current = null;
+      setPlayerError(t("player.noEmbed", { title: selectedSong?.title || "" }));
+    }
 
     return () => {
       stopTickTimer();
@@ -228,9 +213,14 @@ function Player({
 
     setPlayerError("");
     stopTickTimer();
-    playerRef.current.cueVideoById?.(videoId, 0);
-    onPlaybackTickRef.current?.(0);
-  }, [videoId, stopTickTimer]);
+    try {
+      playerRef.current.cueVideoById?.(videoId, 0);
+      onPlaybackTickRef.current?.(0);
+    } catch (error) {
+      console.warn("Could not cue YouTube video", error);
+      setPlayerError(t("player.noEmbed", { title: selectedSong?.title || "" }));
+    }
+  }, [videoId, stopTickTimer, selectedSong?.title, t]);
 
   useEffect(() => {
     if (!autoplayToken || !playerRef.current) {
@@ -264,7 +254,7 @@ function Player({
 
       {!loading && !selectedSong && <p>{t("player.selectSong")}</p>}
 
-      {!loading && selectedSong && !playerData?.embedUrl && (
+      {!loading && selectedSong && !videoId && (
         <p>{t("player.noEmbed", { title: selectedSong.title })}</p>
       )}
 
