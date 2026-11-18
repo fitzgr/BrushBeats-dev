@@ -3,6 +3,7 @@ import {
   isHouseholdAuthConfigured,
   loadVerifiedParentSession,
   registerParent,
+  sendParentEmailVerification,
   signInParent,
   signOutParent,
   verifyParentEmail
@@ -85,6 +86,20 @@ export default function HouseholdAuthPanel({ household }) {
       }
     } catch (err) {
       setError(err.message || "Unable to complete sign-in");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function resendEmailVerification() {
+    setBusy(true);
+    setError("");
+    setStatus("");
+    try {
+      await sendParentEmailVerification({ email: email.trim() });
+      setStatus("If this email is registered and unverified, a fresh code has been sent.");
+    } catch (err) {
+      setError(err.message || "Unable to send a new code");
     } finally {
       setBusy(false);
     }
@@ -255,7 +270,13 @@ export default function HouseholdAuthPanel({ household }) {
                 {busy ? "Working…" : view === "verify" ? "Verify email" : view === "sign-up" ? "Create parent account" : "Sign in"}
               </button>
               {view === "verify" && (
-                <button className="action-btn secondary" type="button" onClick={() => setView("sign-in")}>Back to sign-in</button>
+                <button className="action-btn secondary" type="button" disabled={busy || !email.trim()}
+                  onClick={resendEmailVerification}>Resend code</button>
+              )}
+              {view === "sign-in" && (
+                <button className="action-btn secondary" type="button" onClick={() => { setView("verify"); setError(""); }}>
+                  Verify email
+                </button>
               )}
             </div>
           </form>
