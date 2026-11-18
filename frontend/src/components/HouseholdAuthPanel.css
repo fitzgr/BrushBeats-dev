@@ -27,6 +27,22 @@
   background: white;
   color: #102125;
 }
+.household-auth-password-field { display: grid; gap: .3rem; font-weight: 600; }
+.household-auth-password-control { display: flex; align-items: stretch; gap: .5rem; }
+.household-auth-password-control input { flex: 1 1 auto; min-width: 0; }
+.household-auth-password-toggle {
+  flex: 0 0 auto;
+  padding: .65rem .85rem;
+  border: 1px solid rgba(16, 33, 37, .27);
+  border-radius: 10px;
+  background: #f1f6f7;
+  color: #102125;
+  font: inherit;
+  font-size: .9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.household-auth-password-toggle:focus-visible { outline: 3px solid #b8dbe5; outline-offset: 1px; }
 .household-auth-form input:focus-visible { outline: 3px solid #b8dbe5; outline-offset: 1px; }
 .household-auth-status, .household-auth-error, .household-auth-entitlement {
   margin: .7rem 0;
