@@ -302,7 +302,7 @@
         "language": "Idioma preferido",
         "brushingHand": "Mano de cepillado",
         "brushType": "Tipo de cepillo",
-        "duration": "Duracion de la rutina",
+        "duration": "Duracion de la rutina (segundos)",
         "keyword": "Palabra clave musical"
       }
     },
