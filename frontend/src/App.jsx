@@ -4,12 +4,9 @@ import BPMCalculator from "./components/BPMCalculator";
 import SongList from "./components/SongList";
 import Player from "./components/Player";
 import BrushingGuide from "./components/BrushingGuide";
-import AgeThemePanel from "./components/AgeThemePanel";
 import HouseholdSetupPanel from "./components/HouseholdSetupPanel";
 import HouseholdOverviewPanel from "./components/HouseholdOverviewPanel";
 import HouseholdManagementPanel from "./components/HouseholdManagementPanel";
-import AchievementBadgeList from "./components/AchievementBadgeList";
-import ProgressDashboardPanel from "./components/ProgressDashboardPanel";
 import TranslationWorkshop from "./components/TranslationWorkshop";
 import VersionHistory from "./components/VersionHistory";
 import MyStoryPage from "./components/MyStoryPage";
@@ -20,7 +17,6 @@ import { awardAchievementsForUser } from "./db/achievementEngineService";
 import { archiveHouseholdMember, loadHouseholdManagement, removeHouseholdMember, restoreHouseholdMember, saveHouseholdMember, saveHouseholdSettings } from "./db/householdManagementService";
 import { initializePhase2Migration } from "./db/migrationService";
 import { loadUserProgressDashboard } from "./db/progressDashboardService";
-import { getAchievementPresentation } from "./db/rewardProgressionService";
 import { completeHouseholdOnboarding, saveHouseholdOnboardingDraft, setHouseholdOnboardingUiDismissed } from "./db/householdSetupService";
 import { createBrushingSession, logToothChange, updateUser } from "./db/storeHelpers";
 import { getUserScopedState, saveUserScopedDefaults, saveUserScopedFavoriteSongs, saveUserScopedLastSession } from "./db/userScopedStateService";
@@ -29,7 +25,7 @@ import { getGeoCountry, getSongs, getYoutubeVideo } from "./api/client";
 import { calculateBpm } from "./lib/bpm";
 import { buildBrushingSessionTimeline, buildSegments } from "./lib/brushingTimeline";
 import { buildFocusSurfaceModeMapFromSelector } from "./lib/focusModes";
-import { buildReinforcementPool, getAgeMessageGroupCount, pickReinforcementMessage } from "./lib/reinforcementMessages";
+import { buildReinforcementPool, pickReinforcementMessage } from "./lib/reinforcementMessages";
 import {
   analyticsEnabled,
   getAnalyticsConsentStatus,
@@ -53,10 +49,10 @@ import {
   setStorageBannerDismissed,
   setStorageConsent
 } from "./lib/storagePreference";
-import { buildAgeEstimateFromActualAge, buildAgeEstimateFromPhase, estimateAgeFromTeethFull, inferMusicAgeBucket } from "./lib/teethAge";
+import { estimateAgeFromTeethFull, inferMusicAgeBucket } from "./lib/teethAge";
 import { buildAgeUiProfile } from "./lib/ageUiProfile";
 import { useDeviceContext } from "./lib/deviceContext";
-import { getOverlayThemeOptions, OVERLAY_THEME_AUTO } from "./lib/overlayThemes";
+import { OVERLAY_THEME_AUTO } from "./lib/overlayThemes";
 import { mergePreferenceDefaults } from "./lib/preferenceFreshness";
 import { buildUserMusicContext } from "./lib/userMusicContext";
 import "./App.css";
@@ -77,7 +73,6 @@ const ROTATING_START_SEGMENT_SEQUENCE = [
   "back-bottom-right",
   "front-bottom-right"
 ];
-const DEFAULT_AGE_SIMULATION = { active: false, mode: "exact", phase: "primary", value: 2, unit: "years" };
 const YOUTUBE_VIDEO_ID_REGEX = /^[a-zA-Z0-9_-]{11}$/;
 const HYGIENIST_FOCUS_MODES = ["none", "front", "back", "both"];
 
@@ -250,38 +245,6 @@ function buildHouseholdSetupDraft({ household, activeUser, onboardingDraft, user
   };
 }
 
-function buildCompletionCelebrationMessage(t, fallbackMessage, unlockedAchievements, dashboard) {
-  const highlightedAchievement = Array.isArray(unlockedAchievements) && unlockedAchievements.length > 0
-    ? [...unlockedAchievements]
-      .filter((achievement) => achievement.achievementType !== "routine-mix")
-      .map((achievement) => getAchievementPresentation(achievement))
-      .sort((left, right) => Number(right.pointsAwarded || 0) - Number(left.pointsAwarded || 0))[0]
-    : null;
-
-  if (highlightedAchievement) {
-    return t("app.achievements.completionCelebration.unlocked", {
-      badge: t(`app.achievements.types.${highlightedAchievement.achievementType}.title`),
-      tier: t(`app.achievements.tiers.${highlightedAchievement.tier || "bronze"}`),
-      points: highlightedAchievement.pointsAwarded || 0
-    });
-  }
-
-  if (dashboard?.nextAchievement && dashboard.nextAchievement.achievementType !== "routine-mix") {
-    return t("app.achievements.completionCelebration.progress", {
-      level: dashboard.progression.currentLevel,
-      remainingPoints: dashboard.progression.pointsToNextLevel,
-      badge: t(`app.achievements.types.${dashboard.nextAchievement.achievementType}.title`)
-    });
-  }
-  return fallbackMessage;
-}
-
-function daysAgoIso(daysAgo) {
-  const date = new Date();
-  date.setDate(date.getDate() - daysAgo);
-  return date.toISOString();
-}
-
 function mergeStoredDefaults(userDefaults, legacyPreferences) {
   const merged = mergePreferenceDefaults(userDefaults, legacyPreferences);
   if (!merged) {
@@ -301,161 +264,8 @@ function mergeStoredDefaults(userDefaults, legacyPreferences) {
   };
 }
 
-function buildMockProgressDashboard(phase = "adult") {
-  const presets = {
-    infant: {
-      totals: { totalSessions: 12, completionRate: 92, streakDays: 4, monthlySessions: 16 },
-      progression: { currentLevel: 2, points: 84, nextLevelPoints: 120, pointsToNextLevel: 36, progressPercent: 70 },
-      weeklyBrushing: { current: 6, target: 7, remaining: 1, percent: 86, complete: false },
-      weeklySupport: { current: 2, target: 3, remaining: 1, percent: 67, complete: false },
-      routineCoverage: { current: 2, target: 3, missingTypes: ["water-picking"] },
-      tierCounts: { bronze: 2, silver: 1, gold: 0 },
-      momentum: "starting",
-      nextAchievement: { achievementType: "routine-mix", progress: { measure: "distinctRoutineTypes", remaining: 1, target: 3 } },
-      caregiverNudges: [
-        { key: "weeklyBrushing", priority: 1, values: { remaining: 1, target: 7, current: 6 } },
-        { key: "nextAchievement", priority: 2, values: { achievementType: "routine-mix", remaining: 1, target: 3 } }
-      ],
-      achievements: [
-        { achievementId: "preview-first", achievementType: "first-session", tier: "bronze", pointsAwarded: 15 },
-        { achievementId: "preview-streak3", achievementType: "streak-3", tier: "silver", pointsAwarded: 40 }
-      ],
-      toothMilestones: [
-        { toothHistoryId: "preview-m1", label: "tooth-added", recordedAt: daysAgoIso(8), newToothStage: "infant" },
-        { toothHistoryId: "preview-m2", label: "manual-adjustment", recordedAt: daysAgoIso(21), newToothStage: "infant" }
-      ]
-    },
-    toddler: {
-      totals: { totalSessions: 26, completionRate: 94, streakDays: 7, monthlySessions: 20 },
-      progression: { currentLevel: 4, points: 176, nextLevelPoints: 220, pointsToNextLevel: 44, progressPercent: 80 },
-      weeklyBrushing: { current: 8, target: 8, remaining: 0, percent: 100, complete: true },
-      weeklySupport: { current: 2, target: 3, remaining: 1, percent: 67, complete: false },
-      routineCoverage: { current: 2, target: 3, missingTypes: ["water-picking"] },
-      tierCounts: { bronze: 3, silver: 2, gold: 1 },
-      momentum: "building",
-      nextAchievement: { achievementType: "stage-transition", progress: { measure: "stageTransitions", remaining: 1, target: 1 } },
-      caregiverNudges: [
-        { key: "weeklySupport", priority: 1, values: { remaining: 1, target: 3, current: 2 } },
-        { key: "stageTransition", priority: 2, values: { previousStage: "infant", newStage: "toddler" } }
-      ],
-      achievements: [
-        { achievementId: "preview-first", achievementType: "first-session", tier: "bronze", pointsAwarded: 15 },
-        { achievementId: "preview-routine-mix", achievementType: "routine-mix", tier: "silver", pointsAwarded: 45 },
-        { achievementId: "preview-stage", achievementType: "stage-transition", tier: "gold", pointsAwarded: 90 }
-      ],
-      toothMilestones: [
-        { toothHistoryId: "preview-m1", label: "stage-changed", recordedAt: daysAgoIso(6), previousToothStage: "infant", newToothStage: "toddler" },
-        { toothHistoryId: "preview-m2", label: "tooth-added", recordedAt: daysAgoIso(18), newToothStage: "toddler" }
-      ]
-    },
-    primary: {
-      totals: { totalSessions: 39, completionRate: 91, streakDays: 9, monthlySessions: 24 },
-      progression: { currentLevel: 5, points: 258, nextLevelPoints: 320, pointsToNextLevel: 62, progressPercent: 81 },
-      weeklyBrushing: { current: 9, target: 10, remaining: 1, percent: 90, complete: false },
-      weeklySupport: { current: 3, target: 3, remaining: 0, percent: 100, complete: true },
-      routineCoverage: { current: 3, target: 3, missingTypes: [] },
-      tierCounts: { bronze: 3, silver: 3, gold: 1 },
-      momentum: "building",
-      nextAchievement: { achievementType: "ten-sessions", progress: { measure: "completedSessions", remaining: 1, target: 10 } },
-      caregiverNudges: [
-        { key: "weeklyBrushing", priority: 1, values: { remaining: 1, target: 10, current: 9 } },
-        { key: "nextAchievement", priority: 2, values: { achievementType: "ten-sessions", remaining: 1, target: 10 } }
-      ],
-      achievements: [
-        { achievementId: "preview-streak7", achievementType: "streak-7", tier: "silver", pointsAwarded: 70 },
-        { achievementId: "preview-ten", achievementType: "ten-sessions", tier: "silver", pointsAwarded: 60 }
-      ],
-      toothMilestones: [
-        { toothHistoryId: "preview-m1", label: "tooth-added", recordedAt: daysAgoIso(9), newToothStage: "primary" },
-        { toothHistoryId: "preview-m2", label: "manual-adjustment", recordedAt: daysAgoIso(28), newToothStage: "primary" }
-      ]
-    },
-    mixed: {
-      totals: { totalSessions: 48, completionRate: 89, streakDays: 11, monthlySessions: 28 },
-      progression: { currentLevel: 6, points: 344, nextLevelPoints: 420, pointsToNextLevel: 76, progressPercent: 82 },
-      weeklyBrushing: { current: 10, target: 10, remaining: 0, percent: 100, complete: true },
-      weeklySupport: { current: 4, target: 4, remaining: 0, percent: 100, complete: true },
-      routineCoverage: { current: 3, target: 3, missingTypes: [] },
-      tierCounts: { bronze: 3, silver: 3, gold: 2 },
-      momentum: "strong",
-      nextAchievement: { achievementType: "twenty-sessions", progress: { measure: "completedSessions", remaining: 2, target: 20 } },
-      caregiverNudges: [
-        { key: "goalsComplete", priority: 0, values: { brushing: 10, support: 4 } },
-        { key: "nextAchievement", priority: 1, values: { achievementType: "twenty-sessions", remaining: 2, target: 20 } }
-      ],
-      achievements: [
-        { achievementId: "preview-streak7", achievementType: "streak-7", tier: "silver", pointsAwarded: 70 },
-        { achievementId: "preview-routine-mix", achievementType: "routine-mix", tier: "gold", pointsAwarded: 90 },
-        { achievementId: "preview-stage", achievementType: "stage-transition", tier: "gold", pointsAwarded: 100 }
-      ],
-      toothMilestones: [
-        { toothHistoryId: "preview-m1", label: "stage-changed", recordedAt: daysAgoIso(12), previousToothStage: "primary", newToothStage: "mixed" },
-        { toothHistoryId: "preview-m2", label: "tooth-added", recordedAt: daysAgoIso(24), newToothStage: "mixed" }
-      ]
-    },
-    adult: {
-      totals: { totalSessions: 62, completionRate: 93, streakDays: 15, monthlySessions: 31 },
-      progression: { currentLevel: 8, points: 512, nextLevelPoints: 620, pointsToNextLevel: 108, progressPercent: 83 },
-      weeklyBrushing: { current: 10, target: 10, remaining: 0, percent: 100, complete: true },
-      weeklySupport: { current: 3, target: 4, remaining: 1, percent: 75, complete: false },
-      routineCoverage: { current: 2, target: 3, missingTypes: ["water-picking"] },
-      tierCounts: { bronze: 3, silver: 4, gold: 3 },
-      momentum: "strong",
-      nextAchievement: { achievementType: "twenty-sessions", progress: { measure: "completedSessions", remaining: 1, target: 20 } },
-      caregiverNudges: [
-        { key: "weeklySupport", priority: 1, values: { remaining: 1, target: 4, current: 3 } },
-        { key: "nextAchievement", priority: 2, values: { achievementType: "twenty-sessions", remaining: 1, target: 20 } }
-      ],
-      achievements: [
-        { achievementId: "preview-ten", achievementType: "ten-sessions", tier: "silver", pointsAwarded: 60 },
-        { achievementId: "preview-twenty", achievementType: "twenty-sessions", tier: "gold", pointsAwarded: 110 },
-        { achievementId: "preview-stage", achievementType: "stage-transition", tier: "gold", pointsAwarded: 100 }
-      ],
-      toothMilestones: [
-        { toothHistoryId: "preview-m1", label: "stage-changed", recordedAt: daysAgoIso(16), previousToothStage: "mixed", newToothStage: "adult" },
-        { toothHistoryId: "preview-m2", label: "manual-adjustment", recordedAt: daysAgoIso(31), newToothStage: "adult" }
-      ]
-    }
-  };
-
-  const preset = presets[phase] || presets.adult;
-
-  return {
-    totals: preset.totals,
-    progression: {
-      ...preset.progression,
-      pointsBreakdown: [
-        { key: "brushing", points: Math.round(preset.progression.points * 0.34) },
-        { key: "support", points: Math.round(preset.progression.points * 0.18) },
-        { key: "milestones", points: Math.round(preset.progression.points * 0.16) },
-        { key: "variety", points: Math.round(preset.progression.points * 0.12) },
-        { key: "achievements", points: Math.round(preset.progression.points * 0.2) }
-      ]
-    },
-    goals: {
-      weeklyBrushing: preset.weeklyBrushing,
-      weeklySupport: preset.weeklySupport
-    },
-    nextAchievement: preset.nextAchievement,
-    caregiverSummary: {
-      routineCoverage: preset.routineCoverage,
-      tierCounts: preset.tierCounts,
-      momentum: preset.momentum
-    },
-    caregiverNudges: preset.caregiverNudges,
-    recentAchievements: preset.achievements,
-    recentSessions: [
-      { sessionId: `${phase}-s1`, sessionType: "brushing", songTitle: "Dance Around the Sink", completedAt: daysAgoIso(1), targetDurationSeconds: 120 },
-      { sessionId: `${phase}-s2`, sessionType: "flossing", completedAt: daysAgoIso(3), targetDurationSeconds: 90 },
-      { sessionId: `${phase}-s3`, sessionType: "water-picking", completedAt: daysAgoIso(5), targetDurationSeconds: 60 }
-    ],
-    toothMilestones: preset.toothMilestones
-  };
-}
-
 function App() {
   const { t, i18n } = useTranslation();
-  const ageSimulationAvailable = true;
   const [dbStatus, setDbStatus] = useState(() => {
     if (typeof window === "undefined") {
       return { ready: false, mode: "legacy-storage-fallback" };
@@ -547,28 +357,6 @@ function App() {
   const [householdSetupSaving, setHouseholdSetupSaving] = useState(false);
   const [persistedStateRevision, setPersistedStateRevision] = useState(0);
   const [queuedStoredSongKey, setQueuedStoredSongKey] = useState("");
-  const [ageSimulation, setAgeSimulation] = useState(() => {
-    if (typeof window === "undefined") {
-      return DEFAULT_AGE_SIMULATION;
-    }
-
-    const params = new URLSearchParams(window.location.search);
-    const unit = params.get("simAgeUnit") === "months" ? "months" : "years";
-    const rawValue = Number(params.get("simAge"));
-    const mode = params.get("simAgeMode") === "phase" ? "phase" : "exact";
-    const phase = ["infant", "toddler", "primary", "mixed", "adult"].includes(params.get("simAgePhase"))
-      ? params.get("simAgePhase")
-      : DEFAULT_AGE_SIMULATION.phase;
-
-    return {
-      active: params.get("simulateAge") === "1",
-      mode,
-      phase,
-      value: Number.isFinite(rawValue) ? rawValue : DEFAULT_AGE_SIMULATION.value,
-      unit
-    };
-  });
-  const [showAgeExperienceLab, setShowAgeExperienceLab] = useState(() => ageSimulation.active);
   const seenSongsByQueryRef = useRef(new Map());
   const playedSongsRef = useRef(new Set());
   const queuedSongRef = useRef(null);
@@ -594,39 +382,20 @@ function App() {
   const device = useDeviceContext();
   const totalTeeth = values.top + values.bottom;
   const toothAgeEstimate = bpmData?.ageEstimate || estimateAgeFromTeethFull(totalTeeth);
-  const simulatedAgeEstimate = useMemo(
-    () => ageSimulationAvailable && ageSimulation.active
-      ? ageSimulation.mode === "phase"
-        ? buildAgeEstimateFromPhase(ageSimulation.phase)
-        : buildAgeEstimateFromActualAge(ageSimulation.value, ageSimulation.unit)
-      : null,
-    [ageSimulation.active, ageSimulation.mode, ageSimulation.phase, ageSimulation.unit, ageSimulation.value, ageSimulationAvailable]
-  );
-  const effectiveAgeEstimate = simulatedAgeEstimate || toothAgeEstimate;
+  // Teeth counts still inform coaching/song matching, without age-themed UI.
+  const effectiveAgeEstimate = toothAgeEstimate;
   const detectedBrusherProfile = useMemo(
     () => buildLocalizedBrusherProfile(t, totalTeeth, effectiveAgeEstimate),
     [effectiveAgeEstimate, t, totalTeeth]
-  );
-  const actualBrusherProfile = useMemo(
-    () => buildLocalizedBrusherProfile(t, totalTeeth, toothAgeEstimate),
-    [t, toothAgeEstimate, totalTeeth]
   );
   const ageUiProfile = useMemo(
     () => buildAgeUiProfile(t, effectiveAgeEstimate, {
       stageLabel: detectedBrusherProfile.label,
       ageText: formatAgeDescription(t, effectiveAgeEstimate),
-      simulated: ageSimulation.active,
-      overlayTheme: overlayThemeChoice
+      simulated: false,
+      overlayTheme: OVERLAY_THEME_AUTO
     }),
-    [ageSimulation.active, detectedBrusherProfile.label, effectiveAgeEstimate, overlayThemeChoice, t]
-  );
-  const overlayThemeOptions = useMemo(
-    () => getOverlayThemeOptions(ageUiProfile.phase),
-    [ageUiProfile.phase]
-  );
-  const simulationPreviewDashboard = useMemo(
-    () => ageSimulation.active ? buildMockProgressDashboard(effectiveAgeEstimate?.phase || "adult") : null,
-    [ageSimulation.active, effectiveAgeEstimate?.phase]
+    [detectedBrusherProfile.label, effectiveAgeEstimate, t]
   );
   const selectedBrushBpm = Number(selectedSong?.bpm || bpmData?.searchBpm || 120);
   const sessionTotalSeconds = useMemo(() => {
@@ -670,35 +439,7 @@ function App() {
     () => buildReinforcementPool(effectiveAgeEstimate?.phase, totalTeeth, brushType),
     [effectiveAgeEstimate?.phase, brushType, totalTeeth]
   );
-  useEffect(() => {
-    if (typeof window === "undefined") {
-      return;
-    }
-
-    const url = new URL(window.location.href);
-
-    if (ageSimulation.active) {
-      url.searchParams.set("simulateAge", "1");
-      url.searchParams.set("simAgeMode", ageSimulation.mode);
-      url.searchParams.set("simAgePhase", ageSimulation.phase);
-      url.searchParams.set("simAge", String(ageSimulation.value));
-      url.searchParams.set("simAgeUnit", ageSimulation.unit);
-    } else {
-      url.searchParams.delete("simulateAge");
-      url.searchParams.delete("simAgeMode");
-      url.searchParams.delete("simAgePhase");
-      url.searchParams.delete("simAge");
-      url.searchParams.delete("simAgeUnit");
-    }
-
-    window.history.replaceState({}, "", `${url.pathname}${url.search}${url.hash}`);
-  }, [ageSimulation.active, ageSimulation.mode, ageSimulation.phase, ageSimulation.unit, ageSimulation.value]);
-
-  const ageGroupCount = getAgeMessageGroupCount();
-  const completionBannerMessage = useMemo(
-    () => buildCompletionCelebrationMessage(t, completionMessage || t("app.success", { duration: formatTime(Math.ceil(sessionTotalSeconds)) }), recentUnlockedAchievements, progressDashboard),
-    [completionMessage, progressDashboard, recentUnlockedAchievements, sessionTotalSeconds, t]
-  );
+  const completionBannerMessage = completionMessage || t("app.success", { duration: formatTime(Math.ceil(sessionTotalSeconds)) });
 
   useEffect(() => {
     setHygienistFocusModes((currentModes) => buildHygienistFocusModeMap(values.top, values.bottom, currentModes));
@@ -2140,66 +1881,6 @@ function App() {
     };
   }, [bpmData?.searchBpm, brushingPhase, effectiveAgeEstimate, geoCountry?.countryCode, keyword, songFilters, songRefreshSeed, totalTeeth, workflowStep]);
 
-  function handleSimulationChange(field, value) {
-    setAgeSimulation((current) => {
-      if (field === "mode") {
-        return {
-          ...current,
-          mode: value === "phase" ? "phase" : "exact"
-        };
-      }
-
-      if (field === "phase") {
-        return {
-          ...current,
-          phase: ["infant", "toddler", "primary", "mixed", "adult"].includes(value)
-            ? value
-            : current.phase,
-          mode: "phase"
-        };
-      }
-
-      if (field === "unit") {
-        return {
-          ...current,
-          mode: "exact",
-          unit: value === "months" ? "months" : "years"
-        };
-      }
-
-      return {
-        ...current,
-        mode: "exact",
-        value: Number.isFinite(Number(value)) ? Number(value) : current.value
-      };
-    });
-  }
-
-  function handleSimulationToggle(active) {
-    setAgeSimulation((current) => ({
-      ...current,
-      active: Boolean(active)
-    }));
-
-    if (active) {
-      setShowAgeExperienceLab(true);
-    }
-  }
-
-  function handleSimulationReset() {
-    setAgeSimulation(DEFAULT_AGE_SIMULATION);
-  }
-
-  function handleOverlayThemeChange(value) {
-    setOverlayThemeChoice(value || OVERLAY_THEME_AUTO);
-  }
-
-  function handleToggleAgeExperienceLab() {
-    setAppView("brush");
-    setWorkflowStep("teeth");
-    setShowAgeExperienceLab((current) => !current);
-  }
-
   function updateDraftSongFilter(key, value) {
     setDraftSongFilters((prev) => ({ ...prev, [key]: value }));
   }
@@ -2720,13 +2401,6 @@ function App() {
     dbStatus.ready &&
     householdOnboardingState?.completedAt &&
     householdOverview?.household;
-  const showProgressDashboard =
-    appView === "brush" &&
-    storageConsent === "granted" &&
-    dbStatus.ready &&
-    householdOnboardingState?.completedAt &&
-    activeHouseholdUser?.userId &&
-    progressDashboard;
   const showHouseholdManagement =
     appView === "brush" &&
     storageConsent === "granted" &&
@@ -2736,8 +2410,7 @@ function App() {
 
   return (
     <main
-      className={`app-shell ${device.isMobile ? "mobile-shell" : "desktop-shell"}${appView === "workshop" && !device.isMobile ? " workshop-shell" : ""} ${ageUiProfile.shellClassName} ${ageUiProfile.themeClassName}${ageSimulation.active ? " debug-simulation-active" : ""}`}
-      style={ageUiProfile.cssVars}
+      className={`app-shell ${device.isMobile ? "mobile-shell" : "desktop-shell"}${appView === "workshop" && !device.isMobile ? " workshop-shell" : ""}`}
     >
       {!(appView === "workshop" && !device.isMobile) && (
       <header className="app-header">
@@ -2749,27 +2422,8 @@ function App() {
         </p>
         <h1>{device.isMobile ? t("app.title.mobile") : t("app.title.desktop")}</h1>
         <p>{subtitle}</p>
-        <AgeThemePanel profile={ageUiProfile} className="header-age-theme-panel" />
         <p className={`mode-chip ${device.mode}`}>{device.isMobile ? t("common.layouts.mobile") : t("common.layouts.desktop")}</p>
-        {ageSimulation.active && (
-          <p className="simulation-chip" aria-live="polite">{t("settings.experienceSimulator.headerChip", { label: detectedBrusherProfile.label })}</p>
-        )}
-        <p className="geo-debug-chip" aria-live="polite">
-          {t("app.geoDebug", {
-            country: geoCountry?.country || "Unknown",
-            countryCode: geoCountry?.countryCode || "--",
-            ip: geoCountry?.ip || "unknown",
-            source: geoCountry?.source || "pending"
-          })}
-        </p>
         <div className="header-utility-row">
-          <button
-            type="button"
-            className={`header-utility-btn${showAgeExperienceLab ? " active" : ""}`}
-            onClick={handleToggleAgeExperienceLab}
-          >
-            {showAgeExperienceLab ? t("common.buttons.hideAgeExperienceLab") : t("common.buttons.openAgeExperienceLab")}
-          </button>
           <button
             type="button"
             className="header-utility-btn"
@@ -2931,16 +2585,6 @@ function App() {
         />
       )}
 
-      {showProgressDashboard && (
-        <ProgressDashboardPanel
-          t={t}
-          dashboard={progressDashboard}
-          activeUserName={activeHouseholdUser?.name}
-          filters={progressDashboardFilters}
-          onFilterChange={handleProgressDashboardFilterChange}
-        />
-      )}
-
       {showHouseholdManagement && (
         <HouseholdManagementPanel
           key={`${householdManagement.household.householdId}:${householdManagement.household.updatedAt || "household"}:${householdManagement.members.length}:${householdManagement.archivedMembers.length}`}
@@ -2995,9 +2639,6 @@ function App() {
       {workflowStep === "teeth" && (
         <section className={`layout-grid ${device.isMobile ? "mobile-mode" : "desktop-mode desktop-step-layout"}`}>
           <BPMCalculator
-            brusherProfile={detectedBrusherProfile}
-            actualBrusherProfile={actualBrusherProfile}
-            ageUiProfile={ageUiProfile}
             brushingHand={brushingHand}
             brushType={brushType}
             rotatingStartEnabled={rotatingStartEnabled}
@@ -3015,35 +2656,14 @@ function App() {
             brushDurationSeconds={brushDurationSeconds}
             loading={loading.bpm}
             isMobile={device.isMobile}
-            showSimulationControls={ageSimulationAvailable && showAgeExperienceLab}
-            simulation={ageSimulation}
-            onSimulationToggle={handleSimulationToggle}
-            onSimulationChange={handleSimulationChange}
-            onSimulationReset={handleSimulationReset}
-            overlayThemeChoice={overlayThemeChoice}
-            overlayThemeOptions={overlayThemeOptions}
-            onOverlayThemeChange={handleOverlayThemeChange}
           />
-          {showAgeExperienceLab && ageSimulation.active && simulationPreviewDashboard && (
-            <div className="simulation-dashboard-shell">
-              <ProgressDashboardPanel
-                t={t}
-                dashboard={simulationPreviewDashboard}
-                activeUserName={t("settings.experienceSimulator.previewUser", { label: detectedBrusherProfile.label })}
-                filters={progressDashboardFilters}
-                onFilterChange={handleProgressDashboardFilterChange}
-                readOnly
-                previewLabel={t("settings.experienceSimulator.previewBadge")}
-              />
-            </div>
-          )}
         </section>
       )}
 
       {workflowStep === "music" && (
         <section className={`layout-grid ${device.isMobile ? "mobile-mode" : "desktop-mode desktop-step-layout"}`}>
           {storageConsent === "granted" && (lastSession?.song || favoriteSongs.length > 0) && (
-            <section className={`stored-picks-panel ${ageUiProfile.themeClassName}`} aria-live="polite">
+            <section className="stored-picks-panel" aria-live="polite">
               <strong>{t("music.favorites.title")}</strong>
               {lastSession?.song && (
                 <div className="stored-pick-row">
@@ -3074,28 +2694,7 @@ function App() {
               ))}
             </section>
           )}
-          {songsDebugInfo?.queryUsed && (
-            <section className="music-debug-chip" aria-live="polite">
-              <strong>GetSongBPM + selection debug</strong>
-              <p>
-                selected={songsDebugInfo.selectedTitle || selectedSong?.title || "--"} | artist={songsDebugInfo.selectedArtist || selectedSong?.artist || "--"} | source={songsDebugInfo.selectionSource || "generated"}
-              </p>
-              <p>
-                youtube match={songsDebugInfo.youtubeMatchedTitle || playerData?.title || "--"} | channel={songsDebugInfo.youtubeMatchedChannel || playerData?.channelTitle || "--"} | mode={songsDebugInfo.youtubeQueryMode || "direct-title-artist"}
-              </p>
-              <p>
-                source={songsDebugInfo.source || "unknown"} | geo={songsDebugInfo.geoSource || "unknown"} | country={songsDebugInfo.contextUsed?.countryCode || "--"} | lang={songsDebugInfo.contextUsed?.browserLanguage || "--"} | age={songsDebugInfo.contextUsed?.ageBucket || "--"}
-              </p>
-              <p>
-                q={songsDebugInfo.queryUsed}
-              </p>
-              <p>
-                songs fetched={songsDebugInfo.fetchedCount ?? 0}, shown={songsDebugInfo.shownCount ?? 0}
-              </p>
-            </section>
-          )}
           <SongList
-            brusherProfile={detectedBrusherProfile}
             songs={songs}
             exhausted={isSongPoolExhausted}
             loading={loading.songs}
@@ -3121,7 +2720,7 @@ function App() {
 
       {workflowStep === "brush" && (
         <section ref={brushMapSectionRef} className={`layout-grid ${device.isMobile ? "mobile-mode" : "desktop-mode desktop-brush-layout"}`}>
-          <section className={`card brush-actions-card ${ageUiProfile.themeClassName} ${device.isMobile ? "" : "desktop-step-card"}`.trim()}>
+          <section className={`card brush-actions-card ${device.isMobile ? "" : "desktop-step-card"}`.trim()}>
             <h2>{t("brushing.controlsTitle")}</h2>
             {selectedSong && (
               <>
@@ -3137,13 +2736,6 @@ function App() {
                   <section className="success-banner brush-success-banner" aria-live="polite">
                     <span className="sparkle-stars" aria-hidden="true">✦ ✧ ✦</span>
                     <p>{completionBannerMessage}</p>
-                    <small>{t("app.successAgeGroups", { count: ageGroupCount })}</small>
-                    <AchievementBadgeList
-                      t={t}
-                      achievements={recentUnlockedAchievements}
-                      title={recentUnlockedAchievements.length > 0 ? t("app.achievements.unlockedTitle") : undefined}
-                      compact
-                    />
                   </section>
                 )}
                 <p className="timer-note">{t("brushing.timerNote")}</p>
@@ -3241,13 +2833,6 @@ function App() {
                 <section className="success-banner brush-success-banner" aria-live="polite">
                   <span className="sparkle-stars" aria-hidden="true">✦ ✧ ✦</span>
                   <p>{completionBannerMessage}</p>
-                  <small>{t("app.successAgeGroups", { count: ageGroupCount })}</small>
-                  <AchievementBadgeList
-                    t={t}
-                    achievements={recentUnlockedAchievements}
-                    title={recentUnlockedAchievements.length > 0 ? t("app.achievements.unlockedTitle") : undefined}
-                    compact
-                  />
                 </section>
               )}
             </>
