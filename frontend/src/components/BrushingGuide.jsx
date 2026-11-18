@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import AgeThemePanel from "./AgeThemePanel";
 import { getBrushTechniqueTips } from "../lib/reinforcementMessages";
 import { buildSegments, buildBrushingSessionTimeline, getActiveTimelineEntry } from "../lib/brushingTimeline";
 import { getActiveToothPulseMs } from "../lib/brushingPulse";
@@ -574,7 +573,7 @@ function RowCelebrationCascade({ celebration, reducedMotion, lowPerformanceMode 
   return <canvas className={`row-celebration-cascade${celebration ? " active" : ""}`} ref={canvasRef} aria-hidden="true" />;
 }
 
-function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isMobile, brushingMusicElapsedSeconds, startCountdownRemainingMs = 0, rotatingStartCueMs = 1000, sessionStartSegmentKey = null, brushingHand, showStartingHandCue = false, brushType = "manual", hideIntro = false, onCueChange, completionMessage = "", brushControlCue, primaryBrushActionLabel, onPrimaryBrushAction, onRestartBrushing, rotatingStartEnabled = false, onRotatingStartEnabledChange, onRotatingStartInfoClick, extendEnabled = false, onExtendEnabledChange, onExtendInfoClick, brainChallengeEnabled = false, onBrainChallengeEnabledChange, onBrainChallengeInfoClick, sessionTotalSeconds, ageUiProfile, embedded = false, showThemePanel = true, enableHygienistFocus = false, hygienistFocusModes = null, onHygienistFocusModesChange = null }) {
+function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isMobile, brushingMusicElapsedSeconds, startCountdownRemainingMs = 0, rotatingStartCueMs = 1000, sessionStartSegmentKey = null, brushingHand, showStartingHandCue = false, brushType = "manual", hideIntro = false, onCueChange, completionMessage = "", brushControlCue, primaryBrushActionLabel, onPrimaryBrushAction, onRestartBrushing, rotatingStartEnabled = false, onRotatingStartEnabledChange, onRotatingStartInfoClick, extendEnabled = false, onExtendEnabledChange, onExtendInfoClick, brainChallengeEnabled = false, onBrainChallengeEnabledChange, onBrainChallengeInfoClick, sessionTotalSeconds, ageUiProfile, embedded = false, enableHygienistFocus = false, hygienistFocusModes = null, onHygienistFocusModesChange = null }) {
   const resetHoldTimerRef = useRef(null);
   const resetHoldTriggeredRef = useRef(false);
   const RESET_HOLD_MS = 700;
@@ -1369,7 +1368,7 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
     );
   }
 
-  const guideClassName = `${embedded ? "guide guide-embedded" : "card guide"} ${ageUiProfile?.themeClassName || ""}`.trim();
+  const guideClassName = embedded ? "guide guide-embedded" : "card guide";
 
   return (
     <section className={guideClassName}>
@@ -1421,7 +1420,6 @@ function BrushingGuide({ timer, brushingPhase, values, bpmData, selectedBpm, isM
 
 
       <div className="guide-map-shell">
-        {showThemePanel && <AgeThemePanel profile={ageUiProfile} variant="guide" className="guide-age-overlay" chipLimit={2} />}
         <div
           className={`mouth-map${enableHygienistFocus && focusToothSet.size > 0 ? " hygienist-focus-mode" : ""}${brushingPhase === "complete" ? " completion-finished" : ""}${showCompletionFlash ? " completion-flash" : ""}`}
           role="img"
