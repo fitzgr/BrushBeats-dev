@@ -322,9 +322,13 @@ export function getStorageConsentStatus() {
     return CONSENT_STATUS.denied;
   }
 
-  const stored = window.localStorage.getItem(STORAGE_CONSENT_KEY);
-  if (stored === CONSENT_STATUS.granted || stored === CONSENT_STATUS.denied) {
-    return stored;
+  try {
+    const stored = window.localStorage.getItem(STORAGE_CONSENT_KEY);
+    if (stored === CONSENT_STATUS.granted || stored === CONSENT_STATUS.denied) {
+      return stored;
+    }
+  } catch {
+    return CONSENT_STATUS.denied;
   }
 
   return CONSENT_STATUS.unknown;
@@ -336,7 +340,16 @@ export function setStorageConsent(granted) {
   }
 
   const nextStatus = granted ? CONSENT_STATUS.granted : CONSENT_STATUS.denied;
-  window.localStorage.setItem(STORAGE_CONSENT_KEY, nextStatus);
+
+  try {
+    window.localStorage.setItem(STORAGE_CONSENT_KEY, nextStatus);
+    if (window.localStorage.getItem(STORAGE_CONSENT_KEY) !== nextStatus) {
+      return CONSENT_STATUS.denied;
+    }
+  } catch {
+    return CONSENT_STATUS.denied;
+  }
+
   void syncLegacyStorageConsent(nextStatus);
   return nextStatus;
 }
