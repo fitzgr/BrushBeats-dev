@@ -8,7 +8,9 @@ import {
   verifyParentEmail
 } from "../auth/neonAuthClient";
 import { claimHousehold, getOwnedHouseholds } from "../api/client";
-import { trySyncHouseholdSnapshot } from "../db/householdSyncService";
+import { trySyncHouseholdSnapshot, tryHydrateHouseholdFromCloud } from "../db/householdSyncService";
+import { getUsersByHousehold, selectLocalHousehold, setActiveUser, setAppSetting } from "../db/storeHelpers";
+import { nowIso } from "../db/indexedDbService";
 import "./HouseholdAuthPanel.css";
 
 function describeEntitlement(entitlement) {
@@ -31,6 +33,7 @@ export default function HouseholdAuthPanel({ household }) {
   const [status, setStatus] = useState("");
   const [error, setError] = useState("");
   const [entitlement, setEntitlement] = useState(null);
+  const [ownedHouseholds, setOwnedHouseholds] = useState([]);
   const [busy, setBusy] = useState(false);
   const [checking, setChecking] = useState(true);
 
@@ -93,6 +96,7 @@ export default function HouseholdAuthPanel({ household }) {
     setStatus("");
     try {
       const owned = await getOwnedHouseholds();
+      setOwnedHouseholds(Array.isArray(owned.households) ? owned.households : []);
       const matches = owned.households?.filter((row) => row.householdId === household.householdId) || [];
       const result = matches.length
         ? matches[0]
@@ -118,6 +122,55 @@ export default function HouseholdAuthPanel({ household }) {
     }
   }
 
+  async function listParentHouseholds() {
+    setBusy(true);
+    setError("");
+    try {
+      const response = await getOwnedHouseholds();
+      setOwnedHouseholds(Array.isArray(response.households) ? response.households : []);
+      setStatus("Select a family to restore. This device's existing household will be kept.");
+    } catch (err) {
+      setError(err.message || "Could not list your households");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function restoreHousehold(householdId) {
+    if (!householdId || householdId === household.householdId) {
+      setStatus("This household is already open on this device.");
+      return;
+    }
+    setBusy(true);
+    setError("");
+    try {
+      const result = await tryHydrateHouseholdFromCloud(householdId);
+      if (!result?.ok || !result.household) {
+        throw new Error("The family could not be restored. No local household records were changed.");
+      }
+      const members = await getUsersByHousehold(householdId);
+      const active = members.find((item) => item.userId === result.household.activeUserId) ||
+        members.find((item) => item.isActive) || members[0];
+      if (!active) throw new Error("The cloud household has no usable profiles to restore.");
+      await selectLocalHousehold(householdId);
+      await setActiveUser(active.userId, householdId);
+      await setAppSetting("system.householdOnboarding", {
+        completedAt: nowIso(),
+        householdId,
+        userId: active.userId,
+        additionalUserIds: members.filter((item) => item.userId !== active.userId).map((item) => item.userId),
+        reviewSource: "verified-cloud-restore",
+        reviewedMigration: false
+      });
+      setStatus("Household restored. Refreshing family profiles…");
+      window.location.reload();
+    } catch (err) {
+      setError(err.message || "Could not restore household");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function handleSignOut() {
     setBusy(true);
     setError("");
@@ -125,6 +178,7 @@ export default function HouseholdAuthPanel({ household }) {
       await signOutParent();
       setParent(null);
       setEntitlement(null);
+      setOwnedHouseholds([]);
       setPassword("");
       setStatus("Signed out. Family brushing records remain on this device.");
     } catch (err) {
@@ -150,6 +204,9 @@ export default function HouseholdAuthPanel({ household }) {
           <div className="household-auth-actions">
             <button className="action-btn" type="button" disabled={busy} onClick={connectHousehold}>
               {busy ? "Connecting…" : "Connect this household"}
+            </button>
+            <button className="action-btn secondary" type="button" disabled={busy} onClick={listParentHouseholds}>
+              Restore on this device
             </button>
             <button className="action-btn secondary" type="button" disabled={busy} onClick={handleSignOut}>
               Sign out
@@ -198,6 +255,21 @@ export default function HouseholdAuthPanel({ household }) {
             </div>
           </form>
         </>
+      )}
+      {parent && ownedHouseholds.some((item) => item.householdId !== household.householdId) && (
+        <div className="household-auth-restore">
+          <strong>Your existing cloud households</strong>
+          <p>Restoring a different household keeps this device's current family records; it does not erase them.</p>
+          {ownedHouseholds.filter((item) => item.householdId !== household.householdId).map((item) => (
+            <div className="household-auth-restore-row" key={item.householdId}>
+              <div><strong>{item.householdName || "Brush Beats Household"}</strong><br />
+                <small>{describeEntitlement(item.entitlement)}</small>
+              </div>
+              <button className="action-btn secondary" type="button" disabled={busy}
+                onClick={() => restoreHousehold(item.householdId)}>Restore</button>
+            </div>
+          ))}
+        </div>
       )}
       {entitlement && <p className="household-auth-entitlement">{describeEntitlement(entitlement)}</p>}
       {status && <p className="household-auth-status" role="status">{status}</p>}
