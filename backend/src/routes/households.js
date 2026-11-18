@@ -53,7 +53,8 @@ router.post("/:householdId/claim", async (req, res, next) => {
     const account = await client.query(
       `INSERT INTO accounts (account_id, auth_subject, email, display_name)
        VALUES ($1, $2, $3, $4)
-       ON CONFLICT (auth_subject) DO UPDATE SET display_name = excluded.display_name
+       ON CONFLICT (auth_subject) WHERE auth_subject IS NOT NULL
+       DO UPDATE SET display_name = excluded.display_name
        RETURNING account_id`,
       ["account_" + randomUUID(), req.authAccount.subject, req.authAccount.email, req.authAccount.displayName]
     );
