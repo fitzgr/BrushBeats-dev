@@ -17,7 +17,11 @@ import "./HouseholdAuthPanel.css";
 function describeEntitlement(entitlement) {
   if (!entitlement) return "";
   if (entitlement.state === "trial") {
-    return `Free trial: ${entitlement.trialDaysRemaining} day${entitlement.trialDaysRemaining === 1 ? "" : "s"} remaining`;
+    const remaining = entitlement.trialDaysRemaining;
+    const duration = `${remaining} day${remaining === 1 ? "" : "s"} remaining`;
+    return entitlement.reminderDue
+      ? `Trial ending soon — ${duration}. You can review your annual subscription options.`
+      : `Free household trial: ${duration}`;
   }
   if (entitlement.state === "paid") return "Annual plan active";
   if (entitlement.state === "expired") return "Trial ended — subscription required for cloud sync";
