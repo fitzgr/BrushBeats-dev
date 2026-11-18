@@ -1,4 +1,5 @@
 import i18n from "../i18n.ts";
+import { getHouseholdBearerToken } from "../auth/neonAuthClient";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:4000";
 const REQUEST_TIMEOUT_MS = 35000;
@@ -102,18 +103,43 @@ export function getGeoCountry() {
   return request("/api/geo/country");
 }
 
+async function authenticatedHouseholdRequest(path, options = {}) {
+  const token = await getHouseholdBearerToken();
+  return requestWithOptions(path, {
+    ...options,
+    headers: {
+      ...(options.headers || {}),
+      Authorization: `Bearer ${token}`
+    }
+  });
+}
+
 export function getHouseholdSnapshot(householdId) {
-  return request(`/api/households/${encodeURIComponent(householdId)}`);
+  return authenticatedHouseholdRequest(`/api/households/${encodeURIComponent(householdId)}`);
 }
 
 export function syncHouseholdSnapshot(householdId, payload) {
-  return requestWithOptions(`/api/households/${encodeURIComponent(householdId)}/sync`, {
+  return authenticatedHouseholdRequest(`/api/households/${encodeURIComponent(householdId)}/sync`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload)
   });
+}
+
+export function claimHousehold({ householdId, householdName }) {
+  return authenticatedHouseholdRequest(`/api/households/${encodeURIComponent(householdId)}/claim`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ householdName })
+  });
+}
+
+export function getOwnedHouseholds() {
+  return authenticatedHouseholdRequest("/api/households/mine");
+}
+
+export function getHouseholdEntitlement(householdId) {
+  return authenticatedHouseholdRequest(`/api/households/${encodeURIComponent(householdId)}/entitlement`);
 }
 
 export function getAdminLocale(language, password) {
