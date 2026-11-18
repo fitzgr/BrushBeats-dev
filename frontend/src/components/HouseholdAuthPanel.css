@@ -37,3 +37,20 @@
 .household-auth-error { color: #7a1d1d; background: rgba(208, 76, 76, .12); }
 .household-auth-entitlement { background: rgba(183, 224, 197, .35); }
 .household-auth-panel small { display: block; line-height: 1.45; opacity: .8; }
+
+.household-auth-restore {
+  margin: 1rem 0;
+  padding: .8rem;
+  border: 1px solid rgba(16, 33, 37, .18);
+  border-radius: 12px;
+}
+.household-auth-restore > p { font-size: .9rem; }
+.household-auth-restore-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .7rem;
+  padding: .65rem 0;
+  border-top: 1px solid rgba(16, 33, 37, .12);
+}
+.household-auth-restore-row .action-btn { flex-shrink: 0; }
