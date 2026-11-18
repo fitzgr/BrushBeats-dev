@@ -7,17 +7,15 @@ function isDatabaseConfigured() {
 }
 
 function getSslConfig(connectionString) {
-  if (!connectionString) {
+  if (!connectionString) return false;
+
+  // Local development may use plain TCP; cloud PostgreSQL must validate
+  // the server certificate rather than silently accepting impostors.
+  const hostname = new URL(connectionString).hostname.toLowerCase();
+  if (hostname === "localhost" || hostname === "127.0.0.1" || hostname === "::1") {
     return false;
   }
-
-  if (connectionString.includes("localhost") || connectionString.includes("127.0.0.1")) {
-    return false;
-  }
-
-  return {
-    rejectUnauthorized: false
-  };
+  return { rejectUnauthorized: true };
 }
 
 function getPool() {
