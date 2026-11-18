@@ -280,7 +280,19 @@ export default function HouseholdAuthPanel({ household }) {
                     aria-pressed={passwordVisible}
                     onClick={() => setPasswordVisible((visible) => !visible)}
                   >
-                    {passwordVisible ? "Hide" : "Show"}
+                    {passwordVisible ? (
+                      <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M10.6 5.1A10.8 10.8 0 0 1 12 5c5.2 0 8.8 4.2 10 7a12.8 12.8 0 0 1-3.3 4.8" />
+                        <path d="M6.1 6.1A13.3 13.3 0 0 0 2 12c1.2 2.8 4.8 7 10 7a10.7 10.7 0 0 0 4.8-1.1" />
+                        <path d="M10 10a3 3 0 0 0 4 4" />
+                        <path d="M3 3l18 18" />
+                      </svg>
+                    ) : (
+                      <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z" />
+                        <circle cx="12" cy="12" r="3" />
+                      </svg>
+                    )}
                   </button>
                 </div>
               </div>
