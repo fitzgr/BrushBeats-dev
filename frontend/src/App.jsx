@@ -2824,7 +2824,6 @@ function App() {
                 onBrainChallengeInfoClick={() => setBrainChallengeInfoOpen(true)}
                 ageUiProfile={ageUiProfile}
                 embedded
-                showThemePanel={false}
                 enableHygienistFocus={enableHygienistFocusExperience}
                 hygienistFocusModes={hygienistFocusModes}
                 onHygienistFocusModesChange={handleHygienistFocusModesChange}
