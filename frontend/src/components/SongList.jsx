@@ -1,7 +1,6 @@
 import { useTranslation } from "react-i18next";
 
 function SongList({
-  brusherProfile,
   songs,
   exhausted,
   loading,
@@ -42,7 +41,6 @@ function SongList({
       <p>{isMobile ? t("music.introMobile") : t("music.introDesktop")}</p>
       <p className="song-note">{isMobile ? t("music.noteMobile") : t("music.noteDesktop")}</p>
       <p className="song-note">{t("music.randomFiltersNote")}</p>
-      {brusherProfile && <p className="song-note">{t("music.detectedStageNote", { label: brusherProfile.label })}</p>}
 
       <div className="song-filters">
         <label>
