@@ -6209,9 +6209,21 @@ select {
 }
 
 .storage-toggle-notice {
-  margin: 0.5rem 0 0;
+  position: fixed;
+  top: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1200;
+  box-sizing: border-box;
+  width: min(520px, calc(100vw - 2rem));
+  margin: 0;
+  padding: 0.85rem 1rem;
+  border: 1px solid rgba(16, 33, 37, 0.2);
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 12px 32px rgba(16, 33, 37, 0.18);
   color: #1f4d37;
-  font-size: 0.82rem;
+  font-size: 0.9rem;
   font-weight: 600;
 }
 
