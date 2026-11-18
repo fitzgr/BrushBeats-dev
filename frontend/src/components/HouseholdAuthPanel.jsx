@@ -9,7 +9,7 @@ import {
 } from "../auth/neonAuthClient";
 import { claimHousehold, getOwnedHouseholds } from "../api/client";
 import { trySyncHouseholdSnapshot, tryHydrateHouseholdFromCloud } from "../db/householdSyncService";
-import { getUsersByHousehold, selectLocalHousehold, setActiveUser, setAppSetting } from "../db/storeHelpers";
+import { getHousehold, getUsersByHousehold, selectLocalHousehold, setActiveUser, setAppSetting } from "../db/storeHelpers";
 import { nowIso } from "../db/indexedDbService";
 import "./HouseholdAuthPanel.css";
 
@@ -144,9 +144,14 @@ export default function HouseholdAuthPanel({ household }) {
     setBusy(true);
     setError("");
     try {
-      const result = await tryHydrateHouseholdFromCloud(householdId);
-      if (!result?.ok || !result.household) {
-        throw new Error("The family could not be restored. No local household records were changed.");
+      // If this device already has that household, select its local copy.
+      // Never overwrite its unsynced profiles with a possibly older snapshot.
+      const existingLocal = await getHousehold(householdId);
+      if (!existingLocal) {
+        const result = await tryHydrateHouseholdFromCloud(householdId);
+        if (!result?.ok || !result.household) {
+          throw new Error("The family could not be restored. Existing households were preserved.");
+        }
       }
       const members = await getUsersByHousehold(householdId);
       const active = members.find((item) => item.userId === result.household.activeUserId) ||
