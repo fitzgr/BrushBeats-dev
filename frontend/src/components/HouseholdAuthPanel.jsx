@@ -32,6 +32,7 @@ export default function HouseholdAuthPanel({ household }) {
   const [view, setView] = useState("sign-in");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [passwordVisible, setPasswordVisible] = useState(false);
   const [name, setName] = useState("");
   const [otp, setOtp] = useState("");
   const [parent, setParent] = useState(null);
@@ -72,10 +73,12 @@ export default function HouseholdAuthPanel({ household }) {
       if (view === "sign-up") {
         await registerParent({ name: name.trim() || "Parent", email: email.trim(), password });
         setView("verify");
+        setPasswordVisible(false);
         setStatus("An email verification code was requested. Enter the code sent to your inbox.");
       } else if (view === "verify") {
         await verifyParentEmail({ email: email.trim(), code: otp.trim() });
         setView("sign-in");
+        setPasswordVisible(false);
         setStatus("Email verified. Sign in to connect your family.");
       } else {
         await signInParent({ email: email.trim(), password });
@@ -204,6 +207,7 @@ export default function HouseholdAuthPanel({ household }) {
       setEntitlement(null);
       setOwnedHouseholds([]);
       setPassword("");
+      setPasswordVisible(false);
       setStatus("Signed out. Family brushing records remain on this device.");
     } catch (err) {
       setError(err.message || "Could not sign out");
@@ -240,10 +244,10 @@ export default function HouseholdAuthPanel({ household }) {
       ) : (
         <>
           <div className="household-auth-actions">
-            <button className={view === "sign-in" ? "action-btn" : "action-btn secondary"} type="button" onClick={() => { setView("sign-in"); setError(""); }}>
+            <button className={view === "sign-in" ? "action-btn" : "action-btn secondary"} type="button" onClick={() => { setView("sign-in"); setPasswordVisible(false); setError(""); }}>
               Sign in
             </button>
-            <button className={view === "sign-up" ? "action-btn" : "action-btn secondary"} type="button" onClick={() => { setView("sign-up"); setError(""); }}>
+            <button className={view === "sign-up" ? "action-btn" : "action-btn secondary"} type="button" onClick={() => { setView("sign-up"); setPasswordVisible(false); setError(""); }}>
               Create account
             </button>
           </div>
@@ -264,10 +268,22 @@ export default function HouseholdAuthPanel({ household }) {
                 <input type="text" inputMode="numeric" autoComplete="one-time-code" value={otp} required onChange={(event) => setOtp(event.target.value)} />
               </label>
             ) : (
-              <label>
-                <span>Password</span>
-                <input type="password" autoComplete={view === "sign-up" ? "new-password" : "current-password"} value={password} required minLength={8} onChange={(event) => setPassword(event.target.value)} />
-              </label>
+              <div className="household-auth-password-field">
+                <label htmlFor="household-parent-password">Password</label>
+                <div className="household-auth-password-control">
+                  <input id="household-parent-password" type={passwordVisible ? "text" : "password"} autoComplete={view === "sign-up" ? "new-password" : "current-password"} value={password} required minLength={8} onChange={(event) => setPassword(event.target.value)} />
+                  <button
+                    type="button"
+                    className="household-auth-password-toggle"
+                    aria-controls="household-parent-password"
+                    aria-label={passwordVisible ? "Hide password" : "Show password"}
+                    aria-pressed={passwordVisible}
+                    onClick={() => setPasswordVisible((visible) => !visible)}
+                  >
+                    {passwordVisible ? "Hide" : "Show"}
+                  </button>
+                </div>
+              </div>
             )}
             <div className="household-auth-actions">
               <button className="action-btn" type="submit" disabled={busy}>
@@ -278,7 +294,7 @@ export default function HouseholdAuthPanel({ household }) {
                   onClick={resendEmailVerification}>Resend code</button>
               )}
               {view === "sign-in" && (
-                <button className="action-btn secondary" type="button" onClick={() => { setView("verify"); setError(""); }}>
+                <button className="action-btn secondary" type="button" onClick={() => { setView("verify"); setPasswordVisible(false); setError(""); }}>
                   Verify email
                 </button>
               )}
