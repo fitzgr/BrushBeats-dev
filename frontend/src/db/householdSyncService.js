@@ -1,5 +1,6 @@
 import { nowIso } from "./indexedDbService";
-import { getHouseholdSnapshot, syncHouseholdSnapshot as syncHouseholdSnapshotRequest } from "../api/client";
+import { getHouseholdSnapshot, getHouseholdEntitlement, syncHouseholdSnapshot as syncHouseholdSnapshotRequest } from "../api/client";
+import { isHouseholdAuthConfigured } from "../auth/neonAuthClient";
 import { STORE_NAMES } from "./indexedDbService";
 import { getHousehold, getUsersByHousehold, putItem, updateHousehold } from "./storeHelpers";
 import { getUserScopedState, saveUserScopedDefaults } from "./userScopedStateService";
@@ -156,16 +157,17 @@ export async function syncHouseholdSnapshot(householdId) {
     return null;
   }
 
-  if (!hasCloudSyncAccess(snapshot.household.subscriptionTier)) {
-    await updateHousehold(householdId, {
-      syncStatus: "subscriber-required"
-    });
+  if (!isHouseholdAuthConfigured()) {
+    return { ok: false, skipped: true, reason: "cloud-auth-not-configured" };
+  }
 
-    return {
-      ok: false,
-      skipped: true,
-      reason: "subscriber-required"
-    };
+  // Server-issued subscription records are the sole source of entitlement.
+  // The legacy local subscriptionTier must not disable an active free trial
+  // or turn an expired household back into a paying account.
+  const { entitlement } = await getHouseholdEntitlement(householdId);
+  if (!entitlement?.allowed) {
+    await updateHousehold(householdId, { syncStatus: "subscriber-required" });
+    return { ok: false, skipped: true, reason: "subscriber-required" };
   }
 
   const response = await syncHouseholdSnapshotRequest(householdId, snapshot);
@@ -206,16 +208,12 @@ export async function trySyncHouseholdSnapshot(householdId) {
 }
 
 export async function hydrateHouseholdFromCloud(householdId) {
-  const localHousehold = await getHousehold(householdId);
-
-  if (!localHousehold?.householdId || !hasCloudSyncAccess(localHousehold.subscriptionTier)) {
-    return {
-      ok: false,
-      skipped: true,
-      reason: "subscriber-required"
-    };
+  if (!isHouseholdAuthConfigured()) {
+    return { ok: false, skipped: true, reason: "cloud-auth-not-configured" };
   }
 
+  // Households can be restored to a new device after the verified parent
+  // signs in. They need not exist in that device's local IndexedDB first.
   const snapshot = await getHouseholdSnapshot(householdId);
   const household = await importHouseholdSnapshot(snapshot);
   return {
