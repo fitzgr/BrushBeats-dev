@@ -73,7 +73,9 @@ async function bootstrapDatabase() {
       window.__brushbeatsDbStatus = {
         ready: false,
         mode: 'legacy-storage-fallback',
-        legacyCookieMode: 'read-write'
+        legacyCookieMode: 'read-write',
+        errorName: error?.name || 'StorageError',
+        errorMessage: error?.message || 'Could not open the local household database.'
       }
       window.dispatchEvent(new CustomEvent('brushbeats:db-status', { detail: window.__brushbeatsDbStatus }))
 
@@ -84,6 +86,10 @@ async function bootstrapDatabase() {
   }
 }
 
+// Retry uses the same safe initialization path; it never clears existing browser data.
+if (typeof window !== 'undefined') {
+  window.__brushbeatsRetryLocalDatabase = bootstrapDatabase
+}
 void bootstrapDatabase()
 
 if (import.meta.env.DEV) {
