@@ -1,6 +1,6 @@
 import { nowIso } from "./indexedDbService";
 import { getHouseholdSnapshot, getHouseholdEntitlement, syncHouseholdSnapshot as syncHouseholdSnapshotRequest } from "../api/client";
-import { isHouseholdAuthConfigured } from "../auth/neonAuthClient";
+import { isHouseholdAuthConfigured, loadVerifiedParentSession } from "../auth/neonAuthClient";
 import { STORE_NAMES } from "./indexedDbService";
 import { getHousehold, getUsersByHousehold, putItem, updateHousehold } from "./storeHelpers";
 import { getUserScopedState, saveUserScopedDefaults } from "./userScopedStateService";
@@ -160,6 +160,13 @@ export async function syncHouseholdSnapshot(householdId) {
 
   if (!isHouseholdAuthConfigured()) {
     return { ok: false, skipped: true, reason: "cloud-auth-not-configured" };
+  }
+
+  // Brushing stays fully local until a verified parent signs in. Onboarding
+  // should not report an error simply because the family has not connected.
+  const verifiedSession = await loadVerifiedParentSession().catch(() => null);
+  if (!verifiedSession?.user || !verifiedSession.jwt) {
+    return { ok: false, skipped: true, reason: "parent-sign-in-required" };
   }
 
   // Server-issued subscription records are the sole source of entitlement.
