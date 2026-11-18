@@ -134,7 +134,8 @@ async function buildSnapshot(householdId) {
   const users = await getUsersByHousehold(householdId);
   const members = await Promise.all(
     users
-      .filter((member) => !member.isDeleted)
+      // Include explicit deletion tombstones, otherwise another device cannot
+      // learn which member the parent intentionally removed.
       .map(async (member) => {
         const scopedState = await getUserScopedState(member.userId, {});
 
