@@ -138,6 +138,19 @@ export function getOwnedHouseholds() {
   return authenticatedHouseholdRequest("/api/households/mine");
 }
 
+// Server-owned trial/weekly-teaser status; does not itself enable checkout or music enforcement.
+export function getHouseholdMusicAccess(householdId) {
+  return authenticatedHouseholdRequest(`/api/households/${encodeURIComponent(householdId)}/music-access`);
+}
+
+// Reserve a weekly use on the server. Do not call until a random playable track
+// is available and the music API enforces the resulting entitlement.
+export function reserveHouseholdWeeklyTeaser(householdId) {
+  return authenticatedHouseholdRequest(`/api/households/${encodeURIComponent(householdId)}/weekly-teaser`, {
+    method: "POST"
+  });
+}
+
 export function getHouseholdEntitlement(householdId) {
   return authenticatedHouseholdRequest(`/api/households/${encodeURIComponent(householdId)}/entitlement`);
 }
