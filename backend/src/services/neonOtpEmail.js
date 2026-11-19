@@ -24,13 +24,13 @@ function ttlLabel(expiresAt, now = Date.now()) {
 }
 
 function buildOtpEmail({ code, type, expiresAt, now }) {
-  if (!/^\\d{4,10}$/.test(String(code)) || !OTP_TYPES.has(type)) {
+  if (!/^\d{4,10}$/.test(String(code)) || !OTP_TYPES.has(type)) {
     throw new Error("Invalid OTP payload");
   }
 
   const verification = type === "email-verification";
   const title = verification
-    ? "You're one beat away! Verify your Brush Beats email"
+    ? "🎵 You're one beat away! Verify your Brush Beats email"
     : type === "sign-in"
       ? "Your Brush Beats sign-in code"
       : "Reset your Brush Beats password";
@@ -48,7 +48,7 @@ function buildOtpEmail({ code, type, expiresAt, now }) {
     ? "Enter this code to confirm your email and get the good vibes rolling."
     : "Enter this code in Brush Beats to continue.";
   const expires = ttlLabel(expiresAt, now);
-  const greeting = verification ? "Hey there! 👋" : "Hey there! 👋";
+  const greeting = "Hey there! 👋";
   const safeCode = escapeHtml(code);
   const html = `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Brush Beats</title></head>
@@ -103,7 +103,7 @@ async function verifyNeonWebhook(rawBody, headers, { baseUrl = AUTH_BASE_URL, fe
   const timestamp = headers["x-neon-timestamp"];
   if (!signature || !kid || !timestamp || !Buffer.isBuffer(rawBody)) throw new Error("Missing Neon webhook signature");
   const age = now - Number(timestamp);
-  if (!/^\\d{13}$/.test(String(timestamp)) || !Number.isFinite(age) || Math.abs(age) > MAX_AGE_MS) {
+  if (!/^\d{13}$/.test(String(timestamp)) || !Number.isFinite(age) || Math.abs(age) > MAX_AGE_MS) {
     throw new Error("Expired Neon webhook timestamp");
   }
   const [headerB64, middle, signatureB64, extra] = signature.split(".");
@@ -160,7 +160,7 @@ function createNeonEmailWebhook({ verify = verifyNeonWebhook, send = sendViaRese
     const recipient = event.user?.email;
     const code = event.event_data?.otp_code;
     const type = event.event_data?.otp_type;
-    if (typeof recipient !== "string" || !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(recipient) || !/^\\d{4,10}$/.test(String(code)) || !OTP_TYPES.has(type)) {
+    if (typeof recipient !== "string" || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(recipient) || !/^\d{4,10}$/.test(String(code)) || !OTP_TYPES.has(type)) {
       return res.status(400).json({ error: "Invalid OTP event" });
     }
     const current = now();
