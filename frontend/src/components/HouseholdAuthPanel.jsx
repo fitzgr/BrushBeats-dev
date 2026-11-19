@@ -12,6 +12,7 @@ import { claimHousehold, getOwnedHouseholds } from "../api/client";
 import { trySyncHouseholdSnapshot, tryHydrateHouseholdFromCloud } from "../db/householdSyncService";
 import { getHousehold, getUsersByHousehold, selectLocalHousehold, setActiveUser, setAppSetting } from "../db/storeHelpers";
 import { nowIso } from "../db/indexedDbService";
+import { trackEvent } from "../lib/analytics";
 import "./HouseholdAuthPanel.css";
 
 function describeEntitlement(entitlement) {
@@ -73,11 +74,13 @@ export default function HouseholdAuthPanel({ household }) {
     try {
       if (view === "sign-up") {
         await registerParent({ name: name.trim() || "Parent", email: email.trim(), password });
+        trackEvent("account_signup_requested");
         setView("verify");
         setPasswordVisible(false);
         setStatus("An email verification code was requested. Enter the code sent to your inbox.");
       } else if (view === "verify") {
         await verifyParentEmail({ email: email.trim(), code: otp.trim() });
+        trackEvent("account_email_verified");
         setView("sign-in");
         setPasswordVisible(false);
         setStatus("Email verified. Sign in to connect your family.");
@@ -89,6 +92,7 @@ export default function HouseholdAuthPanel({ household }) {
         } else if (!session.jwt) {
           setStatus("Signed in, but this browser cannot obtain a secure cloud token. Cloud sync is unavailable.");
         } else {
+          trackEvent("account_sign_in_completed");
           setStatus("Signed in. Select Connect household to start your family trial.");
         }
       }
@@ -148,6 +152,7 @@ export default function HouseholdAuthPanel({ household }) {
       stage = "Synchronize family members";
       const synced = await trySyncHouseholdSnapshot(household.householdId);
       if (synced.ok) {
+        trackEvent("household_cloud_connected");
         setStatus("This household is connected. Cloud sync completed successfully.");
       } else {
         setStatus("Household linked, but cloud sync has not completed. Local family records are preserved.");
