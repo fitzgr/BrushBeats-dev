@@ -599,12 +599,12 @@
     }
   },
   "privacy": {
-    "analyticsMessage": "Anonim kullanım analitiklerini paylaşarak BrushBeats'i geliştirmemize yardım edin. Yazılan metinleri veya kişisel verileri asla göndermeyiz.",
+    "analyticsMessage": "Fırçalama başladığında geniş diş sayısı aralıkları dahil anonim kullanım istatistiklerini paylaşarak BrushBeats'i geliştirmemize yardımcı olun. Ad, yaş veya tam diş sayısı gönderilmez.",
     "storageMessage": "BrushBeats, aynı fırçalama düzenini bir sonraki ziyaretinizde hızlıca tekrarlayabilmeniz için son oturumunuzu bu tarayıcının yerel veritabanında saklayabilir.",
     "modalTitle": "Gizlilik Politikası",
-    "modalBody1": "BrushBeats, yalnızca izin verdiğinizde Google Analytics 4 kullanır. BPM hesaplamaları, şarkı seçimleri, fırçalama başlangıçları, sıfırlamalar, tamamlanmalar ve otomatik sıraya alma geçişleri gibi anonim kullanım olaylarını toplarız.",
+    "modalBody1": "BrushBeats, Google Analytics 4'ü yalnızca onay verdiğinizde kullanır. Uygulamayı geliştirmek için şarkı seçimi, fırçalama başlangıcı ve bitişi, kayıt adımları ve geniş diş sayısı aralıkları gibi kullanım olayları toplarız. Bu aralıklardan yaş tahmini yapmayız.",
     "modalBody2": "Depolamaya izin verdiğinizde son fırçalama oturumunuzu bu tarayıcının yerel veritabanında saklayabiliriz. Bu, bir sonraki ziyaretinizde aynı şarkıyı, diş sayılarını, filtreleri, fırçalama elini ve süreyi hızlıca geri yüklemenizi sağlar.",
-    "modalBody3": "Yazılan form metinlerini, e-posta adreslerini, isimleri, şifreleri veya ödeme bilgilerini göndermeyiz. Reklamla ilgili depolama, sizin izin verdiğiniz temel analitik için zorunlu olmadıkça kapalıdır.",
+    "modalBody3": "Google Analytics'e form metinleri, e-posta adresleri, adlar, şifreler, hane kimlikleri, tam diş sayıları, tahmin edilen yaşlar veya ödeme bilgileri göndermeyiz. Reklamla ilgili depolama devre dışıdır.",
     "modalBody4": "Analitik tercihiniz bu cihazda saklanır ve alt bilgideki Analitik kontrollerinden istediğiniz zaman değiştirilebilir.",
     "storageModalTitle": "Depolama Bildirimi",
     "storageModalBody1": "Depolamaya izin verdiğinizde BrushBeats, kurulumunuzun sonraki bir ziyarette geri yüklenebilmesi için verileri sadece tarayıcınızda yerel bir veritabanı ve sınırlı uyumluluk depolaması ile saklar.",
