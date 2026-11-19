@@ -69,6 +69,12 @@ router.post("/:householdId/claim", async (req, res, next) => {
        RETURNING account_id`,
       ["account_" + randomUUID(), req.authAccount.subject, req.authAccount.email, req.authAccount.displayName]
     );
+    // Serialize household claims by the same verified account. Concurrent
+    // device requests must not grant separate sixty-day free trials.
+    await client.query(
+      "SELECT account_id FROM accounts WHERE account_id = $1 FOR UPDATE",
+      [account.rows[0].account_id]
+    );
     await client.query(
       `INSERT INTO households (household_id, household_name, owner_account_id)
        VALUES ($1, $2, $3) ON CONFLICT (household_id) DO NOTHING`,
@@ -79,11 +85,30 @@ router.post("/:householdId/claim", async (req, res, next) => {
       await client.query("rollback");
       return denyNotOwned(res);
     }
-    await client.query(
-      `INSERT INTO household_subscriptions (household_id) VALUES ($1)
-       ON CONFLICT (household_id) DO NOTHING`,
-      [householdId]
+    // A verified owner receives at most one automatic 60-day trial, even if
+    // they create another household ID or clear local browser storage.
+    // Previously claimed households retain their existing entitlement.
+    const previouslyClaimed = await client.query(
+      `SELECT 1 FROM household_subscriptions s
+       JOIN households h ON h.household_id = s.household_id
+       WHERE h.owner_account_id = $1 AND h.household_id <> $2 LIMIT 1`,
+      [account.rows[0].account_id, householdId]
     );
+    if (previouslyClaimed.rowCount) {
+      await client.query(
+        `INSERT INTO household_subscriptions
+          (household_id, status, trial_started_at, trial_ends_at)
+         VALUES ($1, 'expired', now() - interval '60 days', now() - interval '1 second')
+         ON CONFLICT (household_id) DO NOTHING`,
+        [householdId]
+      );
+    } else {
+      await client.query(
+        `INSERT INTO household_subscriptions (household_id) VALUES ($1)
+         ON CONFLICT (household_id) DO NOTHING`,
+        [householdId]
+      );
+    }
     const updated = await getOwned(client, householdId, req.authAccount.subject);
     await client.query("commit");
     return res.json({ householdId, entitlement: evaluateHouseholdEntitlement(updated) });
