@@ -184,7 +184,7 @@ export default function HouseholdAuthPanel({ household }) {
     try {
       const response = await getOwnedHouseholds();
       setOwnedHouseholds(Array.isArray(response.households) ? response.households : []);
-      setStatus("Select a family to restore. This device's existing household will be kept.");
+      setStatus("Select a household you own or have been invited to. Existing local records will be kept.");
     } catch (err) {
       setError(err.message || "Could not list your households");
     } finally {
@@ -203,14 +203,16 @@ export default function HouseholdAuthPanel({ household }) {
       // If this device already has that household, select its local copy.
       // Never overwrite its unsynced profiles with a possibly older snapshot.
       const existingLocal = await getHousehold(householdId);
-      if (!existingLocal) {
+      let restoredHousehold = existingLocal;
+      if (!restoredHousehold) {
         const result = await tryHydrateHouseholdFromCloud(householdId);
         if (!result?.ok || !result.household) {
           throw new Error("The family could not be restored. Existing households were preserved.");
         }
+        restoredHousehold = result.household;
       }
       const members = await getUsersByHousehold(householdId);
-      const active = members.find((item) => item.userId === result.household.activeUserId) ||
+      const active = members.find((item) => item.userId === restoredHousehold.activeUserId) ||
         members.find((item) => item.isActive) || members[0];
       if (!active) throw new Error("The cloud household has no usable profiles to restore.");
       await selectLocalHousehold(householdId);
@@ -350,7 +352,7 @@ export default function HouseholdAuthPanel({ household }) {
       )}
       {parent && ownedHouseholds.some((item) => item.householdId !== household.householdId) && (
         <div className="household-auth-restore">
-          <strong>Your existing cloud households</strong>
+          <strong>Households you can access</strong>
           <p>Restoring a different household keeps this device's current family records; it does not erase them.</p>
           {ownedHouseholds.filter((item) => item.householdId !== household.householdId).map((item) => (
             <div className="household-auth-restore-row" key={item.householdId}>
