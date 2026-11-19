@@ -53,7 +53,9 @@ jobs:
           VITE_BASE_PATH: /${{ github.event.repository.name }}/
           VITE_GIT_SHA: ${{ github.sha }}
           VITE_NEON_AUTH_URL: https://ep-ancient-voice-bj7sl73x.neonauth.c-3.eu-west-2.aws.neon.tech/brushbeats_dev/auth
-          VITE_GA_MEASUREMENT_ID: ${{ secrets.VITE_GA_MEASUREMENT_ID }}
+          # Public GA4 measurement ID shared with production; dashboard isolates via hostname/path.
+          VITE_GA_MEASUREMENT_ID: G-WENBEFTL9J
+          VITE_APP_ENVIRONMENT: development
         run: npm run build
 
       - name: Publish standalone BrushBeats Lab experiments
