@@ -599,12 +599,12 @@
     }
   },
   "privacy": {
-    "analyticsMessage": "Ayuda a mejorar BrushBeats compartiendo analiticas anonimas de uso. Nunca enviamos texto escrito ni datos personales.",
+    "analyticsMessage": "Ayuda a mejorar BrushBeats con estadísticas de uso, incluidos rangos amplios de cantidad de dientes al empezar a cepillarte. No enviamos nombres, edades ni cantidades exactas de dientes.",
     "storageMessage": "BrushBeats puede guardar tu ultima sesion en la base de datos local de este navegador para que repitas rapidamente la misma configuracion de cepillado la proxima vez.",
     "modalTitle": "Politica de privacidad",
-    "modalBody1": "BrushBeats usa Google Analytics 4 solo cuando aceptas. Recopilamos eventos anonimos de uso para mejorar la app, como calculos de BPM, selecciones de canciones, inicios de cepillado, reinicios, finalizaciones y transiciones automáticas de cola.",
+    "modalBody1": "BrushBeats usa Google Analytics 4 solo si lo autorizas. Recopilamos eventos de uso para mejorar la aplicación, como selección de canciones, inicio y finalización del cepillado, pasos de registro y rangos amplios de cantidad de dientes. No estimamos edades a partir de estos rangos.",
     "modalBody2": "Tambien podemos guardar tu ultima sesion de cepillado en la base de datos local de este navegador solo cuando permites el almacenamiento. Esto te permite restaurar rapidamente la misma cancion, cantidad de dientes, filtros, mano de cepillado y duracion en tu proxima visita.",
-    "modalBody3": "No enviamos texto escrito en formularios, direcciones de correo, nombres, contrasenas ni informacion de pago. El almacenamiento relacionado con anuncios esta desactivado a menos que sea necesario para analiticas esenciales autorizadas por ti.",
+    "modalBody3": "No enviamos a Google Analytics texto de formularios, correos, nombres, contraseñas, identificadores del hogar, cantidades exactas de dientes, edades inferidas ni datos de pago. El almacenamiento publicitario está desactivado.",
     "modalBody4": "Tu eleccion de analiticas se guarda en este dispositivo y puedes cambiarla en cualquier momento usando los controles de Analiticas en el pie de pagina.",
     "storageModalTitle": "Aviso de almacenamiento",
     "storageModalBody1": "Cuando permites el almacenamiento, BrushBeats guarda datos solo en tu navegador usando una base de datos local y almacenamiento de compatibilidad limitado para poder recuperar tu configuracion en una visita futura.",
