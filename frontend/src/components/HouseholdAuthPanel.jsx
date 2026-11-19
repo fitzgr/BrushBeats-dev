@@ -375,7 +375,7 @@ export default function HouseholdAuthPanel({ household }) {
           <small>Safe to screenshot: no passwords, tokens, or household IDs are shown here.</small>
         </div>
       )}
-      <small>60-day household trial. After the trial, cloud access costs £4.99 per year. Payment setup is coming next.</small>
+      <small>60-day full-access trial. Proposed annual plans: Family £14.99 (6 profiles, 5 devices) or Family Plus £24.99 (12 profiles, 10 devices). Basic brushing remains free; paid music and checkout are not enabled yet.</small>
     </section>
   );
 }
