@@ -2928,9 +2928,8 @@ function App() {
               )}
             </>
           </Player>
+          {/* Only authenticated, server-confirmed teaser sessions show this prompt. */}
           <WeeklyMusicUpgradePrompt
-            // Only an authenticated server-confirmed teaser session may trigger this;
-            // client-side dates alone must never mark a session as a paid/free teaser.
             visible={brushingPhase === "complete" && playerData?.musicAccess?.access === "weekly_teaser" && playerData?.musicAccess?.serverConfirmed === true}
             sessionId={sessionStartedAtRef.current || ""}
           />
