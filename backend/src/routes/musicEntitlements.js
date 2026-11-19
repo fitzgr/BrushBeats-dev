@@ -6,6 +6,7 @@ const { getPool } = require("../config/database");
 const { isSafeIdentifier } = require("../utils/inputValidation");
 const { evaluateHouseholdEntitlement } = require("../services/subscriptionPolicy");
 const { evaluateMusicAccess, weekStartUtc } = require("../services/musicTrialPolicy");
+const { findHouseholdAccess } = require("../services/householdAccess");
 
 const router = express.Router();
 router.use(requireNeonAuth);
@@ -13,17 +14,6 @@ router.use(requireNeonAuth);
 function isWeeklyTeaserEnabled() {
   // Explicit rollout gate. Never silently activate new subscription rules.
   return process.env.ENABLE_WEEKLY_MUSIC_TEASER === "true";
-}
-
-async function ownedHousehold(client, householdId, subject, lock = false) {
-  const sql = "SELECT h.household_id, s.status, s.trial_ends_at, s.paid_through "
-    + "FROM households h "
-    + "JOIN accounts a ON a.account_id = h.owner_account_id "
-    + "LEFT JOIN household_subscriptions s ON s.household_id = h.household_id "
-    + "WHERE h.household_id = $1 AND a.auth_subject = $2 "
-    + (lock ? "FOR UPDATE OF h" : "");
-  const result = await client.query(sql, [householdId, subject]);
-  return result.rows[0] || null;
 }
 
 function rejectUnknownHousehold(res) {
@@ -38,7 +28,7 @@ router.get("/:householdId/music-access", async (req, res, next) => {
   }
   try {
     const pool = getPool();
-    const owned = await ownedHousehold(pool, id, req.authAccount.subject);
+    const owned = await findHouseholdAccess(pool, id, req.authAccount.subject);
     if (!owned) return rejectUnknownHousehold(res);
     const now = new Date();
     const claimed = await pool.query(
@@ -74,7 +64,7 @@ router.post("/:householdId/weekly-teaser", async (req, res, next) => {
   try {
     await client.query("BEGIN");
     // Lock ensures concurrent devices cannot both consume the weekly allowance.
-    const owned = await ownedHousehold(client, id, req.authAccount.subject, true);
+    const owned = await findHouseholdAccess(client, id, req.authAccount.subject, { lock: true });
     if (!owned) {
       await client.query("ROLLBACK");
       return rejectUnknownHousehold(res);
