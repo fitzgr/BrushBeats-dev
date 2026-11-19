@@ -1683,6 +1683,24 @@ function App() {
     setSessionStartSegmentKey(null);
   }
 
+  // The free brushing experience must work even without YouTube or a paid plan.
+  function handleUseSilentTimer() {
+    latestVideoLookupRef.current += 1; // Invalidate any in-flight music selection.
+    setAppView("brush");
+    setWorkflowStep("brush");
+    setSelectedSong(null);
+    setPlayerData(null);
+    setSongDurationSeconds(0);
+    setPlaybackSeconds(0);
+    setBrushingMusicElapsedSeconds(0);
+    setBrushingPhase("idle");
+    setQueuedStoredSongKey("");
+    queuedSongRef.current = null;
+    setQueuedSongPreview(null);
+    setLoading((current) => ({ ...current, player: false }));
+    setError("");
+  }
+
   function beginBrushingCountdown() {
     const totalSeconds = sessionTotalSeconds;
     const startDelayMs = (sessionStartSegmentKey ? ROTATING_START_DELAY_SECONDS : START_DELAY_SECONDS) * 1000;
@@ -1947,6 +1965,20 @@ function App() {
     });
   }
 
+  // A silent session advances from the wall clock rather than video ticks.
+  // This remains usable even when music discovery or YouTube is unavailable.
+  useEffect(() => {
+    if (brushingPhase !== "running" || parsePlayerVideoId(playerData)) return undefined;
+    let lastTick = Date.now();
+    const intervalId = window.setInterval(() => {
+      const now = Date.now();
+      const delta = Math.max(0, (now - lastTick) / 1000);
+      lastTick = now;
+      setBrushingMusicElapsedSeconds((previous) => previous + delta);
+    }, 100);
+    return () => window.clearInterval(intervalId);
+  }, [brushingPhase, playerData]);
+
   useEffect(() => {
     if (!timer.running || brushingPhase !== "running") {
       return;
@@ -2185,7 +2217,8 @@ function App() {
       return;
     }
 
-    if (!parsePlayerVideoId(playerData)) {
+    const musicReady = Boolean(parsePlayerVideoId(playerData));
+    if (selectedSong && !musicReady) {
       setError(playerData?.playbackWarning || t("brushing.errors.needsPlayback"));
       return;
     }
@@ -2216,10 +2249,20 @@ function App() {
       setPlaybackSeconds(shouldRestartVideo ? 0 : playbackSeconds);
       lastPlaybackTickRef.current = shouldRestartVideo ? 0 : playbackSeconds;
       setTimer({ running: false, remaining: totalSeconds });
-      setBrushingPhase("awaitingPlayback");
+      if (musicReady) {
+        setBrushingPhase("awaitingPlayback");
+      } else {
+        // No player events will arrive for the free music-free timer.
+        const countdownMs = (rotatingStartEnabled ? ROTATING_START_DELAY_SECONDS : START_DELAY_SECONDS) * 1000;
+        countdownDeadlineRef.current = Date.now() + countdownMs;
+        setCountdownRemainingMs(countdownMs);
+        setBrushingPhase("countdown");
+      }
     }
 
-    if (shouldResume) {
+    if (!musicReady) {
+      // No player commands are necessary for silent brushing.
+    } else if (shouldResume) {
       issuePlayerCommand("play");
     } else if (shouldRestartVideo) {
       issuePlayerCommand("restart");
@@ -2237,11 +2280,12 @@ function App() {
     loggedCompletedSessionRef.current = null;
     setRecentUnlockedAchievements([]);
 
-    markSongAsPlayed(selectedSong);
-
-    const queuedSong = queueNextGeneratedSong(selectedSong);
-    if (queuedSong) {
-      trackEvent("song_auto_queued", { title: queuedSong.title, artist: queuedSong.artist, trigger: "start_brushing" });
+    if (musicReady) {
+      markSongAsPlayed(selectedSong);
+      const queuedSong = queueNextGeneratedSong(selectedSong);
+      if (queuedSong) {
+        trackEvent("song_auto_queued", { title: queuedSong.title, artist: queuedSong.artist, trigger: "start_brushing" });
+      }
     }
 
     if (storageConsent === "granted" && selectedSong?.title && selectedSong?.artist) {
@@ -2442,7 +2486,7 @@ function App() {
     brushingPhase === "running" || brushingPhase === "countdown" || brushingPhase === "awaitingPlayback"
       ? t("brushing.pause")
       : brushingPhase === "complete"
-        ? t("common.buttons.stopMusic")
+        ? (selectedSong ? t("common.buttons.stopMusic") : "Brush again")
         : t("brushing.start", { duration: formatTime(Math.ceil(sessionTotalSeconds)) });
 
   const showTopConsentNotices = workflowStep === "teeth";
@@ -2748,6 +2792,13 @@ function App() {
 
       {workflowStep === "music" && (
         <section className={`layout-grid ${device.isMobile ? "mobile-mode" : "desktop-mode desktop-step-layout"}`}>
+          <section className="card" style={{ gridColumn: "1 / -1" }}>
+            <strong>Keep brushing, even without music</strong>
+            <p>The basic timer and brushing guidance are free, with no subscription required.</p>
+            <button className="action-btn secondary" type="button" onClick={handleUseSilentTimer}>
+              Brush without music
+            </button>
+          </section>
           {storageConsent === "granted" && (lastSession?.song || favoriteSongs.length > 0) && (
             <section className="stored-picks-panel" aria-live="polite">
               <strong>{t("music.favorites.title")}</strong>
@@ -2838,6 +2889,7 @@ function App() {
           <Player
             selectedSong={selectedSong}
             playerData={playerData}
+            silentMode={!selectedSong}
             loading={loading.player}
             brushingPhase={brushingPhase}
             isMobile={device.isMobile}
