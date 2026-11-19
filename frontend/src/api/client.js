@@ -152,6 +152,33 @@ export function getOwnedHouseholds() {
 }
 
 // Server-owned trial/weekly-teaser status; does not itself enable checkout or music enforcement.
+// Invitations remain behind an independent frontend/backend rollout flag.
+export function createHouseholdInvitation(householdId, recipientEmail) {
+  return authenticatedHouseholdRequest(`/api/households/${encodeURIComponent(householdId)}/invitations`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ recipientEmail })
+  });
+}
+
+export function acceptHouseholdInvitation(token) {
+  return authenticatedHouseholdRequest("/api/households/invitations/accept", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ token })
+  });
+}
+
+export function getHouseholdAccountMembers(householdId) {
+  return authenticatedHouseholdRequest(`/api/households/${encodeURIComponent(householdId)}/account-members`);
+}
+
+export function revokeHouseholdAccountMember(householdId, accountId) {
+  return authenticatedHouseholdRequest(`/api/households/${encodeURIComponent(householdId)}/account-members/${encodeURIComponent(accountId)}`, {
+    method: "DELETE"
+  });
+}
+
 export function getHouseholdMusicAccess(householdId) {
   return authenticatedHouseholdRequest(`/api/households/${encodeURIComponent(householdId)}/music-access`);
 }
