@@ -35,6 +35,7 @@ import {
   setAnalyticsConsent,
   trackEvent
 } from "./lib/analytics";
+import { toothSelectionEvent } from "./lib/analyticsSanitizer";
 import {
   addFavoriteSong,
   clearFavoriteSongs,
@@ -2293,6 +2294,8 @@ function App() {
     }
 
     trackEvent("brushing_started", { song_title: selectedSong?.title, song_artist: selectedSong?.artist, duration_seconds: Math.ceil(totalSeconds), extend_enabled: extendEnabled });
+    const toothSelection = toothSelectionEvent(Number(values.top), Number(values.bottom));
+    if (toothSelection) trackEvent(toothSelection);
     setError("");
   }
 
