@@ -1870,7 +1870,7 @@ function App() {
   }, [brushingPhase, countdownRemainingMs, sessionTotalSeconds]);
 
   useEffect(() => {
-    if (!bpmData?.searchBpm || (workflowStep !== "music" && brushingPhase !== "running")) {
+    if (!bpmData?.searchBpm || (workflowStep !== "music" && (brushingPhase !== "running" || !selectedSong))) {
       return;
     }
 
@@ -1943,7 +1943,7 @@ function App() {
       cancelled = true;
       window.clearTimeout(timeout);
     };
-  }, [bpmData?.searchBpm, brushingPhase, effectiveAgeEstimate, geoCountry?.countryCode, keyword, songFilters, songRefreshSeed, totalTeeth, workflowStep]);
+  }, [bpmData?.searchBpm, brushingPhase, effectiveAgeEstimate, geoCountry?.countryCode, keyword, selectedSong, songFilters, songRefreshSeed, totalTeeth, workflowStep]);
 
   function updateDraftSongFilter(key, value) {
     setDraftSongFilters((prev) => ({ ...prev, [key]: value }));
