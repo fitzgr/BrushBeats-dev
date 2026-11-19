@@ -8,6 +8,8 @@ import HouseholdSetupPanel from "./components/HouseholdSetupPanel";
 import HouseholdOverviewPanel from "./components/HouseholdOverviewPanel";
 import HouseholdManagementPanel from "./components/HouseholdManagementPanel";
 import HouseholdAuthPanel from "./components/HouseholdAuthPanel";
+import WeeklyMusicUpgradePrompt from "./components/WeeklyMusicUpgradePrompt";
+import "./components/WeeklyMusicUpgradePrompt.css";
 import TranslationWorkshop from "./components/TranslationWorkshop";
 import VersionHistory from "./components/VersionHistory";
 import MyStoryPage from "./components/MyStoryPage";
@@ -2926,6 +2928,12 @@ function App() {
               )}
             </>
           </Player>
+          <WeeklyMusicUpgradePrompt
+            // Only an authenticated server-confirmed teaser session may trigger this;
+            // client-side dates alone must never mark a session as a paid/free teaser.
+            visible={brushingPhase === "complete" && playerData?.musicAccess?.access === "weekly_teaser" && playerData?.musicAccess?.serverConfirmed === true}
+            sessionId={sessionStartedAtRef.current || ""}
+          />
         </section>
       )}
 
