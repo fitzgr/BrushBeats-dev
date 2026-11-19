@@ -92,3 +92,24 @@ All routes require verified Neon authentication and the explicit
 Neon development schema is migrated and end-to-end invite tests pass. The
 current basic rate limit is in-memory, not a distributed cross-instance limit;
 production needs centrally enforced anti-abuse controls and safe delivery.
+
+## Second development milestone — adult cloud access and weekly music
+
+The draft now contains these **disabled-by-default** rollouts:
+
+- `ENABLE_HOUSEHOLD_INVITATIONS=true` (backend) and `VITE_ENABLE_HOUSEHOLD_INVITATIONS=true` (frontend): adult invitation creation, private single-use link, email-bound acceptance and owner revocation. Links use a URL fragment and are never automatically emailed.
+- `ENABLE_HOUSEHOLD_MEMBER_ACCESS=true`: accepted, unrevoked, verified adult accounts can list and restore household profiles during a valid trial or subscription. **Member cloud reads only**; server cloud sync writes remain owner-only. Owner read access to old data remains available after expiry.
+- `ENABLE_MUSIC_API_ENFORCEMENT=true` (backend) and `VITE_ENABLE_MUSIC_API_ENFORCEMENT=true` (frontend): require a server-verified active trial or subscription for music discovery and YouTube lookups. `/api/bpm` and silent brushing remain unrestricted.
+- `ENABLE_WEEKLY_MUSIC_TEASER=true`: when paired with the music API enforcement flag, an expired household may call `POST /api/households/:id/weekly-random-song`. The server chooses a random BPM-matched track, verifies a YouTube video exists, then reserves one UTC-week use transactionally. The app shows the post-session upgrade prompt.
+- Verified owner household claims are serialized. Only the first household claimed by an account receives a new 60-day trial; subsequent households start expired.
+
+All flags remain off until migrations 004/005 are tested on an isolated Neon development branch. No live invites, production database updates, or billing have been enabled.
+
+### Unfinished release protections
+
+- Device enrollment and the five/ten device caps are not enforced. Adult cloud access is read-only; member write permissions and child device enrollment are still missing.
+- Household brushing-profile quotas must be enforced transactionally in sync. Adult invite counts are not the same as actual brushing profiles.
+- A user could start a new verified identity to seek another trial. Rate limiting across instances, suspicious enrollment review and identity lifecycle policy need hardening.
+- Direct YouTube links, cached JavaScript, and offline players cannot be fully DRM-restricted. Existing cached playback and shared-video entry points require end-to-end validation.
+- A playable video lookup can still fail during embed playback. A bounded recovery mechanism is needed so a failed teaser does not unfairly consume the weekly allowance.
+- Payments, UK tax/store compliance, Neon migration tests and real-device session tests remain outstanding. Automated CI is not an end-to-end pass.
