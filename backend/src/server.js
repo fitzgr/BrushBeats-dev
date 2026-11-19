@@ -14,6 +14,7 @@ const geoRoute = require("./routes/geo");
 const healthRoute = require("./routes/health");
 const householdsRoute = require("./routes/households");
 const { applySecurityHeaders, basicRateLimit } = require("./middleware/security");
+const { createNeonEmailWebhook } = require("./services/neonOtpEmail");
 
 const app = express();
 const port = Number(process.env.PORT || 4000);
@@ -38,6 +39,9 @@ app.use(cors({
     callback(new Error("Origin not allowed by CORS policy"));
   }
 }));
+// Neon requires the exact raw JSON bytes to verify its detached Ed25519 signature.
+// The webhook must be registered before the global JSON body parser.
+app.post("/api/webhooks/neon-auth", express.raw({ type: "application/json", limit: "32kb" }), applySecurityHeaders, basicRateLimit, createNeonEmailWebhook());
 app.use(express.json({ limit: "200kb" }));
 app.use(applySecurityHeaders);
 app.use(basicRateLimit);
