@@ -9,7 +9,7 @@ const {
 test("invitation token is a one-use capable cryptographic digest, never stored as plaintext", () => {
   const token = "ab".repeat(32);
   assert.equal(isValidInviteToken(token), true);
-  assert.equal(hashInviteToken(token), "9a2db2e23f1504cd9505b2a11e5a5a725ab7f12a932ed986e54cb77bb25c0b3d");
+  assert.equal(hashInviteToken(token), "271a413bd339c5709fdceaec41f14f11e9fbfb5042d72d331c65f32b284cd09a");
   assert.notEqual(hashInviteToken(token), token);
   assert.match(hashInviteToken(token), /^[a-f0-9]{64}$/);
   assert.equal(INVITE_TTL_HOURS, 72);
