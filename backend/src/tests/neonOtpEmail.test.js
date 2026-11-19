@@ -13,6 +13,8 @@ test("verification email uses approved Brush Beats copy and ends with tagline, n
   assert.match(email.subject, /You're one beat away!/);
   assert.match(email.html, /Better brushing\. One beat at a time\./);
   assert.match(email.html, /017568/);
+  assert.match(email.html, /src="https:\/\/brushbeats\.ca\/brushbeats-email-icon\.png"/);
+  assert.match(email.html, /alt="Brush Beats tooth and music note"/);
   assert.match(email.html, /Don't miss the beat/);
   assert.match(email.html, /Brush to the beat\. Smile to the rhythm\./);
   assert.match(email.html, /<\/td><\/tr>\s*<\/table><\/body><\/html>$/);
