@@ -601,12 +601,12 @@
     }
   },
   "privacy": {
-    "analyticsMessage": "Help improve BrushBeats by sharing anonymous usage analytics. We never send typed text or personal data.",
+    "analyticsMessage": "Help improve BrushBeats by sharing anonymous usage analytics, including broad tooth-count ranges when brushing starts. No names, ages, or exact tooth counts are sent.",
     "storageMessage": "BrushBeats can store your last session in this browser's local database so you can quickly repeat the same brushing setup next time.",
     "modalTitle": "Privacy Policy",
-    "modalBody1": "BrushBeats uses Google Analytics 4 only when you opt in. We collect anonymous usage events to improve the app, such as BPM calculations, song selections, brushing starts, resets, completions, and auto-queue transitions.",
+    "modalBody1": "BrushBeats uses Google Analytics 4 only when you opt in. We collect product-usage events to improve the app, such as song selections, brushing starts and completions, sign-up steps, and broad tooth-count ranges. We do not estimate anyone's age from these ranges.",
     "modalBody2": "We may also store your last brushing session in this browser's local database only when you allow storage. This lets you quickly restore the same song, tooth counts, filters, brushing hand, and duration on your next visit.",
-    "modalBody3": "We do not send typed form text, email addresses, names, passwords, or payment information. Ad-related storage is disabled unless required for core analytics consented by you.",
+    "modalBody3": "We do not send typed form text, email addresses, names, passwords, household identifiers, exact tooth counts, inferred ages, or payment information to Google Analytics. Ad-related storage is disabled.",
     "modalBody4": "Your analytics choice is stored on this device and you can change it at any time using the Analytics controls in the footer.",
     "storageModalTitle": "Storage Notice",
     "storageModalBody1": "When you allow storage, BrushBeats saves data only in your browser using a local database plus limited compatibility storage so your setup can be restored on a later visit.",
