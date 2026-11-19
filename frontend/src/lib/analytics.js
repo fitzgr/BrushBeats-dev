@@ -1,4 +1,7 @@
-const MEASUREMENT_ID = import.meta.env.VITE_GA_MEASUREMENT_ID;
+import { appEnvironment, safePageLocation, sanitizeAnalyticsEvent, sanitizeLanguageEvent } from "./analyticsSanitizer";
+
+const MEASUREMENT_ID = String(import.meta.env.VITE_GA_MEASUREMENT_ID || "").trim();
+const ENVIRONMENT = appEnvironment(import.meta.env.VITE_APP_ENVIRONMENT);
 const CONSENT_STORAGE_KEY = "brushbeats_analytics_consent";
 const CONSENT_STATUS = {
   granted: "granted",
@@ -46,7 +49,7 @@ function sendGtagEvent(eventName, params = {}) {
     return false;
   }
 
-  window.gtag("event", eventName, params);
+  window.gtag("event", eventName, { ...params, app_environment: ENVIRONMENT });
   return true;
 }
 
@@ -73,7 +76,7 @@ function flushPendingLanguageContextEvents() {
 }
 
 export function analyticsEnabled() {
-  return Boolean(MEASUREMENT_ID);
+  return /^G-[A-Z0-9]{6,20}$/.test(MEASUREMENT_ID);
 }
 
 export function getAnalyticsConsentStatus() {
@@ -81,7 +84,12 @@ export function getAnalyticsConsentStatus() {
     return CONSENT_STATUS.unknown;
   }
 
-  const stored = window.localStorage.getItem(CONSENT_STORAGE_KEY);
+  let stored;
+  try {
+    stored = window.localStorage.getItem(CONSENT_STORAGE_KEY);
+  } catch {
+    return CONSENT_STATUS.unknown;
+  }
   if (stored === CONSENT_STATUS.granted || stored === CONSENT_STATUS.denied) {
     return stored;
   }
@@ -97,7 +105,11 @@ export function setAnalyticsConsent(granted) {
   const nextStatus = granted ? CONSENT_STATUS.granted : CONSENT_STATUS.denied;
 
   if (canUseLocalStorage()) {
-    window.localStorage.setItem(CONSENT_STORAGE_KEY, nextStatus);
+    try {
+      window.localStorage.setItem(CONSENT_STORAGE_KEY, nextStatus);
+    } catch {
+      return CONSENT_STATUS.unknown;
+    }
   }
 
   if (typeof window.gtag === "function") {
@@ -115,6 +127,10 @@ export function initializeAnalytics() {
   ensureGtagShim();
   window.gtag("consent", "default", consentPayload("denied"));
   window.gtag("consent", "update", consentPayload("granted"));
+  // Set the environment for reporting; never send links with OTPs or shared-link tokens.
+  const pageLocation = safePageLocation(window.location.href);
+  const referrer = safePageLocation(document.referrer);
+  window.gtag("set", { app_environment: ENVIRONMENT, ...(pageLocation && { page_location: pageLocation }) });
 
   const existingScript = document.querySelector(`script[data-ga4-id="${MEASUREMENT_ID}"]`);
   if (!existingScript) {
@@ -128,7 +144,10 @@ export function initializeAnalytics() {
   window.gtag("js", new Date());
   window.gtag("config", MEASUREMENT_ID, {
     anonymize_ip: true,
-    send_page_view: true
+    send_page_view: true,
+    app_environment: ENVIRONMENT,
+    ...(pageLocation && { page_location: pageLocation }),
+    ...(referrer && { page_referrer: referrer })
   });
 
   initialized = true;
@@ -137,30 +156,31 @@ export function initializeAnalytics() {
   return true;
 }
 
-export function trackEvent(eventName, params = {}) {
-  if (!analyticsEnabled() || !hasAnalyticsConsent() || typeof window.gtag !== "function") {
-    return;
-  }
+export function getAnalyticsDiagnostics() {
+  return { configured: analyticsEnabled(), measurementId: analyticsEnabled() ? MEASUREMENT_ID : null,
+    environment: ENVIRONMENT, consent: getAnalyticsConsentStatus(), initialized };
+}
 
-  window.gtag("event", eventName, params);
+export function trackEvent(eventName, params = {}) {
+  if (!analyticsEnabled() || !hasAnalyticsConsent() || !initialized) return;
+  const safe = sanitizeAnalyticsEvent(eventName, params);
+  if (safe) sendGtagEvent(safe.name, safe.params);
 }
 
 export function trackLanguageFallback(payload) {
-  if (!analyticsEnabled()) {
-    return;
-  }
-
-  if (!hasAnalyticsConsent() || !initialized || !sendGtagEvent("language_fallback", payload)) {
-    pendingLanguageFallbackEvents.push(payload);
+  if (!analyticsEnabled()) return;
+  const safe = sanitizeLanguageEvent("language_fallback", payload);
+  if (!safe) return;
+  if (!hasAnalyticsConsent() || !initialized || !sendGtagEvent(safe.name, safe.params)) {
+    pendingLanguageFallbackEvents.push(safe.params);
   }
 }
 
 export function trackLanguageContext(payload) {
-  if (!analyticsEnabled()) {
-    return;
-  }
-
-  if (!hasAnalyticsConsent() || !initialized || !sendGtagEvent("language_context", payload)) {
-    pendingLanguageContextEvents.push(payload);
+  if (!analyticsEnabled()) return;
+  const safe = sanitizeLanguageEvent("language_context", payload);
+  if (!safe) return;
+  if (!hasAnalyticsConsent() || !initialized || !sendGtagEvent(safe.name, safe.params)) {
+    pendingLanguageContextEvents.push(safe.params);
   }
 }
