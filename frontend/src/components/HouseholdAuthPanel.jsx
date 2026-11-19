@@ -9,6 +9,7 @@ import {
   verifyParentEmail
 } from "../auth/neonAuthClient";
 import { claimHousehold, getOwnedHouseholds } from "../api/client";
+import HouseholdInvitationPanel from "./HouseholdInvitationPanel";
 import { trySyncHouseholdSnapshot, tryHydrateHouseholdFromCloud } from "../db/householdSyncService";
 import { getHousehold, getUsersByHousehold, selectLocalHousehold, setActiveUser, setAppSetting } from "../db/storeHelpers";
 import { nowIso } from "../db/indexedDbService";
@@ -42,6 +43,7 @@ export default function HouseholdAuthPanel({ household }) {
   const [connectionDiagnostics, setConnectionDiagnostics] = useState(null);
   const [entitlement, setEntitlement] = useState(null);
   const [ownedHouseholds, setOwnedHouseholds] = useState([]);
+  const [currentHouseholdRole, setCurrentHouseholdRole] = useState(null);
   const [busy, setBusy] = useState(false);
   const [checking, setChecking] = useState(true);
 
@@ -135,8 +137,16 @@ export default function HouseholdAuthPanel({ household }) {
           householdId: household.householdId,
           householdName: household.householdName || "Brush Beats Household"
         });
+        // Newly claimed households are owned by this verified account.
+        result = { ...result, role: "owner" };
+        setOwnedHouseholds((rows) => [...rows, {
+          householdId: household.householdId,
+          householdName: household.householdName,
+          entitlement: result.entitlement,
+          role: "owner"
+        }]);
       }
-
+      setCurrentHouseholdRole(result.role || "owner");
       setEntitlement(result.entitlement);
       if (!result.entitlement?.allowed) {
         setStatus(describeEntitlement(result.entitlement));
@@ -149,6 +159,10 @@ export default function HouseholdAuthPanel({ household }) {
         return;
       }
 
+      if (result.role === "member") {
+        setStatus("This family invited you. Your cloud access is read-only; use Restore on this device to brush with the family profiles.");
+        return;
+      }
       stage = "Synchronize family members";
       const synced = await trySyncHouseholdSnapshot(household.householdId);
       if (synced.ok) {
@@ -184,6 +198,7 @@ export default function HouseholdAuthPanel({ household }) {
     try {
       const response = await getOwnedHouseholds();
       setOwnedHouseholds(Array.isArray(response.households) ? response.households : []);
+      setCurrentHouseholdRole(response.households?.find((row) => row.householdId === household.householdId)?.role || null);
       setStatus("Select a household you own or have been invited to. Existing local records will be kept.");
     } catch (err) {
       setError(err.message || "Could not list your households");
@@ -242,6 +257,7 @@ export default function HouseholdAuthPanel({ household }) {
       setParent(null);
       setEntitlement(null);
       setOwnedHouseholds([]);
+      setCurrentHouseholdRole(null);
       setPassword("");
       setPasswordVisible(false);
       setStatus("Signed out. Family brushing records remain on this device.");
@@ -350,6 +366,14 @@ export default function HouseholdAuthPanel({ household }) {
           </form>
         </>
       )}
+      {parent && <HouseholdInvitationPanel
+        householdId={household.householdId}
+        role={currentHouseholdRole || ownedHouseholds.find((item) => item.householdId === household.householdId)?.role}
+        onAccepted={async () => {
+          const response = await getOwnedHouseholds();
+          setOwnedHouseholds(Array.isArray(response.households) ? response.households : []);
+        }}
+      />}
       {parent && ownedHouseholds.some((item) => item.householdId !== household.householdId) && (
         <div className="household-auth-restore">
           <strong>Households you can access</strong>
