@@ -14,6 +14,8 @@ test("all family endpoints reject requests without verified parent authenticatio
     ["GET", "/api/households/mine"],
     ["GET", "/api/households/" + householdId],
     ["GET", "/api/households/" + householdId + "/entitlement"],
+    ["GET", "/api/households/" + householdId + "/music-access"],
+    ["POST", "/api/households/" + householdId + "/weekly-teaser"],
     ["POST", "/api/households/" + householdId + "/claim"],
     ["POST", "/api/households/" + householdId + "/sync"]
   ];
