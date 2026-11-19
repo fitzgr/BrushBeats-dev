@@ -54,9 +54,18 @@ function buildOtpEmail({ code, type, expiresAt, now }) {
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Brush Beats</title></head>
 <body style="margin:0;padding:24px 12px;background:#f2f7f5;font-family:Arial,Helvetica,sans-serif;color:#17352e">
 <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;max-width:560px;margin:auto;background:#ffffff;border-radius:18px;overflow:hidden;border:1px solid #dcece7">
-<tr><td style="padding:28px 30px 23px;background:#113e38;color:white;text-align:center">
-  <div style="font-size:31px;font-weight:800;letter-spacing:-0.5px">🪥 Brush Beats</div>
-  <div style="margin-top:9px;color:#d7f1e8;font-size:14px">Better brushing. One beat at a time.</div>
+<tr><td style="padding:24px 26px 23px;background:#113e38;color:white">
+  <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse">
+    <tr>
+      <td style="vertical-align:middle;text-align:left">
+        <div style="font-size:30px;line-height:1.2;font-weight:800;letter-spacing:-0.5px;color:#ffffff">🪥 Brush Beats</div>
+        <div style="margin-top:10px;color:#d7f1e8;font-size:14px;line-height:1.4">Better brushing. One beat at a time.</div>
+      </td>
+      <td style="width:76px;text-align:right;vertical-align:middle;padding-left:10px">
+        <img src="https://brushbeats.ca/brushbeats-email-icon.png" alt="Brush Beats tooth and music note" width="68" height="68" style="display:block;width:68px;height:68px;border:0;outline:none" />
+      </td>
+    </tr>
+  </table>
 </td></tr>
 <tr><td style="padding:28px 30px 16px">
   <h1 style="font-size:23px;line-height:1.3;margin:0 0 14px;color:#17352e">${escapeHtml(greeting)}</h1>
