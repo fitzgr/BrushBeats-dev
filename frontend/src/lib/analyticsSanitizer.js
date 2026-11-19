@@ -17,7 +17,12 @@ const EVENT_FIELDS = Object.freeze({
   account_email_verified: [],
   account_sign_in_completed: [],
   household_cloud_connected: [],
-  workflow_step_view: ["step"]
+  workflow_step_view: ["step"],
+  // Broad, consent-based, non-identifying selection ranges: no exact dental counts or age estimates.
+  teeth_selected_01_20: [],
+  teeth_selected_21_24: [],
+  teeth_selected_25_28: [],
+  teeth_selected_29_32: []
 });
 
 const BOOLEAN_FIELDS = new Set(["has_error", "migration_review", "extend_enabled"]);
@@ -76,4 +81,15 @@ export function safePageLocation(href) {
 
 export function appEnvironment(value) {
   return value === "production" ? "production" : "development";
+}
+
+/** Group selections for product-usage statistics; never send exact counts or infer age. */
+export function toothSelectionEvent(top, bottom) {
+  if (!Number.isInteger(top) || !Number.isInteger(bottom) || top < 0 || bottom < 0 || top > 16 || bottom > 16) return null;
+  const total = top + bottom;
+  if (total < 1 || total > 32) return null;
+  if (total <= 20) return "teeth_selected_01_20";
+  if (total <= 24) return "teeth_selected_21_24";
+  if (total <= 28) return "teeth_selected_25_28";
+  return "teeth_selected_29_32";
 }
