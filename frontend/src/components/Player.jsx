@@ -5,6 +5,7 @@ import { parsePlayerVideoId } from "../lib/playerVideoId";
 function Player({
   selectedSong,
   playerData,
+  silentMode = false,
   loading,
   brushingPhase,
   isMobile,
@@ -247,12 +248,12 @@ function Player({
 
   return (
     <section className={playerClassName}>
-      <h2>{isMobile ? t("player.titleMobile") : t("player.titleDesktop")}</h2>
-      <p>{isMobile ? t("player.introMobile") : t("player.introDesktop")}</p>
+      <h2>{silentMode ? "Free brushing timer" : (isMobile ? t("player.titleMobile") : t("player.titleDesktop"))}</h2>
+      <p>{silentMode ? "Brush with the timer and tooth-by-tooth guide. Music is optional." : (isMobile ? t("player.introMobile") : t("player.introDesktop"))}</p>
 
       {loading && <p>{t("player.matchingYoutube")}</p>}
 
-      {!loading && !selectedSong && <p>{t("player.selectSong")}</p>}
+      {!loading && !selectedSong && !silentMode && <p>{t("player.selectSong")}</p>}
 
       {!loading && selectedSong && !videoId && (
         <p>{t("player.noEmbed", { title: selectedSong.title })}</p>
@@ -294,6 +295,7 @@ function Player({
           {children}
         </>
       )}
+      {!selectedSong && silentMode && children}
     </section>
   );
 }
