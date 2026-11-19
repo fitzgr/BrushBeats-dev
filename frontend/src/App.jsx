@@ -24,7 +24,7 @@ import { completeHouseholdOnboarding, saveHouseholdOnboardingDraft, setHousehold
 import { createBrushingSession, logToothChange, updateUser } from "./db/storeHelpers";
 import { getUserScopedState, saveUserScopedDefaults, saveUserScopedFavoriteSongs, saveUserScopedLastSession } from "./db/userScopedStateService";
 import { getLanguageFallbackInfo, setPreferredSupportedLanguage } from "./i18n.ts";
-import { getGeoCountry, getSongs, getYoutubeVideo } from "./api/client";
+import { getGeoCountry, getSongs, getYoutubeVideo, getHouseholdMusicAccess, beginHouseholdWeeklyRandomSong } from "./api/client";
 import { parsePlayerVideoId } from "./lib/playerVideoId";
 import { calculateBpm } from "./lib/bpm";
 import { buildBrushingSessionTimeline, buildSegments } from "./lib/brushingTimeline";
@@ -62,6 +62,7 @@ import { mergePreferenceDefaults } from "./lib/preferenceFreshness";
 import { buildUserMusicContext } from "./lib/userMusicContext";
 import "./App.css";
 
+const MUSIC_API_ENFORCED = import.meta.env.VITE_ENABLE_MUSIC_API_ENFORCEMENT === "true";
 const DEFAULT_VALUES = { top: 16, bottom: 16 };
 const DEFAULT_BRUSH_DURATION_SECONDS = 120;
 const BRUSH_DURATION_OPTIONS = [90, 120, 150, 180];
@@ -296,6 +297,8 @@ function App() {
   const [values, setValues] = useState(DEFAULT_VALUES);
   const [bpmData, setBpmData] = useState(null);
   const [songs, setSongs] = useState([]);
+  const [musicAccess, setMusicAccess] = useState(null);
+  const [weeklySongLoading, setWeeklySongLoading] = useState(false);
   const [selectedSong, setSelectedSong] = useState(null);
   const [playerData, setPlayerData] = useState(null);
   const [songFilters, setSongFilters] = useState(() => createInitialSongPreferences(DEFAULT_VALUES.top + DEFAULT_VALUES.bottom));
@@ -1869,8 +1872,60 @@ function App() {
     };
   }, [brushingPhase, countdownRemainingMs, sessionTotalSeconds]);
 
+  // Music is deliberately opt-in until both frontend and backend gates
+  // are tested with the development Neon branch. Silent brushing never gates.
+  useEffect(() => {
+    if (!MUSIC_API_ENFORCED || workflowStep !== "music") return;
+    const householdId = householdProfile?.householdId;
+    let cancelled = false;
+    setMusicAccess(null);
+    if (!householdId) {
+      setMusicAccess({ access: "sign_in_required" });
+      return;
+    }
+    getHouseholdMusicAccess(householdId)
+      .then((result) => { if (!cancelled) setMusicAccess(result.music); })
+      .catch((err) => {
+        if (!cancelled) setMusicAccess({ access: "sign_in_required", error: err.message });
+      });
+    return () => { cancelled = true; };
+  }, [householdProfile?.householdId, workflowStep]);
+
+  async function handleWeeklyRandomSong() {
+    if (!householdProfile?.householdId || !bpmData?.searchBpm || weeklySongLoading) return;
+    setWeeklySongLoading(true);
+    setError("");
+    try {
+      const result = await beginHouseholdWeeklyRandomSong(householdProfile.householdId, {
+        bpm: bpmData.searchBpm,
+        totalTeeth
+      });
+      // A returned, server-confirmed song is the only teaser track this week.
+      latestVideoLookupRef.current += 1;
+      setSelectedSong(result.song);
+      setPlayerData({ ...result.video, musicAccess: result.musicAccess });
+      setMusicAccess({ access: "basic_only", nextTeaserAt: result.musicAccess.nextTeaserAt });
+      setQueuedStoredSongKey("");
+      queuedSongRef.current = null;
+      setQueuedSongPreview(null);
+      setBrushingPhase("idle");
+      setSongDurationSeconds(0);
+      setPlaybackSeconds(0);
+      setAppView("brush");
+      setWorkflowStep("brush");
+    } catch (err) {
+      setError(err.message || "This week's music could not be started. The free timer is still available.");
+      // Keep any unchanged local allowance display from becoming a grant.
+      setMusicAccess({ access: "sign_in_required" });
+    } finally { setWeeklySongLoading(false); }
+  }
+
   useEffect(() => {
     if (!bpmData?.searchBpm || (workflowStep !== "music" && (brushingPhase !== "running" || !selectedSong))) {
+      return;
+    }
+    if (MUSIC_API_ENFORCED && musicAccess?.access !== "unlimited") {
+      setSongs([]);
       return;
     }
 
@@ -1897,7 +1952,8 @@ function App() {
           browserLanguage: userMusicContext.browserLanguage,
           countryCode: userMusicContext.countryCode,
           genreHint: userMusicContext.genreHint,
-          ageBucket: userMusicContext.ageBucket
+          ageBucket: userMusicContext.ageBucket,
+          householdId: householdProfile?.householdId
         });
         const queryKey = `${totalTeeth}:${Math.round(bpmData.searchBpm)}:${songFilters.tolerance}:${songFilters.danceability}:${songFilters.acousticness}:${keyword.trim().toLowerCase()}`;
         const seenForQuery = seenSongsByQueryRef.current.get(queryKey) || new Set();
@@ -1943,7 +1999,7 @@ function App() {
       cancelled = true;
       window.clearTimeout(timeout);
     };
-  }, [bpmData?.searchBpm, brushingPhase, effectiveAgeEstimate, geoCountry?.countryCode, keyword, selectedSong, songFilters, songRefreshSeed, totalTeeth, workflowStep]);
+  }, [bpmData?.searchBpm, brushingPhase, effectiveAgeEstimate, geoCountry?.countryCode, keyword, selectedSong, songFilters, songRefreshSeed, totalTeeth, workflowStep, householdProfile?.householdId, musicAccess?.access]);
 
   function updateDraftSongFilter(key, value) {
     setDraftSongFilters((prev) => ({ ...prev, [key]: value }));
@@ -2070,7 +2126,8 @@ function App() {
     const safeVideoId = normalizeYoutubeVideoId(videoId);
     const embedUrl = buildYoutubeEmbedUrl(safeVideoId);
 
-    if (!safeVideoId || !embedUrl) {
+    if (!safeVideoId || !embedUrl ||
+        (MUSIC_API_ENFORCED && musicAccess?.access !== "unlimited")) {
       return false;
     }
 
@@ -2108,7 +2165,7 @@ function App() {
     }));
     setError("");
     return true;
-  }, [activeHouseholdUser?.name, bpmData?.searchBpm]);
+  }, [activeHouseholdUser?.name, bpmData?.searchBpm, musicAccess?.access]);
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -2157,7 +2214,8 @@ function App() {
     try {
       const video = await getYoutubeVideo({
         title: song.title,
-        artist: song.artist
+        artist: song.artist,
+        householdId: householdProfile?.householdId
       });
 
       if (lookupId !== latestVideoLookupRef.current) {
@@ -2211,12 +2269,33 @@ function App() {
   }
   selectSongWithOptionsRef.current = handleSelectSongWithOptions;
 
-  function startBrushing(options = {}) {
+  async function startBrushing(options = {}) {
     if ((bpmData?.totalTeeth || 0) <= 0) {
       setError(t("brushing.errors.needsTeeth"));
       return;
     }
 
+    // Do not trust previously selected/cached songs as proof of paid access.
+    // Pause/resume does not count as a new brushing session.
+    if (MUSIC_API_ENFORCED && selectedSong && !options.resumeFromPause) {
+      if (playerData?.musicAccess?.serverConfirmed === true) {
+        if (brushingPhase === "complete") {
+          setError("This week's random music session is finished. You can keep brushing without music.");
+          return;
+        }
+      } else {
+        try {
+          const status = await getHouseholdMusicAccess(householdProfile?.householdId);
+          if (status?.music?.access !== "unlimited") {
+            setError("Music needs an active trial or subscription. The basic brushing timer is free.");
+            return;
+          }
+        } catch {
+          setError("Music access could not be verified. Brush without music or sign in to retry.");
+          return;
+        }
+      }
+    }
     const musicReady = Boolean(parsePlayerVideoId(playerData));
     if (selectedSong && !musicReady) {
       setError(playerData?.playbackWarning || t("brushing.errors.needsPlayback"));
@@ -2361,6 +2440,10 @@ function App() {
   }
 
   function restartBrushing() {
+    if (MUSIC_API_ENFORCED && playerData?.musicAccess?.serverConfirmed === true) {
+      setError("The weekly music session has already been used. The free brushing timer is always available.");
+      return;
+    }
     const totalSeconds = sessionTotalSeconds;
     const remainingSongSeconds = songDurationSeconds > 0 ? Math.max(0, songDurationSeconds - playbackSeconds) : null;
     const startDelaySeconds = rotatingStartEnabled ? ROTATING_START_DELAY_SECONDS : START_DELAY_SECONDS;
@@ -2799,7 +2882,22 @@ function App() {
               Brush without music
             </button>
           </section>
-          {storageConsent === "granted" && (lastSession?.song || favoriteSongs.length > 0) && (
+          {MUSIC_API_ENFORCED && musicAccess?.access === "weekly_teaser" && (
+            <section className="card" style={{ gridColumn: "1 / -1" }}>
+              <strong>Your one random music session this week is ready</strong>
+              <p>The whole household shares one random tempo-matched song each week after the trial. The free brushing timer remains unlimited.</p>
+              <button className="action-btn" type="button" disabled={weeklySongLoading} onClick={handleWeeklyRandomSong}>
+                {weeklySongLoading ? "Finding a song…" : "Brush with this week's random song"}
+              </button>
+            </section>
+          )}
+          {MUSIC_API_ENFORCED && musicAccess?.access === "basic_only" && (
+            <p className="info-banner">Your household used its weekly music session. You can still brush without music anytime.</p>
+          )}
+          {MUSIC_API_ENFORCED && musicAccess?.access === "sign_in_required" && (
+            <p className="info-banner">Sign in to a verified family account for music. The two-minute brushing timer is always free.</p>
+          )}
+          {(!MUSIC_API_ENFORCED || musicAccess?.access === "unlimited") && storageConsent === "granted" && (lastSession?.song || favoriteSongs.length > 0) && (
             <section className="stored-picks-panel" aria-live="polite">
               <strong>{t("music.favorites.title")}</strong>
               {lastSession?.song && (
@@ -2831,7 +2929,7 @@ function App() {
               ))}
             </section>
           )}
-          <SongList
+          {(!MUSIC_API_ENFORCED || musicAccess?.access === "unlimited") && <SongList
             songs={songs}
             exhausted={isSongPoolExhausted}
             loading={loading.songs}
@@ -2851,7 +2949,7 @@ function App() {
             onRegenerate={regenerateSongs}
             favorites={favoriteSongs}
             onToggleFavorite={handleToggleFavoriteSong}
-          />
+          />}
         </section>
       )}
 
