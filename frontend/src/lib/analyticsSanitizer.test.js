@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
-  sanitizeAnalyticsEvent, sanitizeLanguageEvent, safePageLocation, appEnvironment
+  sanitizeAnalyticsEvent, sanitizeLanguageEvent, safePageLocation, appEnvironment, toothSelectionEvent
 } from "./analyticsSanitizer.js";
 
 test("GA4 events never expose identities, songs, browser URLs or dental profile data", () => {
@@ -51,4 +51,18 @@ test("page locations never contain verification codes, query strings or hashes",
   assert.equal(safePageLocation("javascript:alert(1)"), null);
   assert.equal(appEnvironment("production"), "production");
   assert.equal(appEnvironment("unknown"), "development");
+});
+
+test("tooth-choice analytics are grouped and never include age or exact tooth counts", () => {
+  assert.equal(toothSelectionEvent(10, 10), "teeth_selected_01_20");
+  assert.equal(toothSelectionEvent(12, 12), "teeth_selected_21_24");
+  assert.equal(toothSelectionEvent(14, 14), "teeth_selected_25_28");
+  assert.equal(toothSelectionEvent(16, 16), "teeth_selected_29_32");
+  assert.equal(toothSelectionEvent(4, 8), "teeth_selected_01_20");
+  assert.equal(toothSelectionEvent(17, 16), null);
+  assert.equal(toothSelectionEvent(0, 0), null);
+  const safe = sanitizeAnalyticsEvent(toothSelectionEvent(14, 14), {
+    age: 63, email: "person@example.com", tooth_count: 28, household_id: "private"
+  });
+  assert.deepEqual(safe, {name:"teeth_selected_25_28", params:{}});
 });
