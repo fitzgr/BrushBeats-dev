@@ -3,6 +3,7 @@ import { getHouseholdBearerToken } from "../auth/neonAuthClient";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:4000";
 const REQUEST_TIMEOUT_MS = 35000;
+const MUSIC_API_ENFORCED = import.meta.env.VITE_ENABLE_MUSIC_API_ENFORCEMENT === "true";
 
 async function request(path) {
   return requestWithOptions(path);
@@ -64,7 +65,7 @@ export function getBpm({ top, bottom, duration }) {
   return request(`/api/bpm?${params.toString()}`);
 }
 
-export function getSongs({ bpm, tolerance, danceability, acousticness, totalTeeth, keyword, seed = 0, browserLanguage, countryCode, genreHint, ageBucket }) {
+export function getSongs({ bpm, tolerance, danceability, acousticness, totalTeeth, keyword, seed = 0, browserLanguage, countryCode, genreHint, ageBucket, householdId }) {
   const params = new URLSearchParams({
     bpm: String(Math.round(bpm)),
     tolerance: String(tolerance),
@@ -79,15 +80,15 @@ export function getSongs({ bpm, tolerance, danceability, acousticness, totalTeet
     ageBucket: ageBucket || ""
   });
 
-  return request(`/api/songs?${params.toString()}`);
+  return musicRequest(`/api/songs?${params.toString()}`, householdId);
 }
 
-export function getYoutubeVideo({ title, artist }) {
+export function getYoutubeVideo({ title, artist, householdId }) {
   const params = new URLSearchParams({
     title,
     artist
   });
-  return request(`/api/youtube?${params.toString()}`);
+  return musicRequest(`/api/youtube?${params.toString()}`, householdId);
 }
 
 export function searchYoutubeVideos({ query, maxResults = 8 }) {
@@ -96,7 +97,7 @@ export function searchYoutubeVideos({ query, maxResults = 8 }) {
     maxResults: String(Math.max(1, Math.min(15, Math.round(Number(maxResults) || 8))))
   });
 
-  return request(`/api/youtube/search?${params.toString()}`);
+  return musicRequest(`/api/youtube/search?${params.toString()}`, null);
 }
 
 export function getGeoCountry() {
@@ -111,6 +112,18 @@ async function authenticatedHouseholdRequest(path, options = {}) {
       ...(options.headers || {}),
       Authorization: `Bearer ${token}`
     }
+  });
+}
+
+// When the optional music paywall is enabled, song/video search requests
+// must be authorized by the server using the verified household account.
+async function musicRequest(path, householdId) {
+  if (!MUSIC_API_ENFORCED) return request(path);
+  if (!householdId) {
+    throw new Error("Sign in to a family account for music, or use the free brushing timer.");
+  }
+  return authenticatedHouseholdRequest(path, {
+    headers: { "x-brushbeats-household": householdId }
   });
 }
 
@@ -148,6 +161,16 @@ export function getHouseholdMusicAccess(householdId) {
 export function reserveHouseholdWeeklyTeaser(householdId) {
   return authenticatedHouseholdRequest(`/api/households/${encodeURIComponent(householdId)}/weekly-teaser`, {
     method: "POST"
+  });
+}
+
+// Server selects one tempo-matched random, playable song and atomically
+// consumes a household's weekly allowance only after a video is found.
+export function beginHouseholdWeeklyRandomSong(householdId, { bpm, totalTeeth }) {
+  return authenticatedHouseholdRequest(`/api/households/${encodeURIComponent(householdId)}/weekly-random-song`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ bpm, totalTeeth })
   });
 }
 
