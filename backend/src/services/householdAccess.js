@@ -19,6 +19,21 @@ function canWriteHousehold(role, record, evaluateEntitlement) {
 
 async function findHouseholdAccess(client, householdId, subject, { lock = false } = {}) {
   if (!subject || !householdId) return null;
+  // Before enabling member access, use only the legacy owner tables. This
+  // keeps trial/cloud accounts working even if the new migration is pending.
+  if (!membersEnabled()) {
+    const ownerResult = await client.query(
+      "SELECT h.household_id, h.household_name, h.owner_account_id, "
+        + "s.trial_started_at, s.trial_ends_at, s.status, s.paid_through, "
+        + "'owner' AS role FROM households h "
+        + "JOIN accounts owner ON owner.account_id = h.owner_account_id "
+        + "LEFT JOIN household_subscriptions s ON s.household_id = h.household_id "
+        + "WHERE h.household_id = $1 AND owner.auth_subject = $2 "
+        + (lock ? "FOR UPDATE OF h" : ""),
+      [householdId, subject]
+    );
+    return ownerResult.rows[0] || null;
+  }
   const result = await client.query(
     "SELECT h.household_id, h.household_name, h.owner_account_id, "
       + "s.trial_started_at, s.trial_ends_at, s.status, s.paid_through, s.plan_code, "
