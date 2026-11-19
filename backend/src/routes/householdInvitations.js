@@ -194,6 +194,58 @@ router.delete("/:householdId/invitations/:invitationId", async (req, res, next) 
   } finally { client.release(); }
 });
 
+// Owner-controlled accepted-member management, separate from brushing profiles.
+router.get("/:householdId/account-members", async (req, res, next) => {
+  const householdId = String(req.params.householdId || "");
+  if (!isSafeIdentifier(householdId)) {
+    return res.status(400).json({ code: "invalid_household_id", error: "Invalid household ID" });
+  }
+  if (!isEnabled()) return disabled(res);
+  try {
+    const pool = getPool();
+    const owner = await ownerHousehold(pool, householdId, req.authAccount.subject);
+    if (!owner) return notFound(res);
+    const result = await pool.query(
+      "SELECT m.account_id, a.email, a.display_name, m.joined_at "
+      + "FROM household_account_memberships m "
+      + "JOIN accounts a ON a.account_id = m.account_id "
+      + "WHERE m.household_id = $1 AND m.status = 'active' ORDER BY m.joined_at ASC",
+      [householdId]
+    );
+    return res.json({ members: result.rows });
+  } catch (error) { return next(error); }
+});
+
+router.delete("/:householdId/account-members/:accountId", async (req, res, next) => {
+  const householdId = String(req.params.householdId || "");
+  const accountId = String(req.params.accountId || "");
+  if (!isSafeIdentifier(householdId) || !isSafeIdentifier(accountId, { maxLength: 128 })) {
+    return res.status(400).json({ code: "invalid_member", error: "Invalid household member" });
+  }
+  if (!isEnabled()) return disabled(res);
+  const client = await getPool().connect();
+  try {
+    await client.query("BEGIN");
+    const owner = await ownerHousehold(client, householdId, req.authAccount.subject, true);
+    if (!owner || owner.owner_account_id === accountId) {
+      await client.query("ROLLBACK");
+      return notFound(res);
+    }
+    const result = await client.query(
+      "UPDATE household_account_memberships SET status = 'revoked', revoked_at = now() "
+      + "WHERE household_id = $1 AND account_id = $2 AND status = 'active' "
+      + "RETURNING account_id",
+      [householdId, accountId]
+    );
+    await client.query("COMMIT");
+    if (!result.rowCount) return notFound(res);
+    return res.json({ revoked: true });
+  } catch (error) {
+    await client.query("ROLLBACK").catch(() => {});
+    return next(error);
+  } finally { client.release(); }
+});
+
 // Verified adult account must explicitly accept a one-use, email-bound token.
 // Membership alone DOES NOT allow the member to read/sync household records.
 router.post("/invitations/accept", async (req, res, next) => {
@@ -282,7 +334,7 @@ router.post("/invitations/accept", async (req, res, next) => {
       [invite.rows[0].invitation_id, accountId]
     );
     await client.query("COMMIT");
-    return res.json({ accepted: true, householdId, access: "awaiting_member_access_rollout" });
+    return res.json({ accepted: true, householdId, access: process.env.ENABLE_HOUSEHOLD_MEMBER_ACCESS === "true" ? "read_only" : "awaiting_member_access_rollout" });
   } catch (error) {
     await client.query("ROLLBACK").catch(() => {});
     return next(error);
