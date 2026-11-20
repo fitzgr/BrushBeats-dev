@@ -9,6 +9,7 @@ import {
   verifyParentEmail
 } from "../auth/neonAuthClient";
 import { claimHousehold, getOwnedHouseholds } from "../api/client";
+import HouseholdInvitationPanel from "./HouseholdInvitationPanel";
 import { trySyncHouseholdSnapshot, tryHydrateHouseholdFromCloud } from "../db/householdSyncService";
 import { getHousehold, getUsersByHousehold, selectLocalHousehold, setActiveUser, setAppSetting } from "../db/storeHelpers";
 import { nowIso } from "../db/indexedDbService";
@@ -42,6 +43,7 @@ export default function HouseholdAuthPanel({ household }) {
   const [connectionDiagnostics, setConnectionDiagnostics] = useState(null);
   const [entitlement, setEntitlement] = useState(null);
   const [ownedHouseholds, setOwnedHouseholds] = useState([]);
+  const [currentHouseholdRole, setCurrentHouseholdRole] = useState(null);
   const [busy, setBusy] = useState(false);
   const [checking, setChecking] = useState(true);
 
@@ -135,8 +137,16 @@ export default function HouseholdAuthPanel({ household }) {
           householdId: household.householdId,
           householdName: household.householdName || "Brush Beats Household"
         });
+        // Newly claimed households are owned by this verified account.
+        result = { ...result, role: "owner" };
+        setOwnedHouseholds((rows) => [...rows, {
+          householdId: household.householdId,
+          householdName: household.householdName,
+          entitlement: result.entitlement,
+          role: "owner"
+        }]);
       }
-
+      setCurrentHouseholdRole(result.role || "owner");
       setEntitlement(result.entitlement);
       if (!result.entitlement?.allowed) {
         setStatus(describeEntitlement(result.entitlement));
@@ -149,6 +159,10 @@ export default function HouseholdAuthPanel({ household }) {
         return;
       }
 
+      if (result.role === "member") {
+        setStatus("This family invited you. Your cloud access is read-only; use Restore on this device to brush with the family profiles.");
+        return;
+      }
       stage = "Synchronize family members";
       const synced = await trySyncHouseholdSnapshot(household.householdId);
       if (synced.ok) {
@@ -184,7 +198,8 @@ export default function HouseholdAuthPanel({ household }) {
     try {
       const response = await getOwnedHouseholds();
       setOwnedHouseholds(Array.isArray(response.households) ? response.households : []);
-      setStatus("Select a family to restore. This device's existing household will be kept.");
+      setCurrentHouseholdRole(response.households?.find((row) => row.householdId === household.householdId)?.role || null);
+      setStatus("Select a household you own or have been invited to. Existing local records will be kept.");
     } catch (err) {
       setError(err.message || "Could not list your households");
     } finally {
@@ -203,14 +218,16 @@ export default function HouseholdAuthPanel({ household }) {
       // If this device already has that household, select its local copy.
       // Never overwrite its unsynced profiles with a possibly older snapshot.
       const existingLocal = await getHousehold(householdId);
-      if (!existingLocal) {
+      let restoredHousehold = existingLocal;
+      if (!restoredHousehold) {
         const result = await tryHydrateHouseholdFromCloud(householdId);
         if (!result?.ok || !result.household) {
           throw new Error("The family could not be restored. Existing households were preserved.");
         }
+        restoredHousehold = result.household;
       }
       const members = await getUsersByHousehold(householdId);
-      const active = members.find((item) => item.userId === result.household.activeUserId) ||
+      const active = members.find((item) => item.userId === restoredHousehold.activeUserId) ||
         members.find((item) => item.isActive) || members[0];
       if (!active) throw new Error("The cloud household has no usable profiles to restore.");
       await selectLocalHousehold(householdId);
@@ -240,6 +257,7 @@ export default function HouseholdAuthPanel({ household }) {
       setParent(null);
       setEntitlement(null);
       setOwnedHouseholds([]);
+      setCurrentHouseholdRole(null);
       setPassword("");
       setPasswordVisible(false);
       setStatus("Signed out. Family brushing records remain on this device.");
@@ -348,9 +366,17 @@ export default function HouseholdAuthPanel({ household }) {
           </form>
         </>
       )}
+      {parent && <HouseholdInvitationPanel
+        householdId={household.householdId}
+        role={currentHouseholdRole || ownedHouseholds.find((item) => item.householdId === household.householdId)?.role}
+        onAccepted={async () => {
+          const response = await getOwnedHouseholds();
+          setOwnedHouseholds(Array.isArray(response.households) ? response.households : []);
+        }}
+      />}
       {parent && ownedHouseholds.some((item) => item.householdId !== household.householdId) && (
         <div className="household-auth-restore">
-          <strong>Your existing cloud households</strong>
+          <strong>Households you can access</strong>
           <p>Restoring a different household keeps this device's current family records; it does not erase them.</p>
           {ownedHouseholds.filter((item) => item.householdId !== household.householdId).map((item) => (
             <div className="household-auth-restore-row" key={item.householdId}>
@@ -375,7 +401,7 @@ export default function HouseholdAuthPanel({ household }) {
           <small>Safe to screenshot: no passwords, tokens, or household IDs are shown here.</small>
         </div>
       )}
-      <small>60-day household trial. After the trial, cloud access costs £4.99 per year. Payment setup is coming next.</small>
+      <small>60-day full-access trial. Proposed annual plans: Family £14.99 (6 profiles, 5 devices) or Family Plus £24.99 (12 profiles, 10 devices). Basic brushing remains free; paid music and checkout are not enabled yet.</small>
     </section>
   );
 }

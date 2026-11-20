@@ -39,3 +39,14 @@ test("client tier cannot confer premium rights", () => {
   const result = evaluateHouseholdEntitlement({ subscription_tier: "premium" }, START);
   assert.equal(result.allowed, false);
 });
+
+
+test("revoked trials do not grant access even if their original deadline is in the future", () => {
+  const now = new Date("2026-11-19T15:00:00Z");
+  const status = evaluateHouseholdEntitlement({
+    status: "expired",
+    trial_ends_at: "2027-01-01T00:00:00Z"
+  }, now);
+  assert.equal(status.allowed, false);
+  assert.equal(status.state, "expired");
+});

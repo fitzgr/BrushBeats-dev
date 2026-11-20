@@ -4,7 +4,13 @@ const { songsCache } = require("../utils/cache");
 const { getClientIp, lookupCountryByIp, normalizeCountryCode } = require("../services/geoLocationService");
 const { sanitizeText, toBoundedNumber } = require("../utils/inputValidation");
 
+const { requireMusicEntitlement } = require("../middleware/musicApiAccess");
+
 const router = express.Router();
+
+// Opt-in server-side entitlement gate. Disabled until family onboarding and
+// weekly random-teaser flows have completed integration tests.
+router.use(requireMusicEntitlement);
 
 function seededShuffle(songs, seed) {
   if (!Array.isArray(songs) || songs.length <= 1) {

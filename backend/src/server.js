@@ -13,6 +13,9 @@ const adminLocalesRoute = require("./routes/adminLocales");
 const geoRoute = require("./routes/geo");
 const healthRoute = require("./routes/health");
 const householdsRoute = require("./routes/households");
+const musicEntitlementsRoute = require("./routes/musicEntitlements");
+const householdInvitationsRoute = require("./routes/householdInvitations").router;
+const householdDevicesRoute = require("./routes/householdDevices").router;
 const { applySecurityHeaders, basicRateLimit } = require("./middleware/security");
 const { createNeonEmailWebhook } = require("./services/neonOtpEmail");
 
@@ -63,6 +66,9 @@ app.use("/api/songs", songsRoute);
 app.use("/api/youtube", youtubeRoute);
 app.use("/api/admin/locales", adminLocalesRoute);
 app.use("/api/geo", geoRoute);
+app.use("/api/households", householdDevicesRoute);
+app.use("/api/households", musicEntitlementsRoute);
+app.use("/api/households", householdInvitationsRoute);
 app.use("/api/households", householdsRoute);
 
 app.use((error, _req, res, _next) => {

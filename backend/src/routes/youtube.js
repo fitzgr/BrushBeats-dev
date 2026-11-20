@@ -3,7 +3,13 @@ const { searchYoutubeVideo, searchYoutubeVideosByQuery } = require("../services/
 const { youtubeCache } = require("../utils/cache");
 const { sanitizeText } = require("../utils/inputValidation");
 
+const { requireMusicEntitlement } = require("../middleware/musicApiAccess");
+
 const router = express.Router();
+
+// Opt-in server-side entitlement gate. Disabled until family onboarding and
+// weekly random-teaser flows have completed integration tests.
+router.use(requireMusicEntitlement);
 
 router.get("/search", async (req, res, next) => {
   try {

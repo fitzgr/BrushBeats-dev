@@ -35,7 +35,7 @@ function evaluateHouseholdEntitlement(record, now = new Date()) {
     };
   }
 
-  if (Number.isFinite(trialUntil) && trialUntil > currentTime) {
+  if (currentStatus === "trial" && Number.isFinite(trialUntil) && trialUntil > currentTime) {
     const trialDaysRemaining = Math.ceil((trialUntil - currentTime) / DAY_MS);
     return {
       allowed: true,

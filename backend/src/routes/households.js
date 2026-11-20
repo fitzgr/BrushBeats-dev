@@ -2,6 +2,8 @@ const express = require("express");
 const { randomUUID } = require("node:crypto");
 const { requireNeonAuth } = require("../middleware/neonAuth");
 const { evaluateHouseholdEntitlement } = require("../services/subscriptionPolicy");
+const { evaluateProfileSyncCapacity } = require("../services/householdProfileCapacity");
+const { findHouseholdAccess, membersEnabled, canReadHousehold, canWriteHousehold } = require("../services/householdAccess");
 const { getPool } = require("../config/database");
 const { isSafeIdentifier, safeJsonByteSize, sanitizeText, toBoundedNumber } = require("../utils/inputValidation");
 
@@ -27,13 +29,23 @@ function denyNotOwned(res) {
 }
 
 async function ensureCloudSyncEnabled(req, res, householdId, forWrite = false) {
-  const owned = await getOwned(getPool(), householdId, req.authAccount.subject);
-  if (!owned) {
+  const access = await findHouseholdAccess(getPool(), householdId, req.authAccount.subject);
+  if (!access) {
     denyNotOwned(res);
     return false;
   }
-  if (forWrite && !evaluateHouseholdEntitlement(owned).allowed) {
-    res.status(402).json({ code: "subscription_required", error: "Trial or subscription expired" });
+  const entitlement = evaluateHouseholdEntitlement(access);
+  if (forWrite) {
+    if (access.role !== "owner") {
+      res.status(403).json({ code: "owner_required", error: "Only the household owner can sync family changes" });
+      return false;
+    }
+    if (!canWriteHousehold(access.role, access, evaluateHouseholdEntitlement)) {
+      res.status(402).json({ code: "subscription_required", error: "Trial or subscription expired" });
+      return false;
+    }
+  } else if (!canReadHousehold(access.role, access, evaluateHouseholdEntitlement)) {
+    res.status(402).json({ code: "subscription_required", error: "A household subscription is required for cloud restore" });
     return false;
   }
   return true;
@@ -58,6 +70,12 @@ router.post("/:householdId/claim", async (req, res, next) => {
        RETURNING account_id`,
       ["account_" + randomUUID(), req.authAccount.subject, req.authAccount.email, req.authAccount.displayName]
     );
+    // Serialize household claims by the same verified account. Concurrent
+    // device requests must not grant separate sixty-day free trials.
+    await client.query(
+      "SELECT account_id FROM accounts WHERE account_id = $1 FOR UPDATE",
+      [account.rows[0].account_id]
+    );
     await client.query(
       `INSERT INTO households (household_id, household_name, owner_account_id)
        VALUES ($1, $2, $3) ON CONFLICT (household_id) DO NOTHING`,
@@ -68,11 +86,30 @@ router.post("/:householdId/claim", async (req, res, next) => {
       await client.query("rollback");
       return denyNotOwned(res);
     }
-    await client.query(
-      `INSERT INTO household_subscriptions (household_id) VALUES ($1)
-       ON CONFLICT (household_id) DO NOTHING`,
-      [householdId]
+    // A verified owner receives at most one automatic 60-day trial, even if
+    // they create another household ID or clear local browser storage.
+    // Previously claimed households retain their existing entitlement.
+    const previouslyClaimed = await client.query(
+      `SELECT 1 FROM household_subscriptions s
+       JOIN households h ON h.household_id = s.household_id
+       WHERE h.owner_account_id = $1 AND h.household_id <> $2 LIMIT 1`,
+      [account.rows[0].account_id, householdId]
     );
+    if (previouslyClaimed.rowCount) {
+      await client.query(
+        `INSERT INTO household_subscriptions
+          (household_id, status, trial_started_at, trial_ends_at)
+         VALUES ($1, 'expired', now() - interval '60 days', now() - interval '1 second')
+         ON CONFLICT (household_id) DO NOTHING`,
+        [householdId]
+      );
+    } else {
+      await client.query(
+        `INSERT INTO household_subscriptions (household_id) VALUES ($1)
+         ON CONFLICT (household_id) DO NOTHING`,
+        [householdId]
+      );
+    }
     const updated = await getOwned(client, householdId, req.authAccount.subject);
     await client.query("commit");
     return res.json({ householdId, entitlement: evaluateHouseholdEntitlement(updated) });
@@ -86,18 +123,45 @@ router.post("/:householdId/claim", async (req, res, next) => {
 
 router.get("/mine", async (req, res, next) => {
   try {
-    const result = await getPool().query(
+    const pool = getPool();
+    const result = await pool.query(
       `SELECT h.household_id, h.household_name, s.status, s.trial_ends_at, s.paid_through
        FROM households h JOIN accounts a ON a.account_id = h.owner_account_id
        LEFT JOIN household_subscriptions s ON s.household_id = h.household_id
        WHERE a.auth_subject = $1 ORDER BY h.created_at ASC`,
       [req.authAccount.subject]
     );
-    return res.json({ households: result.rows.map((row) => ({
-      householdId: row.household_id,
-      householdName: row.household_name,
-      entitlement: evaluateHouseholdEntitlement(row)
-    })) });
+    const ownerRows = result.rows.map((row) => ({ ...row, role: "owner" }));
+    let memberRows = [];
+    if (membersEnabled()) {
+      const members = await pool.query(
+        `SELECT h.household_id, h.household_name, s.status, s.trial_ends_at, s.paid_through
+         FROM households h
+         JOIN household_account_memberships m ON m.household_id = h.household_id
+              AND m.status = 'active'
+         JOIN accounts a ON a.account_id = m.account_id
+         LEFT JOIN household_subscriptions s ON s.household_id = h.household_id
+         WHERE a.auth_subject = $1 ORDER BY m.joined_at ASC`,
+        [req.authAccount.subject]
+      );
+      // Do not offer an expired household to an invited adult for cloud restore.
+      memberRows = members.rows.filter((row) => evaluateHouseholdEntitlement(row).allowed)
+        .map((row) => ({ ...row, role: "member" }));
+    }
+    const seen = new Set();
+    const households = [...ownerRows, ...memberRows]
+      .filter((row) => {
+        if (seen.has(row.household_id)) return false;
+        seen.add(row.household_id);
+        return true;
+      })
+      .map((row) => ({
+        householdId: row.household_id,
+        householdName: row.household_name,
+        role: row.role,
+        entitlement: evaluateHouseholdEntitlement(row)
+      }));
+    return res.json({ households });
   } catch (error) { return next(error); }
 });
 
@@ -106,9 +170,16 @@ router.get("/:householdId/entitlement", async (req, res, next) => {
     return res.status(400).json({ error: "Invalid household ID" });
   }
   try {
-    const owned = await getOwned(getPool(), req.params.householdId, req.authAccount.subject);
-    if (!owned) return denyNotOwned(res);
-    return res.json({ householdId: req.params.householdId, entitlement: evaluateHouseholdEntitlement(owned) });
+    const access = await findHouseholdAccess(getPool(), req.params.householdId, req.authAccount.subject);
+    if (!access) return denyNotOwned(res);
+    if (!canReadHousehold(access.role, access, evaluateHouseholdEntitlement)) {
+      return res.status(402).json({ code: "subscription_required", error: "Household cloud access expired" });
+    }
+    return res.json({
+      householdId: req.params.householdId,
+      role: access.role,
+      entitlement: evaluateHouseholdEntitlement(access)
+    });
   } catch (error) { return next(error); }
 });
 
@@ -296,15 +367,49 @@ router.post("/:householdId/sync", async (req, res, next) => {
     return res.status(400).json({ error: "householdId path parameter does not match household payload" });
   }
 
-  // Require ownership and a server-issued trial/subscription entitlement before accepting writes.
-  if (!await ensureCloudSyncEnabled(req, res, householdId, true)) {
-    return;
-  }
-
+  // Ownership, paid/trial eligibility and (opt-in) profile quotas must be
+  // verified under the SAME lock as writes, so two devices cannot race.
   const client = await getPool().connect();
 
   try {
     await client.query("begin");
+    const access = await findHouseholdAccess(client, householdId, req.authAccount.subject, { lock: true });
+    if (!access) {
+      await client.query("rollback");
+      return denyNotOwned(res);
+    }
+    if (access.role !== "owner") {
+      await client.query("rollback");
+      return res.status(403).json({ code: "owner_required", error: "Only the household owner can sync family changes" });
+    }
+    if (!canWriteHousehold(access.role, access, evaluateHouseholdEntitlement)) {
+      await client.query("rollback");
+      return res.status(402).json({ code: "subscription_required", error: "Trial or subscription expired" });
+    }
+
+    if (process.env.ENABLE_HOUSEHOLD_PROFILE_LIMITS === "true") {
+      // Migration 004 is required before this flag can be switched on.
+      const stored = await client.query(
+        "SELECT user_id, is_deleted, is_archived FROM members WHERE household_id = $1",
+        [householdId]
+      );
+      const decision = evaluateProfileSyncCapacity({
+        planCode: access.plan_code,
+        existingProfiles: stored.rows,
+        incomingProfiles: members
+      });
+      if (!decision.allowed) {
+        await client.query("rollback");
+        return res.status(409).json({
+          code: decision.reason,
+          error: decision.reason === "profile_limit"
+            ? "Household profile limit reached. Archive a profile or upgrade your family plan."
+            : "Invalid family profile update",
+          activeProfiles: decision.activeBefore,
+          profileLimit: decision.limit
+        });
+      }
+    }
 
     await client.query(
       `
