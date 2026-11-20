@@ -79,3 +79,27 @@ test("new music endpoint enforcement remains disabled by default", () => {
     else process.env.ENABLE_MUSIC_API_ENFORCEMENT = before;
   }
 });
+
+test("owner profile cap reads plan code even when invited-member access is off", async () => {
+  const oldMembers = process.env.ENABLE_HOUSEHOLD_MEMBER_ACCESS;
+  const oldProfiles = process.env.ENABLE_HOUSEHOLD_PROFILE_LIMITS;
+  try {
+    delete process.env.ENABLE_HOUSEHOLD_MEMBER_ACCESS;
+    process.env.ENABLE_HOUSEHOLD_PROFILE_LIMITS = "true";
+    const db = {
+      async query(sql, params) {
+        assert.match(sql, /s\\.plan_code/);
+        assert.match(sql, /owner\\.auth_subject = \\$2/);
+        assert.deepEqual(params, ["hh1", "owner1"]);
+        return { rows: [{ household_id: "hh1", role: "owner", plan_code: "family" }] };
+      }
+    };
+    const row = await findHouseholdAccess(db, "hh1", "owner1", { lock: true });
+    assert.equal(row.plan_code, "family");
+  } finally {
+    if (oldMembers === undefined) delete process.env.ENABLE_HOUSEHOLD_MEMBER_ACCESS;
+    else process.env.ENABLE_HOUSEHOLD_MEMBER_ACCESS = oldMembers;
+    if (oldProfiles === undefined) delete process.env.ENABLE_HOUSEHOLD_PROFILE_LIMITS;
+    else process.env.ENABLE_HOUSEHOLD_PROFILE_LIMITS = oldProfiles;
+  }
+});
