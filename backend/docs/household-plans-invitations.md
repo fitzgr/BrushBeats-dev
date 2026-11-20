@@ -4,7 +4,7 @@ Status: **data model, capacity policy, and feature-gated adult invitation API**.
 The invitation API is disabled by default (`ENABLE_HOUSEHOLD_INVITATIONS` is not
 `true`). This branch does **not** send live invites, grant new household sync
 access to invited accounts, register devices, charge money, change production,
-or run database migrations.
+or run database migrations on the dev main branch or production.
 
 ## Agreed proposed UK launch tiers
 
@@ -107,9 +107,26 @@ All flags remain off until migrations 004/005 are tested on an isolated Neon dev
 
 ### Unfinished release protections
 
-- Device enrollment and the five/ten device caps are not enforced. Adult cloud access is read-only; member write permissions and child device enrollment are still missing.
-- Household brushing-profile quotas must be enforced transactionally in sync. Adult invite counts are not the same as actual brushing profiles.
+- Device enrollment tickets and capacity checks now exist as a staged backend API, but **premium music and member access do not yet require a registered-device credential**. End-to-end five/ten device enforcement is not live. Adult cloud access is read-only; member write permissions and child-device UI are still missing.
+- Household brushing-profile quotas are now checked under a database household-row lock inside sync, but only with the separate disabled-by-default `ENABLE_HOUSEHOLD_PROFILE_LIMITS` flag. Adult invite counts are not the same as actual brushing profiles.
 - A user could start a new verified identity to seek another trial. Rate limiting across instances, suspicious enrollment review and identity lifecycle policy need hardening.
 - Direct YouTube links, cached JavaScript, and offline players cannot be fully DRM-restricted. Existing cached playback and shared-video entry points require end-to-end validation.
 - A playable video lookup can still fail during embed playback. A bounded recovery mechanism is needed so a failed teaser does not unfairly consume the weekly allowance.
 - Payments, UK tax/store compliance, Neon migration tests and real-device session tests remain outstanding. Automated CI is not an end-to-end pass.
+
+## Third development milestone — account sharing and device-cap controls (2026-11-20)
+
+- `ENABLE_HOUSEHOLD_PROFILE_LIMITS=true` (backend) optionally enforces the Family six-profile and Family Plus twelve-profile quotas in the **same transaction** as owner cloud synchronization. Incremental sync preserves unmentioned profiles; archiving/deletion frees capacity. Previously over-limit households may update or reduce existing profiles without being locked out. This requires migration 004.
+- `ENABLE_HOUSEHOLD_DEVICE_ENROLLMENT=true` (backend) optionally enables:
+  - `POST /api/households/:id/devices/enrollment` — verified owner issues a 30-minute, one-use enrollment ticket. Counts active devices and unexpired provisional tickets toward 5/10-device cap while holding a household lock; up to ten tickets per day.
+  - `POST /api/households/devices/activate` — redeem a one-use ticket, rotate to a fresh long-lived device credential, and store only its SHA-256 digest. **Returns no household data and does not confer usable member/device permissions yet.**
+  - `GET /api/households/:id/devices` — owner-only device status view without credentials.
+  - `DELETE /api/households/:id/devices/:deviceId` — owner-only device revocation.
+- These APIs do not perform email delivery, QR enrollment UI, device music authorization, device credential persistence, or client sync. **They cannot currently stop account sharing across unregistered devices.** Dedicated device-scoped read permissions and enrollment UX are required before enabling device enforcement.
+- Automated GitHub CI passed the latest backend tests and frontend tests/build with rollout switches OFF.
+
+### Isolated database QA evidence
+
+Neon project: `brushbeats-dev`, non-default branch `brushbeats-household-qa-20261120` (ID `br-solitary-sea-bjinodb9`). Migrations 004 and 005 were successfully applied there (12 statements). Confirmed five new public tables and catalogue values GBP 1499/2499, six/twelve profiles, five/ten devices. The branch is retained for follow-up tests; **brushbeats-dev/main and brushbeats-prod were not migrated or changed**. This validates migration execution and schema presence, not authenticated end-to-end enrollment, concurrency under actual HTTP load, or successful video playback.
+
+Do not enable rollout flags or charge customers until device permission checks, Neon-auth end-to-end tests, browser workflows and fail/retry behaviour are complete.
