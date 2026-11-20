@@ -88,8 +88,8 @@ test("owner profile cap reads plan code even when invited-member access is off",
     process.env.ENABLE_HOUSEHOLD_PROFILE_LIMITS = "true";
     const db = {
       async query(sql, params) {
-        assert.match(sql, /s\\.plan_code/);
-        assert.match(sql, /owner\\.auth_subject = \\$2/);
+        assert.ok(sql.includes("s.plan_code"));
+        assert.ok(sql.includes("owner.auth_subject = $2"));
         assert.deepEqual(params, ["hh1", "owner1"]);
         return { rows: [{ household_id: "hh1", role: "owner", plan_code: "family" }] };
       }
