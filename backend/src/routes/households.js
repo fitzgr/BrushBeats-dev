@@ -2,6 +2,7 @@ const express = require("express");
 const { randomUUID } = require("node:crypto");
 const { requireNeonAuth } = require("../middleware/neonAuth");
 const { evaluateHouseholdEntitlement } = require("../services/subscriptionPolicy");
+const { evaluateProfileSyncCapacity } = require("../services/householdProfileCapacity");
 const { findHouseholdAccess, membersEnabled, canReadHousehold, canWriteHousehold } = require("../services/householdAccess");
 const { getPool } = require("../config/database");
 const { isSafeIdentifier, safeJsonByteSize, sanitizeText, toBoundedNumber } = require("../utils/inputValidation");
@@ -366,15 +367,49 @@ router.post("/:householdId/sync", async (req, res, next) => {
     return res.status(400).json({ error: "householdId path parameter does not match household payload" });
   }
 
-  // Require ownership and a server-issued trial/subscription entitlement before accepting writes.
-  if (!await ensureCloudSyncEnabled(req, res, householdId, true)) {
-    return;
-  }
-
+  // Ownership, paid/trial eligibility and (opt-in) profile quotas must be
+  // verified under the SAME lock as writes, so two devices cannot race.
   const client = await getPool().connect();
 
   try {
     await client.query("begin");
+    const access = await findHouseholdAccess(client, householdId, req.authAccount.subject, { lock: true });
+    if (!access) {
+      await client.query("rollback");
+      return denyNotOwned(res);
+    }
+    if (access.role !== "owner") {
+      await client.query("rollback");
+      return res.status(403).json({ code: "owner_required", error: "Only the household owner can sync family changes" });
+    }
+    if (!canWriteHousehold(access.role, access, evaluateHouseholdEntitlement)) {
+      await client.query("rollback");
+      return res.status(402).json({ code: "subscription_required", error: "Trial or subscription expired" });
+    }
+
+    if (process.env.ENABLE_HOUSEHOLD_PROFILE_LIMITS === "true") {
+      // Migration 004 is required before this flag can be switched on.
+      const stored = await client.query(
+        "SELECT user_id, is_deleted, is_archived FROM members WHERE household_id = $1",
+        [householdId]
+      );
+      const decision = evaluateProfileSyncCapacity({
+        planCode: access.plan_code,
+        existingProfiles: stored.rows,
+        incomingProfiles: members
+      });
+      if (!decision.allowed) {
+        await client.query("rollback");
+        return res.status(409).json({
+          code: decision.reason,
+          error: decision.reason === "profile_limit"
+            ? "Household profile limit reached. Archive a profile or upgrade your family plan."
+            : "Invalid family profile update",
+          activeProfiles: decision.activeBefore,
+          profileLimit: decision.limit
+        });
+      }
+    }
 
     await client.query(
       `
