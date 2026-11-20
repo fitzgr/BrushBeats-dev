@@ -22,10 +22,15 @@ async function findHouseholdAccess(client, householdId, subject, { lock = false 
   // Before enabling member access, use only the legacy owner tables. This
   // keeps trial/cloud accounts working even if the new migration is pending.
   if (!membersEnabled()) {
+    // Profile limits need the trusted server-side plan code even if invited
+    // member access remains disabled. Without this, enabling just the
+    // profile-limit flag would reject every owner sync as an unknown plan.
+    const planColumn = process.env.ENABLE_HOUSEHOLD_PROFILE_LIMITS === "true"
+      ? "s.plan_code, " : "";
     const ownerResult = await client.query(
       "SELECT h.household_id, h.household_name, h.owner_account_id, "
         + "s.trial_started_at, s.trial_ends_at, s.status, s.paid_through, "
-        + "'owner' AS role FROM households h "
+        + planColumn + "'owner' AS role FROM households h "
         + "JOIN accounts owner ON owner.account_id = h.owner_account_id "
         + "LEFT JOIN household_subscriptions s ON s.household_id = h.household_id "
         + "WHERE h.household_id = $1 AND owner.auth_subject = $2 "
